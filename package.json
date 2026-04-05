@@ -1,0 +1,98 @@
+{
+  "name": "livebox",
+  "version": "1.0.0",
+  "description": "LiveBox - M3U IPTV Player",
+  "author": "aimen08",
+  "license": "GPL-3.0",
+  "main": "index.js",
+  "private": false,
+  "scripts": {
+    "dev": "vite build --watch",
+    "start": "vite build && electron .",
+    "dist": "cross-env ELECTRON_DIST=1 vite build && npm run dist:win && npm run dist:linux && npm run dist:mac",
+    "dist:win": "cross-env ELECTRON_DIST=1 vite build && electron-builder --win",
+    "dist:linux": "cross-env ELECTRON_DIST=1 vite build && electron-builder --linux deb && electron-builder --linux AppImage",
+    "dist:mac": "cross-env ELECTRON_DIST=1 vite build && electron-builder --mac"
+  },
+  "dependencies": {
+    "hls.js": "^1.5.17",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.7.0",
+    "cross-env": "^7.0.3",
+    "electron": "^40.4.1",
+    "electron-builder": "^26.7.0",
+    "terser": "^5.46.0",
+    "vite": "^7.3.1"
+  },
+  "build": {
+    "appId": "com.aimen08.livebox",
+    "productName": "LiveBox",
+    "asar": true,
+    "compression": "normal",
+    "directories": {
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "!dist/mac/**",
+      "!dist/mac-arm64/**",
+      "!dist/win-unpacked/**",
+      "!dist/linux-unpacked/**",
+      "!dist/*.dmg",
+      "!dist/*.exe",
+      "!dist/*.deb",
+      "!dist/*.AppImage",
+      "!dist/*.blockmap",
+      "!dist/*.yaml",
+      "!dist/.icon-icns/**",
+      "index.js",
+      "preload.js",
+      "package.json",
+      "!**/*.map",
+      "!**/*.md",
+      "!**/node_modules/.cache/**",
+      "!**/node_modules/.bin/**",
+      "!**/node_modules/vite/**",
+      "!**/node_modules/@vitejs/**",
+      "!**/node_modules/terser/**",
+      "!**/node_modules/rollup/**",
+      "!**/node_modules/esbuild/**",
+      "!**/node_modules/@esbuild/**",
+      "!**/node_modules/@rollup/**"
+    ],
+    "win": {
+      "icon": "icon.png",
+      "target": ["nsis"]
+    },
+    "mac": {
+      "icon": "icon.png",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "category": "public.app-category.entertainment"
+    },
+    "dmg": {
+      "contents": [
+        { "x": 130, "y": 220 },
+        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+      ]
+    },
+    "linux": {
+      "target": [
+        { "target": "AppImage", "arch": ["x64"] },
+        { "target": "deb", "arch": ["x64"] }
+      ],
+      "category": "Utility",
+      "icon": "icon.png"
+    },
+    "asarUnpack": [
+      "src/styles/fonts/**"
+    ]
+  }
+}
