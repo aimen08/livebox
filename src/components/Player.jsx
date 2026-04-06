@@ -138,13 +138,35 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     const startAt = resumePos?.position > 10 ? resumePos.position : -1;
 
     if ((isHlsUrl || isTsUrl) && Hls.isSupported()) {
+      const isLiveStream = contentType === "live";
       const hls = new Hls({
         enableWorker: true,
-        lowLatencyMode: true,
-        maxBufferLength: 30,
-        maxMaxBufferLength: 60,
-        liveSyncDurationCount: 3,
-        liveMaxLatencyDurationCount: 6,
+        lowLatencyMode: isLiveStream,
+        // Buffer settings — live needs small buffers, VOD can buffer ahead more
+        maxBufferLength: isLiveStream ? 10 : 30,
+        maxMaxBufferLength: isLiveStream ? 20 : 60,
+        maxBufferSize: isLiveStream ? 30 * 1000 * 1000 : 60 * 1000 * 1000,
+        maxBufferHole: 0.5,
+        // Back-buffer: flush old segments to prevent memory buildup & lag
+        backBufferLength: isLiveStream ? 15 : 90,
+        // Live sync — stay close to live edge to minimize latency
+        liveSyncDurationCount: isLiveStream ? 2 : 3,
+        liveMaxLatencyDurationCount: isLiveStream ? 4 : 6,
+        liveBackBufferLength: 15,
+        // ABR — switch quality quickly to avoid stalls
+        abrEwmaDefaultEstimate: 1000000,
+        abrBandWidthUpFactor: 0.7,
+        abrBandWidthFactor: 0.95,
+        // Fragment loading — faster timeouts for live
+        fragLoadingTimeOut: isLiveStream ? 8000 : 20000,
+        fragLoadingMaxRetry: isLiveStream ? 6 : 3,
+        fragLoadingRetryDelay: 500,
+        manifestLoadingTimeOut: 10000,
+        manifestLoadingMaxRetry: 4,
+        manifestLoadingRetryDelay: 500,
+        levelLoadingTimeOut: 10000,
+        levelLoadingMaxRetry: 4,
+        levelLoadingRetryDelay: 500,
         startPosition: startAt > 0 ? startAt : -1,
       });
       hlsRef.current = hls;
@@ -170,13 +192,26 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
       });
       hls.on(Hls.Events.AUDIO_TRACKS_UPDATED, updateAudioTracks);
       hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED, updateSubTracks);
+      let recoverAttempts = 0;
       hls.on(Hls.Events.ERROR, (_, data) => {
         if (data.fatal) {
-          if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-            hls.startLoad();
-          } else {
+          if (recoverAttempts >= 5) {
             setError("Stream unavailable or failed to load");
             hls.destroy();
+            return;
+          }
+          recoverAttempts++;
+          if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+            hls.startLoad();
+          } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+            hls.recoverMediaError();
+          } else {
+            // Last resort: full reload
+            hls.destroy();
+            const newHls = new Hls(hls.config);
+            hlsRef.current = newHls;
+            newHls.loadSource(url);
+            newHls.attachMedia(video);
           }
         }
       });
@@ -278,6 +313,31 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     const onPlaying = () => setBuffering(false);
     const onCanPlay = () => setBuffering(false);
 
+    // Stall recovery: detect when video is stuck and auto-recover
+    let lastPlayPos = 0;
+    let stallCount = 0;
+    const stallCheck = setInterval(() => {
+      if (!video.paused && !video.ended && video.readyState >= 2) {
+        if (video.currentTime === lastPlayPos && video.currentTime > 0) {
+          stallCount++;
+          if (stallCount >= 3) {
+            // Video stuck for ~3 seconds — try to recover
+            stallCount = 0;
+            if (hlsRef.current) {
+              hlsRef.current.recoverMediaError();
+            } else {
+              // For non-HLS: nudge playback forward
+              video.currentTime += 0.1;
+              video.play().catch(() => {});
+            }
+          }
+        } else {
+          stallCount = 0;
+        }
+        lastPlayPos = video.currentTime;
+      }
+    }, 1000);
+
     video.addEventListener("play", onPlayEvt);
     video.addEventListener("pause", onPause);
     video.addEventListener("timeupdate", onTime);
@@ -300,6 +360,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     video.addEventListener("ended", onEnded);
 
     return () => {
+      clearInterval(stallCheck);
       doSave();
       video.removeEventListener("play", onPlayEvt);
       video.removeEventListener("pause", onPause);
