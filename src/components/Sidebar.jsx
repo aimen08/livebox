@@ -1,7 +1,7 @@
 import React from "react";
-import { HomeIcon, StarIcon, SettingsIcon, FolderIcon, LinkIcon } from "./Icons";
+import { HomeIcon, StarIcon, SettingsIcon, FolderIcon, LinkIcon, TvIcon, FilmIcon, MonitorIcon } from "./Icons";
 
-export default function Sidebar({ page, onNavigate, onOpenFile, onOpenURL }) {
+export default function Sidebar({ page, onNavigate, onOpenFile, onOpenURL, hasContent }) {
   return (
     <div className="sidebar">
       <div className="sidebar-logo" onClick={() => onNavigate("home")}>
@@ -14,8 +14,33 @@ export default function Sidebar({ page, onNavigate, onOpenFile, onOpenURL }) {
           onClick={() => onNavigate("home")}
         >
           <HomeIcon />
-          <span className="sidebar-tooltip">Channels</span>
+          <span className="sidebar-tooltip">Home</span>
         </button>
+        {hasContent && (
+          <>
+            <button
+              className={`sidebar-btn${page === "live" ? " active" : ""}`}
+              onClick={() => onNavigate("live")}
+            >
+              <MonitorIcon />
+              <span className="sidebar-tooltip">Live TV</span>
+            </button>
+            <button
+              className={`sidebar-btn${page === "movies" ? " active" : ""}`}
+              onClick={() => onNavigate("movies")}
+            >
+              <FilmIcon />
+              <span className="sidebar-tooltip">Movies</span>
+            </button>
+            <button
+              className={`sidebar-btn${page === "series" ? " active" : ""}`}
+              onClick={() => onNavigate("series")}
+            >
+              <TvIcon size={22} />
+              <span className="sidebar-tooltip">Series</span>
+            </button>
+          </>
+        )}
         <button
           className={`sidebar-btn${page === "favorites" ? " active" : ""}`}
           onClick={() => onNavigate("favorites")}
