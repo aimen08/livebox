@@ -69,7 +69,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     if (!channel || !onToggleFav) return;
     if (isSeriesContent && channel.seriesId) {
       // Favorite the series, not the episode
-      onToggleFav({ seriesId: channel.seriesId, name: channel.seriesName || channel.name, poster: channel.logo });
+      onToggleFav({ seriesId: channel.seriesId, name: channel.seriesName || channel.name, poster: channel.seriesPoster || channel.logo });
     } else {
       onToggleFav(channel);
     }
@@ -185,18 +185,9 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
           const tracks = [];
           for (let i = 0; i < video.audioTracks.length; i++) {
             const t = video.audioTracks[i];
-            tracks.push({ id: i, name: t.label || t.language || `Track ${i + 1}`, lang: t.language });
+            tracks.push({ id: i, name: t.label || t.language || `Track ${i + 1}`, lang: t.language, native: true });
           }
           setAudioTracks(tracks);
-        }
-        // Detect native text tracks
-        if (video.textTracks?.length > 0) {
-          const tracks = [];
-          for (let i = 0; i < video.textTracks.length; i++) {
-            const t = video.textTracks[i];
-            tracks.push({ id: i, name: t.label || t.language || `Sub ${i + 1}`, lang: t.language });
-          }
-          setSubtitleTracks(tracks);
         }
       });
       video.addEventListener("error", () => setError("Failed to load stream"));
@@ -254,7 +245,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
         const idx = eps.findIndex((e) => e.url === saveUrl);
         if (idx >= 0 && idx < eps.length - 1) {
           const next = eps[idx + 1];
-          onPlay?.({ ...next, episodes: eps, seriesName: channel.seriesName });
+          onPlay?.({ ...next, episodes: eps, seriesName: channel.seriesName, seriesPoster: channel.seriesPoster });
         }
       }
     };
@@ -439,10 +430,12 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
               <div
                 key={ep.id}
                 className={`ep-sidebar-item${isCurrent ? " active" : ""}${isWatched ? " watched" : ""}`}
-                onClick={() => onPlay?.({ ...ep, episodes, seriesName: channel?.seriesName })}
+                onClick={() => onPlay?.({ ...ep, episodes, seriesName: channel?.seriesName, seriesPoster: channel?.seriesPoster })}
               >
-                <span className="ep-sidebar-num">S{ep.season}E{ep.episodeNum}</span>
+                {ep.thumb && <img src={ep.thumb} alt="" className="ep-sidebar-thumb" loading="lazy" />}
+                {!ep.thumb && <span className="ep-sidebar-num">S{ep.season}E{ep.episodeNum}</span>}
                 <div className="ep-sidebar-info">
+                  <span className="ep-sidebar-label">S{ep.season}E{ep.episodeNum}</span>
                   <span className="ep-sidebar-name">{ep.name}</span>
                   {ep.duration && <span className="ep-sidebar-dur">{ep.duration}</span>}
                   {prog && !isWatched && prog.position > 10 && (
@@ -588,8 +581,18 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
                         {audioTracks.map((t) => (
                           <div
                             key={t.id}
-                            className={`track-menu-item${hlsRef.current?.audioTrack === t.id ? " active" : ""}`}
-                            onClick={() => { if (hlsRef.current) hlsRef.current.audioTrack = t.id; setShowAudioMenu(false); }}
+                            className="track-menu-item"
+                            onClick={() => {
+                              if (t.native) {
+                                const v = videoRef.current;
+                                if (v?.audioTracks) {
+                                  for (let i = 0; i < v.audioTracks.length; i++) v.audioTracks[i].enabled = (i === t.id);
+                                }
+                              } else if (hlsRef.current) {
+                                hlsRef.current.audioTrack = t.id;
+                              }
+                              setShowAudioMenu(false);
+                            }}
                           >{t.name}</div>
                         ))}
                         {audioTracks.length === 0 && <div className="track-menu-item disabled">Default audio</div>}

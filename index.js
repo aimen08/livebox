@@ -2,6 +2,9 @@ const { app, BrowserWindow, ipcMain, dialog, session } = require("electron");
 const path = require("path");
 const fs = require("fs");
 
+// Enable native audio/video track selection API for MKV containers
+app.commandLine.appendSwitch("enable-blink-features", "AudioVideoTracks");
+
 let mainWindow;
 
 function createWindow() {
