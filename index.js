@@ -156,3 +156,98 @@ ipcMain.handle("store-set", (_, key, value) => {
     return true;
   } catch { return false; }
 });
+
+// OpenSubtitles.com API
+const OPENSUB_KEY = "REDACTED_OPENSUBTITLES_KEY";
+const OPENSUB_HEADERS = { "User-Agent": "LiveBox v1.0", "Api-Key": OPENSUB_KEY, "Accept": "application/json" };
+
+function opensub(urlPath) {
+  return new Promise((resolve, reject) => {
+    const doReq = (u) => {
+      const full = u.startsWith("http") ? u : `https://api.opensubtitles.com${u}`;
+      require("https").get(full, { headers: OPENSUB_HEADERS }, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          res.resume();
+          return doReq(res.headers.location);
+        }
+        const chunks = [];
+        res.on("data", (c) => chunks.push(c));
+        res.on("end", () => resolve(JSON.parse(Buffer.concat(chunks).toString("utf-8"))));
+        res.on("error", reject);
+      }).on("error", reject);
+    };
+    doReq(urlPath);
+  });
+}
+
+ipcMain.handle("search-subs", async (_, query, season, episode) => {
+  try {
+    let url = `/api/v1/subtitles?query=${encodeURIComponent(query)}&languages=ar,en,fr`;
+    if (season) url += `&season_number=${season}`;
+    if (episode) url += `&episode_number=${episode}`;
+    const data = await opensub(url);
+    if (!data.data?.length) return [];
+    // Best result per language
+    const seen = {};
+    const tracks = [];
+    for (const d of data.data) {
+      const a = d.attributes;
+      const lang = a.language || "und";
+      if (seen[lang]) continue;
+      seen[lang] = true;
+      const fileId = a.files?.[0]?.file_id;
+      if (!fileId) continue;
+      tracks.push({
+        id: tracks.length,
+        name: { en: "English", ar: "Arabic", fr: "French" }[lang] || lang,
+        lang,
+        fileId,
+      });
+    }
+    return tracks;
+  } catch {
+    return [];
+  }
+});
+
+ipcMain.handle("download-sub", async (_, fileId) => {
+  try {
+    const postData = JSON.stringify({ file_id: fileId });
+    const dlInfo = await new Promise((resolve, reject) => {
+      const req = require("https").request({
+        hostname: "api.opensubtitles.com",
+        path: "/api/v1/download",
+        method: "POST",
+        headers: { ...OPENSUB_HEADERS, "Content-Type": "application/json", "Content-Length": postData.length },
+      }, (res) => {
+        const chunks = [];
+        res.on("data", (c) => chunks.push(c));
+        res.on("end", () => resolve(JSON.parse(Buffer.concat(chunks).toString())));
+        res.on("error", reject);
+      });
+      req.on("error", reject);
+      req.write(postData);
+      req.end();
+    });
+    if (!dlInfo.link) return null;
+    // Download the actual SRT file
+    return new Promise((resolve, reject) => {
+      const doReq = (url) => {
+        const lib = url.startsWith("https") ? require("https") : require("http");
+        lib.get(url, { headers: { "User-Agent": "LiveBox v1.0" } }, (res) => {
+          if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+            res.resume();
+            return doReq(res.headers.location);
+          }
+          const chunks = [];
+          res.on("data", (c) => chunks.push(c));
+          res.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
+          res.on("error", reject);
+        }).on("error", reject);
+      };
+      doReq(dlInfo.link);
+    });
+  } catch {
+    return null;
+  }
+});

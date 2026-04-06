@@ -10,6 +10,8 @@ contextBridge.exposeInMainWorld("electron", {
   fetchURL: (url) => ipcRenderer.invoke("fetch-url", url),
   storeGet: (key) => ipcRenderer.invoke("store-get", key),
   storeSet: (key, value) => ipcRenderer.invoke("store-set", key, value),
+  searchSubs: (query, season, episode) => ipcRenderer.invoke("search-subs", query, season, episode),
+  downloadSub: (url) => ipcRenderer.invoke("download-sub", url),
   onWindowMaximized: (cb) => {
     ipcRenderer.on("window-maximized", (_, val) => cb(val));
   },

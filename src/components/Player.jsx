@@ -57,6 +57,10 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
   const [audioTracks, setAudioTracks] = useState([]);
   const [activeAudioTrack, setActiveAudioTrack] = useState(-1);
   const [subtitleTracks, setSubtitleTracks] = useState([]);
+  const [activeSubTrack, setActiveSubTrack] = useState(-1);
+  const [subsLoading, setSubsLoading] = useState(false);
+  const [subOffset, setSubOffset] = useState(0);
+  const [subSize, setSubSize] = useState(2.2);
   const [showAudioMenu, setShowAudioMenu] = useState(false);
   const [showSubMenu, setShowSubMenu] = useState(false);
   const isLiveContent = contentType === "live";
@@ -116,6 +120,9 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     setIsLive(contentType === "live");
     setAudioTracks([]);
     setSubtitleTracks([]);
+    setActiveSubTrack(-1);
+    setSubOffset(0);
+    setSubsLoading(false);
     setShowAudioMenu(false);
     setShowSubMenu(false);
 
@@ -195,7 +202,43 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
           setActiveAudioTrack(enabledIdx);
         }
       });
-      video.addEventListener("error", () => setError("Failed to load stream"));
+      let retried = false;
+      video.addEventListener("error", () => {
+        setTimeout(() => {
+          if (video.error && video.readyState < 3 && !retried) {
+            // Retry once — reload from current position
+            retried = true;
+            const pos = video.currentTime;
+            video.src = url;
+            video.currentTime = pos;
+            video.play().catch(() => {});
+          } else if (video.error && video.readyState < 3 && retried) {
+            setError("Failed to load stream");
+          }
+        }, 1500);
+      });
+
+    }
+
+    // Search subtitles from OpenSubtitles API (for all non-live content)
+    if (contentType !== "live" && window.electron?.searchSubs) {
+      // Clean up query — strip provider prefixes, years, episode titles
+      let subQuery = (channel?.seriesName || channel?.name || "")
+        .replace(/^(CR|NF|AMZN|AMZ|DSNP|HBO|HMAX)\s*-\s*/i, "") // strip provider prefix
+        .replace(/\s*\(\d{4}\)\s*/g, " ") // strip year in parens
+        .replace(/\s*-\s*S\d+E\d+.*$/i, "") // strip S01E01 and episode title
+        .replace(/\s*S\d+E\d+.*$/i, "") // strip S01E01 without dash
+        .trim();
+      if (subQuery) {
+        setSubsLoading(true);
+        window.electron.searchSubs(subQuery, channel?.season, channel?.episodeNum).then((tracks) => {
+          if (tracks?.length > 0) {
+            setSubtitleTracks(tracks.map((t) => ({
+              id: t.id, name: t.name, lang: t.lang, fileId: t.fileId,
+            })));
+          }
+        }).catch(() => {}).finally(() => setSubsLoading(false));
+      }
     }
 
     let lastSaveTime = 0;
@@ -269,7 +312,9 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
         hlsRef.current.destroy();
         hlsRef.current = null;
       }
-      video.src = "";
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
     };
   }, [channel]);
 
@@ -556,23 +601,123 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
                 <>
                   <div className="track-menu-wrap">
                     <button className="player-ctrl-btn" onClick={() => { setShowSubMenu((v) => !v); setShowAudioMenu(false); }} title="Subtitles">
-                      <SubtitleIcon />
+                      {subsLoading ? <div className="ctrl-spinner" /> : <SubtitleIcon />}
                     </button>
                     {showSubMenu && (
                       <div className="track-menu" onClick={(e) => e.stopPropagation()}>
                         <div className="track-menu-title">Subtitles</div>
                         <div
-                          className={`track-menu-item${hlsRef.current?.subtitleTrack === -1 ? " active" : ""}`}
-                          onClick={() => { if (hlsRef.current) hlsRef.current.subtitleTrack = -1; setShowSubMenu(false); }}
+                          className={`track-menu-item${activeSubTrack === -1 ? " active" : ""}`}
+                          onClick={() => {
+                            if (hlsRef.current) hlsRef.current.subtitleTrack = -1;
+                            const v = videoRef.current;
+                            if (v) for (let i = 0; i < v.textTracks.length; i++) v.textTracks[i].mode = "disabled";
+                            setActiveSubTrack(-1);
+                            setShowSubMenu(false);
+                          }}
                         >Off</div>
                         {subtitleTracks.map((t) => (
                           <div
                             key={t.id}
-                            className={`track-menu-item${hlsRef.current?.subtitleTrack === t.id ? " active" : ""}`}
-                            onClick={() => { if (hlsRef.current) hlsRef.current.subtitleTrack = t.id; setShowSubMenu(false); }}
+                            className={`track-menu-item${activeSubTrack === t.id ? " active" : ""}`}
+                            onClick={async () => {
+                              const v = videoRef.current;
+                              if (!v) return;
+                              for (let i = 0; i < v.textTracks.length; i++) v.textTracks[i].mode = "disabled";
+                              // Reuse already-downloaded track
+                              let el = v.querySelector(`track[data-subid="${t.id}"]`);
+                              if (el) {
+                                el.track.mode = "showing";
+                              } else if (t.fileId && window.electron?.downloadSub) {
+                                setActiveSubTrack(t.id);
+                                setShowSubMenu(false);
+                                const srt = await window.electron.downloadSub(t.fileId);
+                                if (!srt) return;
+                                const vtt = "WEBVTT\n\n" + srt.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, "$1.$2");
+                                const blob = new Blob([vtt], { type: "text/vtt" });
+                                el = document.createElement("track");
+                                el.kind = "subtitles";
+                                el.label = t.name;
+                                el.srclang = t.lang || "und";
+                                el.src = URL.createObjectURL(blob);
+                                el.setAttribute("data-subid", t.id);
+                                el.default = true;
+                                v.appendChild(el);
+                                el.addEventListener("load", () => { el.track.mode = "showing"; });
+                                setTimeout(() => { try { el.track.mode = "showing"; } catch {} }, 200);
+                                return;
+                              } else if (hlsRef.current) {
+                                hlsRef.current.subtitleTrack = t.id;
+                              }
+                              setActiveSubTrack(t.id);
+                              setShowSubMenu(false);
+                            }}
                           >{t.name}</div>
                         ))}
-                        {subtitleTracks.length === 0 && <div className="track-menu-item disabled">No subtitles</div>}
+                        {subsLoading && <div className="track-menu-item disabled">Loading subtitles...</div>}
+                        {!subsLoading && subtitleTracks.length === 0 && <div className="track-menu-item disabled">No subtitles</div>}
+                        {activeSubTrack !== -1 && (
+                          <div className="sub-offset">
+                            <div className="sub-offset-label">
+                              <span>Timing</span>
+                              <span className="sub-offset-val">{subOffset > 0 ? "+" : ""}{subOffset.toFixed(1)}s</span>
+                            </div>
+                            <input type="range" min={-10} max={10} step={0.5} value={subOffset}
+                              onChange={(e) => {
+                                const val = parseFloat(e.target.value);
+                                setSubOffset(val);
+                                const v = videoRef.current;
+                                if (!v) return;
+                                for (let i = 0; i < v.textTracks.length; i++) {
+                                  const tt = v.textTracks[i];
+                                  if (tt.mode === "showing" && tt.cues) {
+                                    // Store originals on first use
+                                    if (!tt._origTimes) {
+                                      tt._origTimes = [];
+                                      for (let j = 0; j < tt.cues.length; j++) {
+                                        tt._origTimes.push({ s: tt.cues[j].startTime, e: tt.cues[j].endTime });
+                                      }
+                                    }
+                                    // Apply offset from original times
+                                    for (let j = 0; j < tt.cues.length; j++) {
+                                      tt.cues[j].startTime = tt._origTimes[j].s + val;
+                                      tt.cues[j].endTime = tt._origTimes[j].e + val;
+                                    }
+                                  }
+                                }
+                              }}
+                            />
+                            {subOffset !== 0 && (
+                              <button className="sub-offset-reset" onClick={() => {
+                                const v = videoRef.current;
+                                if (v) {
+                                  for (let i = 0; i < v.textTracks.length; i++) {
+                                    const tt = v.textTracks[i];
+                                    if (tt.mode === "showing" && tt.cues && tt._origTimes) {
+                                      for (let j = 0; j < tt.cues.length; j++) {
+                                        tt.cues[j].startTime = tt._origTimes[j].s;
+                                        tt.cues[j].endTime = tt._origTimes[j].e;
+                                      }
+                                    }
+                                  }
+                                }
+                                setSubOffset(0);
+                              }}>Reset</button>
+                            )}
+                            <div className="sub-offset-label" style={{ marginTop: 8 }}>
+                              <span>Size</span>
+                              <span className="sub-offset-val">{subSize.toFixed(1)}</span>
+                            </div>
+                            <input type="range" min={1} max={4} step={0.2} value={subSize}
+                              onChange={(e) => {
+                                const val = parseFloat(e.target.value);
+                                setSubSize(val);
+                                const v = videoRef.current;
+                                if (v) v.style.setProperty("--sub-size", val + "rem");
+                              }}
+                            />
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
