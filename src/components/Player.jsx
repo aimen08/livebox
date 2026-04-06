@@ -55,6 +55,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [chSearch, setChSearch] = useState("");
   const [audioTracks, setAudioTracks] = useState([]);
+  const [activeAudioTrack, setActiveAudioTrack] = useState(-1);
   const [subtitleTracks, setSubtitleTracks] = useState([]);
   const [showAudioMenu, setShowAudioMenu] = useState(false);
   const [showSubMenu, setShowSubMenu] = useState(false);
@@ -145,6 +146,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
       const updateAudioTracks = () => {
         if (hls.audioTracks?.length > 0) {
           setAudioTracks(hls.audioTracks.map((t, i) => ({ id: i, name: t.name || t.lang || `Track ${i + 1}`, lang: t.lang })));
+          setActiveAudioTrack(hls.audioTrack);
         }
       };
       const updateSubTracks = () => {
@@ -183,11 +185,14 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
         // Detect native audio tracks
         if (video.audioTracks?.length > 1) {
           const tracks = [];
+          let enabledIdx = 0;
           for (let i = 0; i < video.audioTracks.length; i++) {
             const t = video.audioTracks[i];
             tracks.push({ id: i, name: t.label || t.language || `Track ${i + 1}`, lang: t.language, native: true });
+            if (t.enabled) enabledIdx = i;
           }
           setAudioTracks(tracks);
+          setActiveAudioTrack(enabledIdx);
         }
       });
       video.addEventListener("error", () => setError("Failed to load stream"));
@@ -581,7 +586,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
                         {audioTracks.map((t) => (
                           <div
                             key={t.id}
-                            className="track-menu-item"
+                            className={`track-menu-item${activeAudioTrack === t.id ? " active" : ""}`}
                             onClick={() => {
                               if (t.native) {
                                 const v = videoRef.current;
@@ -591,6 +596,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
                               } else if (hlsRef.current) {
                                 hlsRef.current.audioTrack = t.id;
                               }
+                              setActiveAudioTrack(t.id);
                               setShowAudioMenu(false);
                             }}
                           >{t.name}</div>
