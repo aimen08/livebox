@@ -139,13 +139,18 @@ export default function HomePage({
             <div className="poster-row">
               {items.slice(0, 10).map((item) => (
                 <div key={item.url} className="poster-card" onClick={() => onPlay(item)}>
-                  {item.poster ? (
-                    <img src={item.poster} alt="" loading="lazy" className="poster-img" />
-                  ) : (
-                    <div className="poster-fallback">{item.name.charAt(0)}</div>
-                  )}
-                  <div className="continue-progress">
-                    <div className="continue-progress-fill" style={{ width: `${Math.min((item.progress.position / item.progress.duration) * 100, 100)}%` }} />
+                  <div className="poster-img-wrap">
+                    {item.poster ? (
+                      <img src={item.poster} alt="" loading="lazy" className="poster-img" />
+                    ) : (
+                      <div className="poster-fallback">{item.name.charAt(0)}</div>
+                    )}
+                    <div className="poster-continue">
+                      <div className="poster-continue-text">{Math.floor(item.progress.position / 60)}m watched</div>
+                      <div className="poster-continue-bar">
+                        <div className="poster-continue-fill" style={{ width: `${Math.min((item.progress.position / item.progress.duration) * 100, 100)}%` }} />
+                      </div>
+                    </div>
                   </div>
                   <span className="poster-name">{item.name}</span>
                 </div>

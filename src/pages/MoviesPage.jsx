@@ -3,14 +3,25 @@ import { SearchIcon, StarIcon } from "../components/Icons";
 
 const BATCH_SIZE = 40;
 
-function MovieCard({ movie, onPlay, isFav, onToggleFav }) {
+function MovieCard({ movie, onPlay, isFav, onToggleFav, progress }) {
+  const hasProgress = progress && progress.position > 30 && progress.position < progress.duration * 0.95;
   return (
     <div className="poster-card" onClick={() => onPlay(movie)}>
-      {movie.poster ? (
-        <img src={movie.poster} alt="" loading="lazy" className="poster-img" />
-      ) : (
-        <div className="poster-fallback">{movie.name.charAt(0)}</div>
-      )}
+      <div className="poster-img-wrap">
+        {movie.poster ? (
+          <img src={movie.poster} alt="" loading="lazy" className="poster-img" />
+        ) : (
+          <div className="poster-fallback">{movie.name.charAt(0)}</div>
+        )}
+        {hasProgress && (
+          <div className="poster-continue">
+            <div className="poster-continue-text">{Math.floor(progress.position / 60)}m watched</div>
+            <div className="poster-continue-bar">
+              <div className="poster-continue-fill" style={{ width: `${Math.min((progress.position / progress.duration) * 100, 100)}%` }} />
+            </div>
+          </div>
+        )}
+      </div>
       <span className="poster-name">{movie.name}</span>
       {movie.rating && <span className="poster-rating">{movie.rating}</span>}
       <button
@@ -26,7 +37,7 @@ function MovieCard({ movie, onPlay, isFav, onToggleFav }) {
 
 const MemoMovieCard = React.memo(MovieCard);
 
-export default function MoviesPage({ movies, groups, onPlay, favorites, onToggleFav }) {
+export default function MoviesPage({ movies, groups, onPlay, favorites, onToggleFav, watchProgress }) {
   const [search, setSearch] = useState("");
   const [activeGroup, setActiveGroup] = useState(null);
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
@@ -111,6 +122,7 @@ export default function MoviesPage({ movies, groups, onPlay, favorites, onToggle
                 key={m.id} movie={m} onPlay={onPlay}
                 isFav={!!favorites[m.url || m.streamId]}
                 onToggleFav={onToggleFav}
+                progress={watchProgress?.[m.url]}
               />
             ))
           )}

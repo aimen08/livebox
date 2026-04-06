@@ -62,6 +62,18 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
   const isSeriesContent = contentType === "series";
   const episodes = channel?.episodes || [];
   const [epPanelOpen, setEpPanelOpen] = useState(false);
+  const favKey = isSeriesContent ? channel?.seriesId : (channel?.url || channel?.streamId);
+  const isFav = !!(favKey && favorites?.[favKey]);
+
+  const handleFav = useCallback(() => {
+    if (!channel || !onToggleFav) return;
+    if (isSeriesContent && channel.seriesId) {
+      // Favorite the series, not the episode
+      onToggleFav({ seriesId: channel.seriesId, name: channel.seriesName || channel.name, poster: channel.logo });
+    } else {
+      onToggleFav(channel);
+    }
+  }, [channel, onToggleFav, isSeriesContent]);
 
   // Set initial group from current channel
   useEffect(() => {
@@ -484,9 +496,18 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
         {/* Top bar */}
         <div className={`player-top-bar${showControls ? " visible" : ""}`}>
           <div className="player-channel-name">{channel?.name || "Unknown"}</div>
-          <button className="player-ctrl-btn" onClick={(e) => { e.stopPropagation(); onClose(); }}>
-            <XIcon />
-          </button>
+          <div className="player-top-actions">
+            <button
+              className={`player-ctrl-btn player-fav-btn${isFav ? " is-fav" : ""}`}
+              onClick={(e) => { e.stopPropagation(); handleFav(); }}
+              title={isFav ? "Remove from favorites" : "Add to favorites"}
+            >
+              <svg viewBox="0 0 24 24" width="20" height="20" fill={isFav ? "#f1c40f" : "none"} stroke={isFav ? "#f1c40f" : "currentColor"} strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </button>
+            <button className="player-ctrl-btn" onClick={(e) => { e.stopPropagation(); onClose(); }}>
+              <XIcon />
+            </button>
+          </div>
         </div>
 
         {/* Bottom controls */}

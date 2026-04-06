@@ -10,6 +10,7 @@ function createWindow() {
     height: 900,
     minWidth: 900,
     minHeight: 600,
+    show: false,
     titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "hidden",
     frame: process.platform !== "win32",
     backgroundColor: "#0a0a0a",
@@ -17,8 +18,12 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
+      spellcheck: false,
+      enableWebSQL: false,
     },
   });
+
+  mainWindow.once("ready-to-show", () => mainWindow.show());
 
   const isDev = process.env.ELECTRON_DEV === "1";
   if (isDev) {

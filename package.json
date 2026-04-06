@@ -31,37 +31,19 @@
     "appId": "com.aimen08.livebox",
     "productName": "LiveBox",
     "asar": true,
-    "compression": "normal",
+    "compression": "maximum",
     "directories": {
       "buildResources": "build"
     },
     "files": [
-      "dist/**/*",
-      "!dist/mac/**",
-      "!dist/mac-arm64/**",
-      "!dist/win-unpacked/**",
-      "!dist/linux-unpacked/**",
-      "!dist/*.dmg",
-      "!dist/*.exe",
-      "!dist/*.deb",
-      "!dist/*.AppImage",
-      "!dist/*.blockmap",
-      "!dist/*.yaml",
-      "!dist/.icon-icns/**",
+      "dist/index.html",
+      "dist/assets/**/*",
       "index.js",
       "preload.js",
       "package.json",
-      "!**/*.map",
-      "!**/*.md",
-      "!**/node_modules/.cache/**",
-      "!**/node_modules/.bin/**",
-      "!**/node_modules/vite/**",
-      "!**/node_modules/@vitejs/**",
-      "!**/node_modules/terser/**",
-      "!**/node_modules/rollup/**",
-      "!**/node_modules/esbuild/**",
-      "!**/node_modules/@esbuild/**",
-      "!**/node_modules/@rollup/**"
+      "!node_modules",
+      "!src",
+      "!**/*.map"
     ],
     "win": {
       "icon": "icon.png",
@@ -91,8 +73,6 @@
       "category": "Utility",
       "icon": "icon.png"
     },
-    "asarUnpack": [
-      "src/styles/fonts/**"
-    ]
+    "asarUnpack": []
   }
 }

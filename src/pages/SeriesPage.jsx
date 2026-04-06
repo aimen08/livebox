@@ -6,19 +6,21 @@ const BATCH_SIZE = 40;
 function SeriesCard({ show, onClick, isFav, onToggleFav, lastEpisode }) {
   return (
     <div className="poster-card" onClick={onClick}>
-      {show.poster ? (
-        <img src={show.poster} alt="" loading="lazy" className="poster-img" />
-      ) : (
-        <div className="poster-fallback">{show.name.charAt(0)}</div>
-      )}
-      {lastEpisode && (
-        <div className="poster-continue">
-          <div className="poster-continue-text">S{lastEpisode.season}E{lastEpisode.ep}</div>
-          <div className="poster-continue-bar">
-            <div className="poster-continue-fill" style={{ width: `${Math.min((lastEpisode.position / lastEpisode.duration) * 100, 100)}%` }} />
+      <div className="poster-img-wrap">
+        {show.poster ? (
+          <img src={show.poster} alt="" loading="lazy" className="poster-img" />
+        ) : (
+          <div className="poster-fallback">{show.name.charAt(0)}</div>
+        )}
+        {lastEpisode && (
+          <div className="poster-continue">
+            <div className="poster-continue-text">S{lastEpisode.season}E{lastEpisode.ep}</div>
+            <div className="poster-continue-bar">
+              <div className="poster-continue-fill" style={{ width: `${Math.min((lastEpisode.position / lastEpisode.duration) * 100, 100)}%` }} />
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       <span className="poster-name">{show.name}</span>
       {show.rating && <span className="poster-rating">{show.rating}</span>}
       <button

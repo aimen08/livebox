@@ -304,6 +304,7 @@ export default function App() {
               onPlay={playMovie}
               favorites={favorites}
               onToggleFav={handleToggleFav}
+              watchProgress={watchProgress}
             />
           </div>
           <div style={{ display: page === "series" ? "contents" : "none" }}>

@@ -73,17 +73,31 @@ export default function FavoritesPage({ favorites, onPlayLive, onPlayMovie, onTo
         <div className="fav-section">
           <h2 className="fav-section-title">Movies</h2>
           <div className="poster-row">
-            {movieItems.map((m) => (
-              <div key={m.url || m.streamId} className="poster-card" onClick={() => onPlayMovie(m)}>
-                {m.poster ? (
-                  <img src={m.poster} alt="" loading="lazy" className="poster-img" />
-                ) : (
-                  <div className="poster-fallback">{m.name.charAt(0)}</div>
-                )}
-                <span className="poster-name">{m.name}</span>
-                <RemoveBtn onClick={() => onToggleFav(m)} />
-              </div>
-            ))}
+            {movieItems.map((m) => {
+              const prog = watchProgress?.[m.url];
+              const hasProgress = prog && prog.position > 30 && prog.position < prog.duration * 0.95;
+              return (
+                <div key={m.url || m.streamId} className="poster-card" onClick={() => onPlayMovie(m)}>
+                  <div className="poster-img-wrap">
+                    {m.poster ? (
+                      <img src={m.poster} alt="" loading="lazy" className="poster-img" />
+                    ) : (
+                      <div className="poster-fallback">{m.name.charAt(0)}</div>
+                    )}
+                    {hasProgress && (
+                      <div className="poster-continue">
+                        <div className="poster-continue-text">{Math.floor(prog.position / 60)}m watched</div>
+                        <div className="poster-continue-bar">
+                          <div className="poster-continue-fill" style={{ width: `${Math.min((prog.position / prog.duration) * 100, 100)}%` }} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <span className="poster-name">{m.name}</span>
+                  <RemoveBtn onClick={() => onToggleFav(m)} />
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -96,19 +110,21 @@ export default function FavoritesPage({ favorites, onPlayLive, onPlayMovie, onTo
               const lastEp = getLastEpisode(s.seriesId, watchProgress);
               return (
                 <div key={s.seriesId} className="poster-card" onClick={() => onOpenSeries(s)}>
-                  {s.poster ? (
-                    <img src={s.poster} alt="" loading="lazy" className="poster-img" />
-                  ) : (
-                    <div className="poster-fallback">{s.name.charAt(0)}</div>
-                  )}
-                  {lastEp && (
-                    <div className="poster-continue">
-                      <div className="poster-continue-text">S{lastEp.season}E{lastEp.ep}</div>
-                      <div className="poster-continue-bar">
-                        <div className="poster-continue-fill" style={{ width: `${Math.min((lastEp.position / lastEp.duration) * 100, 100)}%` }} />
+                  <div className="poster-img-wrap">
+                    {s.poster ? (
+                      <img src={s.poster} alt="" loading="lazy" className="poster-img" />
+                    ) : (
+                      <div className="poster-fallback">{s.name.charAt(0)}</div>
+                    )}
+                    {lastEp && (
+                      <div className="poster-continue">
+                        <div className="poster-continue-text">S{lastEp.season}E{lastEp.ep}</div>
+                        <div className="poster-continue-bar">
+                          <div className="poster-continue-fill" style={{ width: `${Math.min((lastEp.position / lastEp.duration) * 100, 100)}%` }} />
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                   <span className="poster-name">{s.name}</span>
                   <RemoveBtn onClick={() => onToggleFav(s)} />
                 </div>
