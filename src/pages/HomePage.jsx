@@ -3,19 +3,24 @@ import { TvIcon, FolderIcon, LinkIcon, FilmIcon, MonitorIcon } from "../componen
 
 function WelcomeLogo() {
   return (
-    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+    <svg width="80" height="80" viewBox="0 0 512 512" fill="none">
       <defs>
-        <linearGradient id="logo-grad" x1="0" y1="0" x2="80" y2="80">
+        <linearGradient id="logo-grad" x1="100" y1="100" x2="420" y2="420">
           <stop offset="0%" stopColor="var(--accent)" />
-          <stop offset="100%" stopColor="var(--accent-bright)" />
+          <stop offset="50%" stopColor="var(--accent-bright)" />
+          <stop offset="100%" stopColor="var(--accent)" />
         </linearGradient>
       </defs>
-      <rect x="4" y="4" width="72" height="72" rx="18" fill="url(#logo-grad)" opacity="0.12" />
-      <rect x="16" y="22" width="48" height="32" rx="6" stroke="url(#logo-grad)" strokeWidth="3" fill="none" />
-      <polygon points="34,32 34,48 48,40" fill="url(#logo-grad)" />
-      <line x1="30" y1="58" x2="50" y2="58" stroke="url(#logo-grad)" strokeWidth="3" strokeLinecap="round" />
-      <line x1="40" y1="54" x2="40" y2="58" stroke="url(#logo-grad)" strokeWidth="3" strokeLinecap="round" />
-      <polyline points="50,18 40,22 30,18" stroke="url(#logo-grad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <rect width="512" height="512" rx="112" fill="#141218" />
+      <ellipse cx="256" cy="240" rx="120" ry="90" fill="var(--accent)" opacity="0.12" />
+      <rect x="106" y="120" width="300" height="200" rx="24" fill="#1e1c24" />
+      <rect x="106" y="120" width="300" height="200" rx="24" stroke="url(#logo-grad)" strokeWidth="6" fill="none" />
+      <path d="M350,100 Q370,80 390,100" stroke="url(#logo-grad)" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.5" />
+      <path d="M362,86 Q375,72 388,86" stroke="url(#logo-grad)" strokeWidth="5" strokeLinecap="round" fill="none" opacity="0.8" />
+      <circle cx="375" cy="78" r="3" fill="var(--accent)" />
+      <polygon points="224,178 224,262 304,220" fill="white" />
+      <rect x="220" y="328" width="72" height="8" rx="4" fill="url(#logo-grad)" />
+      <rect x="246" y="320" width="20" height="16" rx="4" fill="url(#logo-grad)" />
     </svg>
   );
 }

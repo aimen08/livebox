@@ -19,45 +19,46 @@ function applyAccent(index) {
   document.documentElement.style.setProperty("--accent-dim", c.dim);
 }
 
+// Hydrate from cache synchronously so first render already has data
+const _savedCreds = storageGet("xtreamCreds", null);
+const _cached = storageGet("xtreamCache", null);
+const _hasCache = _savedCreds && _cached && _cached.baseUrl === _savedCreds.baseUrl && _cached.username === _savedCreds.username;
+const _initAccent = storageGet("accentIndex", 0);
+applyAccent(_initAccent);
+
 export default function App() {
   const [platform, setPlatform] = useState(null);
   const [page, setPage] = useState("home");
   const [pendingSeries, setPendingSeries] = useState(null);
-  const [channels, setChannels] = useState([]);
-  const [groups, setGroups] = useState([]);
-  const [movies, setMovies] = useState([]);
-  const [movieGroups, setMovieGroups] = useState([]);
-  const [series, setSeries] = useState([]);
-  const [seriesGroups, setSeriesGroups] = useState([]);
-  const [favorites, setFavorites] = useState({});
+  const [channels, setChannels] = useState(_hasCache ? _cached.channels : []);
+  const [groups, setGroups] = useState(_hasCache ? _cached.groups : []);
+  const [movies, setMovies] = useState(_hasCache ? _cached.movies : []);
+  const [movieGroups, setMovieGroups] = useState(_hasCache ? _cached.movieGroups : []);
+  const [series, setSeries] = useState(_hasCache ? _cached.series : []);
+  const [seriesGroups, setSeriesGroups] = useState(_hasCache ? _cached.seriesGroups : []);
+  const [favorites, setFavorites] = useState(() => storageGet("favorites", {}));
   const [playing, setPlaying] = useState(null);
   const [playingType, setPlayingType] = useState("live"); // "live", "movie", "series"
   const [showURLModal, setShowURLModal] = useState(false);
-  const [recentURLs, setRecentURLs] = useState([]);
-  const [accentIndex, setAccentIndex] = useState(0);
-  const [xtreamCreds, setXtreamCreds] = useState(null);
+  const [recentURLs, setRecentURLs] = useState(() => storageGet("recentURLs", []));
+  const [accentIndex, setAccentIndex] = useState(_initAccent);
+  const [xtreamCreds, setXtreamCreds] = useState(_hasCache ? _savedCreds : null);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState("");
-  const [watchProgress, setWatchProgress] = useState({});
+  const [watchProgress, setWatchProgress] = useState(() => storageGet("watchProgress", {}));
 
   const loadXtreamRef = useRef(null);
 
   useEffect(() => {
     window.electron?.getPlatform?.().then(setPlatform);
-    const savedFavs = storageGet("favorites", {});
-    setFavorites(savedFavs);
-    const savedAccent = storageGet("accentIndex", 0);
-    setAccentIndex(savedAccent);
-    applyAccent(savedAccent);
-    const savedRecent = storageGet("recentURLs", []);
-    setRecentURLs(savedRecent);
-    const savedProgress = storageGet("watchProgress", {});
-    setWatchProgress(savedProgress);
 
-    // Auto-reload last Xtream session
-    const savedCreds = storageGet("xtreamCreds", null);
-    if (savedCreds && window.electron?.fetchURL) {
-      loadXtreamRef.current(savedCreds.baseUrl, savedCreds.username, savedCreds.password).catch(() => {});
+    // Background refresh or full load if no cache
+    if (_savedCreds && window.electron?.fetchURL) {
+      if (_hasCache) {
+        loadXtreamRef.current(_savedCreds.baseUrl, _savedCreds.username, _savedCreds.password, true).catch(() => {});
+      } else {
+        loadXtreamRef.current(_savedCreds.baseUrl, _savedCreds.username, _savedCreds.password).catch(() => {});
+      }
     }
   }, []);
 
@@ -78,32 +79,34 @@ export default function App() {
     setShowURLModal(true);
   }, []);
 
-  const loadXtreamAPI = useCallback(async (baseUrl, username, password) => {
-    setLoading(true);
-    setLoadingStep("Connecting to server...");
+  const loadXtreamAPI = useCallback(async (baseUrl, username, password, silent = false) => {
+    if (!silent) {
+      setLoading(true);
+      setLoadingStep("Connecting to server...");
+    }
     const api = (action) =>
       window.electron.fetchURL(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=${action}`);
 
     try {
-      setLoadingStep("Fetching live channels...");
+      if (!silent) setLoadingStep("Fetching live channels...");
       const [liveCatJson, liveJson] = await Promise.all([
         api("get_live_categories"),
         api("get_live_streams"),
       ]);
 
-      setLoadingStep("Fetching movies...");
+      if (!silent) setLoadingStep("Fetching movies...");
       const [vodCatJson, vodJson] = await Promise.all([
         api("get_vod_categories"),
         api("get_vod_streams"),
       ]);
 
-      setLoadingStep("Fetching series...");
+      if (!silent) setLoadingStep("Fetching series...");
       const [serCatJson, serJson] = await Promise.all([
         api("get_series_categories"),
         api("get_series"),
       ]);
 
-      setLoadingStep("Building library...");
+      if (!silent) setLoadingStep("Building library...");
 
       const buildCatMap = (json) => {
         const cats = JSON.parse(json);
@@ -173,10 +176,22 @@ export default function App() {
       const creds = { baseUrl, username, password };
       setXtreamCreds(creds);
       storageSet("xtreamCreds", creds);
-      setPage("home");
-      setPlaying(null);
+
+      // Cache processed data for instant startup next time
+      storageSet("xtreamCache", {
+        baseUrl, username,
+        channels: ch, groups: liveGroups,
+        movies: mov, movieGroups: mGroups,
+        series: ser, seriesGroups: sGroups,
+        cachedAt: Date.now(),
+      });
+
+      if (!silent) {
+        setPage("home");
+        setPlaying(null);
+      }
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
   loadXtreamRef.current = loadXtreamAPI;
