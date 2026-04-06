@@ -924,6 +924,26 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
   color: var(--accent); font-size: 14px; flex-shrink: 0;
 }
 
+/* ── Episode Thumbnails ── */
+.episode-thumb {
+  width: 120px; height: 68px; border-radius: 6px;
+  object-fit: cover; flex-shrink: 0;
+  background: var(--surface2);
+}
+.episode-label {
+  font-size: 11px; color: var(--accent); font-weight: 600;
+  letter-spacing: 0.5px; margin-bottom: 2px; display: block;
+}
+.ep-sidebar-thumb {
+  width: 64px; height: 36px; border-radius: 4px;
+  object-fit: cover; flex-shrink: 0;
+  background: var(--surface2);
+}
+.ep-sidebar-label {
+  font-size: 10px; color: var(--accent); font-weight: 600;
+  letter-spacing: 0.3px; display: block;
+}
+
 .episode-row.last-watched {
   background: var(--accent-dim); border-left: 3px solid var(--accent);
 }

@@ -77,6 +77,7 @@ function SeriesDetail({ show, xtreamCreds, onPlay, onBack, isFav, onToggleFav, w
           season: ep.season,
           episodeNum: ep.episode_num,
           duration: ep.info?.duration || "",
+          thumb: ep.info?.movie_image || "",
         });
       }
     }
@@ -94,6 +95,7 @@ function SeriesDetail({ show, xtreamCreds, onPlay, onBack, isFav, onToggleFav, w
       season: ep.season,
       episodeNum: ep.episode_num,
       seriesName: show.name,
+      seriesPoster: show.poster || "",
       episodes: allEpisodes,
     });
   };
@@ -144,8 +146,12 @@ function SeriesDetail({ show, xtreamCreds, onPlay, onBack, isFav, onToggleFav, w
                 const isWatched = prog && prog.position > prog.duration * 0.9;
                 return (
                   <div key={ep.id} className={`episode-row${isLastWatched ? " last-watched" : ""}${isWatched ? " watched" : ""}`} onClick={() => handlePlayEpisode(ep)}>
-                    <span className="episode-num">E{ep.episode_num}</span>
+                    {ep.info?.movie_image && (
+                      <img src={ep.info.movie_image} alt="" className="episode-thumb" loading="lazy" />
+                    )}
+                    {!ep.info?.movie_image && <span className="episode-num">E{ep.episode_num}</span>}
                     <div className="episode-info">
+                      <span className="episode-label">E{ep.episode_num}</span>
                       <span className="episode-title">{ep.title || `Episode ${ep.episode_num}`}</span>
                       {ep.info?.duration && <span className="episode-duration">{ep.info.duration}</span>}
                       {isLastWatched && <span className="episode-last-label">Continue watching</span>}
