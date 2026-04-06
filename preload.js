@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld("electron", {
   closeWindow: () => ipcRenderer.invoke("close-window"),
   isMaximized: () => ipcRenderer.invoke("is-maximized"),
   openM3UFile: () => ipcRenderer.invoke("open-m3u-file"),
+  fetchURL: (url) => ipcRenderer.invoke("fetch-url", url),
   storeGet: (key) => ipcRenderer.invoke("store-get", key),
   storeSet: (key, value) => ipcRenderer.invoke("store-set", key, value),
   onWindowMaximized: (cb) => {

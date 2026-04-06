@@ -20,7 +20,12 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadFile(path.join(__dirname, "dist", "index.html"));
+  const isDev = process.env.ELECTRON_DEV === "1";
+  if (isDev) {
+    mainWindow.loadURL("http://localhost:5173");
+  } else {
+    mainWindow.loadFile(path.join(__dirname, "dist", "index.html"));
+  }
 
   mainWindow.on("maximize", () => mainWindow.webContents.send("window-maximized", true));
   mainWindow.on("unmaximize", () => mainWindow.webContents.send("window-maximized", false));
@@ -38,6 +43,19 @@ if (!gotLock) {
   });
 
   app.whenReady().then(() => {
+    // Fix MIME types for video streaming (MKV, etc.)
+    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      const url = details.url.toLowerCase();
+      if (url.includes("/movie/") || url.includes("/series/")) {
+        const headers = { ...details.responseHeaders };
+        headers["content-type"] = ["video/mp4"];
+        headers["access-control-allow-origin"] = ["*"];
+        callback({ responseHeaders: headers });
+      } else {
+        callback({ responseHeaders: details.responseHeaders });
+      }
+    });
+
     createWindow();
     app.on("activate", () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -73,6 +91,42 @@ ipcMain.handle("open-m3u-file", async () => {
   const filePath = result.filePaths[0];
   const content = fs.readFileSync(filePath, "utf-8");
   return { path: filePath, content, name: path.basename(filePath) };
+});
+
+ipcMain.handle("fetch-url", async (_, url) => {
+  const follow = (targetUrl, redirects = 0) => {
+    if (redirects > 5) return Promise.reject(new Error("Too many redirects"));
+    const parsed = new URL(targetUrl);
+    const lib = parsed.protocol === "https:" ? require("https") : require("http");
+    return new Promise((resolve, reject) => {
+      const req = lib.request(targetUrl, {
+        method: "GET",
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "Accept": "*/*",
+        },
+      }, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          resolve(follow(res.headers.location, redirects + 1));
+          return;
+        }
+        const chunks = [];
+        res.on("data", (chunk) => chunks.push(chunk));
+        res.on("end", () => {
+          const body = Buffer.concat(chunks).toString("utf-8");
+          if (body.trim().startsWith("#EXTM3U") || (res.statusCode >= 200 && res.statusCode < 300)) {
+            resolve(body);
+          } else {
+            reject(new Error(`HTTP ${res.statusCode}`));
+          }
+        });
+        res.on("error", reject);
+      });
+      req.on("error", reject);
+      req.end();
+    });
+  };
+  return follow(url);
 });
 
 ipcMain.handle("store-get", (_, key) => {
