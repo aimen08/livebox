@@ -1,6 +1,14 @@
 import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
-import Hls from "hls.js";
 import { XIcon } from "./Icons";
+
+// Lazy-load hls.js the first time the player needs it. The chunk is ~200KB
+// and the welcome/browse screens never touch it, so paying that cost up front
+// is wasted bandwidth. Cached promise = single fetch even with rapid switches.
+let hlsModulePromise = null;
+function loadHls() {
+  if (!hlsModulePromise) hlsModulePromise = import("hls.js").then((m) => m.default);
+  return hlsModulePromise;
+}
 
 function PlayIcon() {
   return <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><polygon points="6,4 20,12 6,20" /></svg>;
@@ -137,7 +145,9 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     const resumePos = contentType !== "live" && watchProgress?.[url];
     const startAt = resumePos?.position > 10 ? resumePos.position : -1;
 
-    if ((isHlsUrl || isTsUrl) && Hls.isSupported()) {
+    let cancelled = false;
+    const setupHls = (Hls) => {
+      if (cancelled) return;
       const isLiveStream = contentType === "live";
       const hls = new Hls({
         enableWorker: true,
@@ -215,9 +225,18 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
           }
         }
       });
-    } else if (video.canPlayType("application/vnd.apple.mpegurl") && isHlsUrl) {
-      video.src = url;
-      video.addEventListener("loadedmetadata", () => video.play().catch(() => {}));
+    };
+
+    if (isHlsUrl || isTsUrl) {
+      loadHls().then((Hls) => {
+        if (cancelled) return;
+        if (Hls.isSupported()) {
+          setupHls(Hls);
+        } else if (video.canPlayType("application/vnd.apple.mpegurl") && isHlsUrl) {
+          video.src = url;
+          video.addEventListener("loadedmetadata", () => video.play().catch(() => {}));
+        }
+      });
     } else {
       video.src = url;
       video.addEventListener("loadedmetadata", () => {
@@ -360,6 +379,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     video.addEventListener("ended", onEnded);
 
     return () => {
+      cancelled = true;
       clearInterval(stallCheck);
       doSave();
       video.removeEventListener("play", onPlayEvt);

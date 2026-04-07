@@ -27,7 +27,7 @@ function ChannelRow({ channel, onPlay, onToggleFav, isFav }) {
 
 const MemoChannelRow = React.memo(ChannelRow);
 
-export default function LivePage({
+function LivePage({
   channels,
   groups,
   onPlay,
@@ -146,3 +146,5 @@ export default function LivePage({
     </div>
   );
 }
+
+export default React.memo(LivePage);

@@ -186,7 +186,7 @@ function getLastEpisode(seriesId, watchProgress) {
   return latest;
 }
 
-export default function SeriesPage({ series, groups, xtreamCreds, onPlay, favorites, onToggleFav, watchProgress, pendingSeries, onClearPending }) {
+function SeriesPage({ series, groups, xtreamCreds, onPlay, favorites, onToggleFav, watchProgress, pendingSeries, onClearPending }) {
   const [search, setSearch] = useState("");
   const [activeGroup, setActiveGroup] = useState(null);
   const [selectedShow, setSelectedShow] = useState(null);
@@ -300,3 +300,5 @@ export default function SeriesPage({ series, groups, xtreamCreds, onPlay, favori
     </div>
   );
 }
+
+export default React.memo(SeriesPage);

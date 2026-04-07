@@ -32,7 +32,7 @@ function SettingSection({ title, children }) {
   );
 }
 
-export default function SettingsPage({
+function SettingsPage({
   accentIndex, onAccentChange, recentURLs, onClearRecent,
   onResetAll, onClearProgress, onClearFavorites, onClearPlaylist,
   favCount, progressCount,
@@ -114,3 +114,4 @@ export default function SettingsPage({
 }
 
 export { ACCENT_COLORS };
+export default React.memo(SettingsPage);

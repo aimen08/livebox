@@ -37,7 +37,7 @@ function MovieCard({ movie, onPlay, isFav, onToggleFav, progress }) {
 
 const MemoMovieCard = React.memo(MovieCard);
 
-export default function MoviesPage({ movies, groups, onPlay, favorites, onToggleFav, watchProgress }) {
+function MoviesPage({ movies, groups, onPlay, favorites, onToggleFav, watchProgress }) {
   const [search, setSearch] = useState("");
   const [activeGroup, setActiveGroup] = useState(null);
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
@@ -132,3 +132,5 @@ export default function MoviesPage({ movies, groups, onPlay, favorites, onToggle
     </div>
   );
 }
+
+export default React.memo(MoviesPage);

@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcMain, dialog, session } = require("electron");
 const path = require("path");
 const fs = require("fs");
+const http = require("http");
+const https = require("https");
 
 // Enable native audio/video track selection API for MKV containers
 app.commandLine.appendSwitch("enable-blink-features", "AudioVideoTracks");
@@ -105,7 +107,7 @@ ipcMain.handle("fetch-url", async (_, url) => {
   const follow = (targetUrl, redirects = 0) => {
     if (redirects > 5) return Promise.reject(new Error("Too many redirects"));
     const parsed = new URL(targetUrl);
-    const lib = parsed.protocol === "https:" ? require("https") : require("http");
+    const lib = parsed.protocol === "https:" ? https : http;
     return new Promise((resolve, reject) => {
       const req = lib.request(targetUrl, {
         method: "GET",
@@ -137,26 +139,6 @@ ipcMain.handle("fetch-url", async (_, url) => {
   return follow(url);
 });
 
-ipcMain.handle("store-get", (_, key) => {
-  try {
-    const storePath = path.join(app.getPath("userData"), "store.json");
-    if (!fs.existsSync(storePath)) return null;
-    const data = JSON.parse(fs.readFileSync(storePath, "utf-8"));
-    return data[key] ?? null;
-  } catch { return null; }
-});
-
-ipcMain.handle("store-set", (_, key, value) => {
-  try {
-    const storePath = path.join(app.getPath("userData"), "store.json");
-    let data = {};
-    if (fs.existsSync(storePath)) data = JSON.parse(fs.readFileSync(storePath, "utf-8"));
-    data[key] = value;
-    fs.writeFileSync(storePath, JSON.stringify(data, null, 2));
-    return true;
-  } catch { return false; }
-});
-
 // OpenSubtitles.com API
 const OPENSUB_KEY = "REDACTED_OPENSUBTITLES_KEY";
 const OPENSUB_HEADERS = { "User-Agent": "LiveBox v1.0", "Api-Key": OPENSUB_KEY, "Accept": "application/json" };
@@ -165,7 +147,7 @@ function opensub(urlPath) {
   return new Promise((resolve, reject) => {
     const doReq = (u) => {
       const full = u.startsWith("http") ? u : `https://api.opensubtitles.com${u}`;
-      require("https").get(full, { headers: OPENSUB_HEADERS }, (res) => {
+      https.get(full, { headers: OPENSUB_HEADERS }, (res) => {
         if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
           res.resume();
           return doReq(res.headers.location);
@@ -214,7 +196,7 @@ ipcMain.handle("download-sub", async (_, fileId) => {
   try {
     const postData = JSON.stringify({ file_id: fileId });
     const dlInfo = await new Promise((resolve, reject) => {
-      const req = require("https").request({
+      const req = https.request({
         hostname: "api.opensubtitles.com",
         path: "/api/v1/download",
         method: "POST",
@@ -233,7 +215,7 @@ ipcMain.handle("download-sub", async (_, fileId) => {
     // Download the actual SRT file
     return new Promise((resolve, reject) => {
       const doReq = (url) => {
-        const lib = url.startsWith("https") ? require("https") : require("http");
+        const lib = url.startsWith("https") ? https : http;
         lib.get(url, { headers: { "User-Agent": "LiveBox v1.0" } }, (res) => {
           if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
             res.resume();

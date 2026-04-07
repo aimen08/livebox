@@ -24,7 +24,7 @@ function getLastEpisode(seriesId, watchProgress) {
   return latest;
 }
 
-export default function FavoritesPage({ favorites, onPlayLive, onPlayMovie, onToggleFav, watchProgress, onOpenSeries }) {
+function FavoritesPage({ favorites, onPlayLive, onPlayMovie, onToggleFav, watchProgress, onOpenSeries }) {
   const favList = Object.values(favorites);
 
   if (!favList.length) {
@@ -150,3 +150,5 @@ export default function FavoritesPage({ favorites, onPlayLive, onPlayMovie, onTo
     </div>
   );
 }
+
+export default React.memo(FavoritesPage);

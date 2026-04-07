@@ -37,7 +37,7 @@ function FeatureItem({ icon, title, desc }) {
   );
 }
 
-export default function HomePage({
+function HomePage({
   channels,
   movies,
   series,
@@ -209,3 +209,5 @@ export default function HomePage({
     </div>
   );
 }
+
+export default React.memo(HomePage);
