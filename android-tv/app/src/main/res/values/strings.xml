@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Livebox TV</string>
+    <string name="login_title">Sign in to your IPTV provider</string>
+    <string name="login_url">Server URL</string>
+    <string name="login_user">Username</string>
+    <string name="login_pass">Password</string>
+    <string name="login_button">Connect</string>
+    <string name="tab_live">Live TV</string>
+    <string name="tab_movies">Movies</string>
+    <string name="tab_series">Series</string>
+    <string name="tab_settings">Settings</string>
+</resources>
