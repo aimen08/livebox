@@ -1,0 +1,4760 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {
+    "hyperedges": [
+      {
+        "id": "xtream_shared_backend",
+        "label": "Shared Xtream Backend Across Clients",
+        "nodes": [
+          "readme_livebox",
+          "androidtv_readme_client",
+          "readme_xtream_api"
+        ],
+        "relation": "participate_in",
+        "confidence": "EXTRACTED",
+        "confidence_score": 0.95,
+        "source_file": "android-tv/README.md"
+      },
+      {
+        "id": "android_tv_stack",
+        "label": "Android TV Technology Stack",
+        "nodes": [
+          "androidtv_compose_tv",
+          "androidtv_media3_exoplayer",
+          "androidtv_hilt_di",
+          "androidtv_retrofit_okhttp"
+        ],
+        "relation": "form",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "android-tv/README.md"
+      },
+      {
+        "id": "livebox_brand_identity",
+        "label": "LiveBox Visual Brand (icon + TV + red)",
+        "nodes": [
+          "icon_svg_logo",
+          "icon_tv_screen_element",
+          "icon_red_dark_palette",
+          "icon_signal_waves"
+        ],
+        "relation": "form",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "icon.svg"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "label": "preload.js",
+      "file_type": "code",
+      "source_file": "preload.js",
+      "source_location": "L1",
+      "id": "preload",
+      "community": 32
+    },
+    {
+      "label": "index.js",
+      "file_type": "code",
+      "source_file": "index.js",
+      "source_location": "L1",
+      "id": "index",
+      "community": 17
+    },
+    {
+      "label": "createWindow()",
+      "file_type": "code",
+      "source_file": "index.js",
+      "source_location": "L10",
+      "id": "index_createwindow",
+      "community": 17
+    },
+    {
+      "label": "follow()",
+      "file_type": "code",
+      "source_file": "index.js",
+      "source_location": "L105",
+      "id": "index_follow",
+      "community": 17
+    },
+    {
+      "label": "opensub()",
+      "file_type": "code",
+      "source_file": "index.js",
+      "source_location": "L164",
+      "id": "index_opensub",
+      "community": 17
+    },
+    {
+      "label": "doReq()",
+      "file_type": "code",
+      "source_file": "index.js",
+      "source_location": "L235",
+      "id": "index_doreq",
+      "community": 17
+    },
+    {
+      "label": "vite.config.js",
+      "file_type": "code",
+      "source_file": "vite.config.js",
+      "source_location": "L1",
+      "id": "vite_config",
+      "community": 33
+    },
+    {
+      "label": "build.gradle.kts",
+      "file_type": "code",
+      "source_file": "android-tv/app/build.gradle.kts",
+      "source_location": "L1",
+      "id": "build_gradle",
+      "community": 34
+    },
+    {
+      "label": "settings.gradle.kts",
+      "file_type": "code",
+      "source_file": "android-tv/settings.gradle.kts",
+      "source_location": "L1",
+      "id": "settings_gradle",
+      "community": 35
+    },
+    {
+      "label": "MainActivity.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/MainActivity.kt",
+      "source_location": "L1",
+      "id": "mainactivity",
+      "community": 26
+    },
+    {
+      "label": "MainActivity",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/MainActivity.kt",
+      "source_location": "L21",
+      "id": "mainactivity_mainactivity",
+      "community": 26
+    },
+    {
+      "label": ".onCreate()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/MainActivity.kt",
+      "source_location": "L26",
+      "id": "mainactivity_mainactivity_oncreate",
+      "community": 26
+    },
+    {
+      "label": "LiveboxApp.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/LiveboxApp.kt",
+      "source_location": "L1",
+      "id": "liveboxapp",
+      "community": 20
+    },
+    {
+      "label": "LiveboxApp",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/LiveboxApp.kt",
+      "source_location": "L20",
+      "id": "liveboxapp_liveboxapp",
+      "community": 20
+    },
+    {
+      "label": ".onCreate()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/LiveboxApp.kt",
+      "source_location": "L23",
+      "id": "liveboxapp_liveboxapp_oncreate",
+      "community": 20
+    },
+    {
+      "label": ".newImageLoader()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/LiveboxApp.kt",
+      "source_location": "L43",
+      "id": "liveboxapp_liveboxapp_newimageloader",
+      "community": 20
+    },
+    {
+      "label": "AppViewModel.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L1",
+      "id": "appviewmodel",
+      "community": 9
+    },
+    {
+      "label": "SignInState",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L21",
+      "id": "appviewmodel_signinstate",
+      "community": 9
+    },
+    {
+      "label": "Idle",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L22",
+      "id": "appviewmodel_idle",
+      "community": 9
+    },
+    {
+      "label": "Loading",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L23",
+      "id": "appviewmodel_loading",
+      "community": 9
+    },
+    {
+      "label": "Error",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L24",
+      "id": "appviewmodel_error",
+      "community": 9
+    },
+    {
+      "label": "AppViewModel",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L27",
+      "id": "appviewmodel_appviewmodel",
+      "community": 9
+    },
+    {
+      "label": ".signIn()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L49",
+      "id": "appviewmodel_appviewmodel_signin",
+      "community": 9
+    },
+    {
+      "label": ".resetSignInState()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L68",
+      "id": "appviewmodel_appviewmodel_resetsigninstate",
+      "community": 9
+    },
+    {
+      "label": ".signOut()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L72",
+      "id": "appviewmodel_appviewmodel_signout",
+      "community": 9
+    },
+    {
+      "label": "WindowSize.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/util/WindowSize.kt",
+      "source_location": "L1",
+      "id": "windowsize",
+      "community": 30
+    },
+    {
+      "label": "isCompactWidth()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/util/WindowSize.kt",
+      "source_location": "L14",
+      "id": "windowsize_iscompactwidth",
+      "community": 30
+    },
+    {
+      "label": "MovieDetailScreen.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L1",
+      "id": "moviedetailscreen",
+      "community": 8
+    },
+    {
+      "label": "MovieDetailState",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L51",
+      "id": "moviedetailscreen_moviedetailstate",
+      "community": 8
+    },
+    {
+      "label": "MovieDetailViewModel",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L57",
+      "id": "moviedetailscreen_moviedetailviewmodel",
+      "community": 8
+    },
+    {
+      "label": ".toggleFavorite()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L82",
+      "id": "moviedetailscreen_moviedetailviewmodel_togglefavorite",
+      "community": 8
+    },
+    {
+      "label": ".touchHistoryAndPlay()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L95",
+      "id": "moviedetailscreen_moviedetailviewmodel_touchhistoryandplay",
+      "community": 8
+    },
+    {
+      "label": "MovieDetailScreen()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L109",
+      "id": "moviedetailscreen_moviedetailscreen",
+      "community": 8
+    },
+    {
+      "label": "MovieBodyCompact()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L147",
+      "id": "moviedetailscreen_moviebodycompact",
+      "community": 8
+    },
+    {
+      "label": "MovieBodyExpanded()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L222",
+      "id": "moviedetailscreen_moviebodyexpanded",
+      "community": 8
+    },
+    {
+      "label": "MetaLine()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L288",
+      "id": "moviedetailscreen_metaline",
+      "community": 8
+    },
+    {
+      "label": "BackChip()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L294",
+      "id": "moviedetailscreen_backchip",
+      "community": 8
+    },
+    {
+      "label": "SettingsContent.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L1",
+      "id": "settingscontent",
+      "community": 6
+    },
+    {
+      "label": "SettingsViewModel",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L37",
+      "id": "settingscontent_settingsviewmodel",
+      "community": 6
+    },
+    {
+      "label": ".signOut()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L45",
+      "id": "settingscontent_settingsviewmodel_signout",
+      "community": 6
+    },
+    {
+      "label": ".clearFavorites()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L51",
+      "id": "settingscontent_settingsviewmodel_clearfavorites",
+      "community": 6
+    },
+    {
+      "label": ".clearHistory()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L53",
+      "id": "settingscontent_settingsviewmodel_clearhistory",
+      "community": 6
+    },
+    {
+      "label": ".clearAll()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L55",
+      "id": "settingscontent_settingsviewmodel_clearall",
+      "community": 6
+    },
+    {
+      "label": "ConfirmKind",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L64",
+      "id": "settingscontent_confirmkind",
+      "community": 6
+    },
+    {
+      "label": "SettingsContent()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L66",
+      "id": "settingscontent_settingscontent",
+      "community": 6
+    },
+    {
+      "label": "SectionTitle()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L140",
+      "id": "settingscontent_sectiontitle",
+      "community": 6
+    },
+    {
+      "label": "SettingRow()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L152",
+      "id": "settingscontent_settingrow",
+      "community": 6
+    },
+    {
+      "label": "ConfirmDialog()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L185",
+      "id": "settingscontent_confirmdialog",
+      "community": 6
+    },
+    {
+      "label": "FavoritesContent.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/FavoritesContent.kt",
+      "source_location": "L1",
+      "id": "favoritescontent",
+      "community": 21
+    },
+    {
+      "label": "FavoritesActions",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/FavoritesContent.kt",
+      "source_location": "L31",
+      "id": "favoritescontent_favoritesactions",
+      "community": 21
+    },
+    {
+      "label": "FavoritesViewModel",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/FavoritesContent.kt",
+      "source_location": "L37",
+      "id": "favoritescontent_favoritesviewmodel",
+      "community": 21
+    },
+    {
+      "label": "FavoritesContent()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/FavoritesContent.kt",
+      "source_location": "L45",
+      "id": "favoritescontent_favoritescontent",
+      "community": 21
+    },
+    {
+      "label": "PlayerScreen.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/PlayerScreen.kt",
+      "source_location": "L1",
+      "id": "playerscreen",
+      "community": 12
+    },
+    {
+      "label": "PlayerViewModel",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/PlayerScreen.kt",
+      "source_location": "L44",
+      "id": "playerscreen_playerviewmodel",
+      "community": 12
+    },
+    {
+      "label": ".streamUrl()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/PlayerScreen.kt",
+      "source_location": "L50",
+      "id": "playerscreen_playerviewmodel_streamurl",
+      "community": 12
+    },
+    {
+      "label": ".resumePosition()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/PlayerScreen.kt",
+      "source_location": "L53",
+      "id": "playerscreen_playerviewmodel_resumeposition",
+      "community": 12
+    },
+    {
+      "label": ".savePosition()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/PlayerScreen.kt",
+      "source_location": "L58",
+      "id": "playerscreen_playerviewmodel_saveposition",
+      "community": 12
+    },
+    {
+      "label": "PlayerScreen()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/PlayerScreen.kt",
+      "source_location": "L64",
+      "id": "playerscreen_playerscreen",
+      "community": 12
+    },
+    {
+      "label": "LiveBadge()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/PlayerScreen.kt",
+      "source_location": "L203",
+      "id": "playerscreen_livebadge",
+      "community": 12
+    },
+    {
+      "label": "findActivity()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/PlayerScreen.kt",
+      "source_location": "L229",
+      "id": "playerscreen_findactivity",
+      "community": 12
+    },
+    {
+      "label": "LoginScreen.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LoginScreen.kt",
+      "source_location": "L1",
+      "id": "loginscreen",
+      "community": 14
+    },
+    {
+      "label": "LoginScreen()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LoginScreen.kt",
+      "source_location": "L50",
+      "id": "loginscreen_loginscreen",
+      "community": 14
+    },
+    {
+      "label": "LoadingOverlay()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LoginScreen.kt",
+      "source_location": "L184",
+      "id": "loginscreen_loadingoverlay",
+      "community": 14
+    },
+    {
+      "label": "HeroLogo()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LoginScreen.kt",
+      "source_location": "L226",
+      "id": "loginscreen_herologo",
+      "community": 14
+    },
+    {
+      "label": "FeatureCard()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LoginScreen.kt",
+      "source_location": "L258",
+      "id": "loginscreen_featurecard",
+      "community": 14
+    },
+    {
+      "label": "UrlModal()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LoginScreen.kt",
+      "source_location": "L290",
+      "id": "loginscreen_urlmodal",
+      "community": 14
+    },
+    {
+      "label": "HomeScreen.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/HomeScreen.kt",
+      "source_location": "L1",
+      "id": "homescreen",
+      "community": 27
+    },
+    {
+      "label": "NavTab",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/HomeScreen.kt",
+      "source_location": "L39",
+      "id": "homescreen_navtab",
+      "community": 27
+    },
+    {
+      "label": "HomeScreen()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/HomeScreen.kt",
+      "source_location": "L49",
+      "id": "homescreen_homescreen",
+      "community": 27
+    },
+    {
+      "label": "SeriesContent.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesContent.kt",
+      "source_location": "L1",
+      "id": "seriescontent",
+      "community": 15
+    },
+    {
+      "label": "SeriesState",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesContent.kt",
+      "source_location": "L36",
+      "id": "seriescontent_seriesstate",
+      "community": 15
+    },
+    {
+      "label": "SeriesViewModel",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesContent.kt",
+      "source_location": "L44",
+      "id": "seriescontent_seriesviewmodel",
+      "community": 15
+    },
+    {
+      "label": ".refresh()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesContent.kt",
+      "source_location": "L77",
+      "id": "seriescontent_seriesviewmodel_refresh",
+      "community": 15
+    },
+    {
+      "label": ".selectCategory()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesContent.kt",
+      "source_location": "L83",
+      "id": "seriescontent_seriesviewmodel_selectcategory",
+      "community": 15
+    },
+    {
+      "label": "SeriesContent()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesContent.kt",
+      "source_location": "L88",
+      "id": "seriescontent_seriescontent",
+      "community": 15
+    },
+    {
+      "label": "MoviesContent.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MoviesContent.kt",
+      "source_location": "L1",
+      "id": "moviescontent",
+      "community": 13
+    },
+    {
+      "label": "MoviesState",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MoviesContent.kt",
+      "source_location": "L44",
+      "id": "moviescontent_moviesstate",
+      "community": 13
+    },
+    {
+      "label": "MoviesViewModel",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MoviesContent.kt",
+      "source_location": "L52",
+      "id": "moviescontent_moviesviewmodel",
+      "community": 13
+    },
+    {
+      "label": ".refresh()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MoviesContent.kt",
+      "source_location": "L85",
+      "id": "moviescontent_moviesviewmodel_refresh",
+      "community": 13
+    },
+    {
+      "label": ".selectCategory()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MoviesContent.kt",
+      "source_location": "L91",
+      "id": "moviescontent_moviesviewmodel_selectcategory",
+      "community": 13
+    },
+    {
+      "label": "MoviesContent()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MoviesContent.kt",
+      "source_location": "L96",
+      "id": "moviescontent_moviescontent",
+      "community": 13
+    },
+    {
+      "label": "PosterCard()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MoviesContent.kt",
+      "source_location": "L151",
+      "id": "moviescontent_postercard",
+      "community": 13
+    },
+    {
+      "label": "SeriesDetailScreen.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L1",
+      "id": "seriesdetailscreen",
+      "community": 4
+    },
+    {
+      "label": "SeriesDetailState",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L53",
+      "id": "seriesdetailscreen_seriesdetailstate",
+      "community": 4
+    },
+    {
+      "label": "SeriesDetailViewModel",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L60",
+      "id": "seriesdetailscreen_seriesdetailviewmodel",
+      "community": 4
+    },
+    {
+      "label": ".selectSeason()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L93",
+      "id": "seriesdetailscreen_seriesdetailviewmodel_selectseason",
+      "community": 4
+    },
+    {
+      "label": ".toggleFavorite()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L97",
+      "id": "seriesdetailscreen_seriesdetailviewmodel_togglefavorite",
+      "community": 4
+    },
+    {
+      "label": ".touchAndPlayEpisode()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L109",
+      "id": "seriesdetailscreen_seriesdetailviewmodel_touchandplayepisode",
+      "community": 4
+    },
+    {
+      "label": "SeriesDetailScreen()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L123",
+      "id": "seriesdetailscreen_seriesdetailscreen",
+      "community": 4
+    },
+    {
+      "label": "SeriesBodyCompact()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L168",
+      "id": "seriesdetailscreen_seriesbodycompact",
+      "community": 4
+    },
+    {
+      "label": "EpisodeRowCompact()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L275",
+      "id": "seriesdetailscreen_episoderowcompact",
+      "community": 4
+    },
+    {
+      "label": "SeriesBodyExpanded()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L317",
+      "id": "seriesdetailscreen_seriesbodyexpanded",
+      "community": 4
+    },
+    {
+      "label": "SeriesHeader()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L376",
+      "id": "seriesdetailscreen_seriesheader",
+      "community": 4
+    },
+    {
+      "label": "EpisodeCardExpanded()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L438",
+      "id": "seriesdetailscreen_episodecardexpanded",
+      "community": 4
+    },
+    {
+      "label": "LiveContent.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L1",
+      "id": "livecontent",
+      "community": 5
+    },
+    {
+      "label": "LiveState",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L50",
+      "id": "livecontent_livestate",
+      "community": 5
+    },
+    {
+      "label": "LiveViewModel",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L58",
+      "id": "livecontent_liveviewmodel",
+      "community": 5
+    },
+    {
+      "label": ".refresh()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L97",
+      "id": "livecontent_liveviewmodel_refresh",
+      "community": 5
+    },
+    {
+      "label": ".selectCategory()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L103",
+      "id": "livecontent_liveviewmodel_selectcategory",
+      "community": 5
+    },
+    {
+      "label": "LiveContent()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L108",
+      "id": "livecontent_livecontent",
+      "community": 5
+    },
+    {
+      "label": "ChannelsListBody()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L210",
+      "id": "livecontent_channelslistbody",
+      "community": 5
+    },
+    {
+      "label": "GroupsPanel()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L243",
+      "id": "livecontent_groupspanel",
+      "community": 5
+    },
+    {
+      "label": "CategoryChipRow()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L308",
+      "id": "livecontent_categorychiprow",
+      "community": 5
+    },
+    {
+      "label": "SearchBar()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L342",
+      "id": "livecontent_searchbar",
+      "community": 5
+    },
+    {
+      "label": "ChannelRow()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L393",
+      "id": "livecontent_channelrow",
+      "community": 5
+    },
+    {
+      "label": "CategorySidebarLayout()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L445",
+      "id": "livecontent_categorysidebarlayout",
+      "community": 5
+    },
+    {
+      "label": "Theme.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/theme/Theme.kt",
+      "source_location": "L1",
+      "id": "theme",
+      "community": 28
+    },
+    {
+      "label": "LbColors",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/theme/Theme.kt",
+      "source_location": "L22",
+      "id": "theme_lbcolors",
+      "community": 28
+    },
+    {
+      "label": "LiveboxTheme()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/theme/Theme.kt",
+      "source_location": "L51",
+      "id": "theme_liveboxtheme",
+      "community": 28
+    },
+    {
+      "label": "FavoritesRepository.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L1",
+      "id": "favoritesrepository",
+      "community": 10
+    },
+    {
+      "label": "FavoritesRepository",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L9",
+      "id": "favoritesrepository_favoritesrepository",
+      "community": 10
+    },
+    {
+      "label": ".observeAll()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L13",
+      "id": "favoritesrepository_favoritesrepository_observeall",
+      "community": 10
+    },
+    {
+      "label": ".observeByType()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L14",
+      "id": "favoritesrepository_favoritesrepository_observebytype",
+      "community": 10
+    },
+    {
+      "label": ".isFavorite()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L15",
+      "id": "favoritesrepository_favoritesrepository_isfavorite",
+      "community": 10
+    },
+    {
+      "label": ".toggle()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L17",
+      "id": "favoritesrepository_favoritesrepository_toggle",
+      "community": 10
+    },
+    {
+      "label": ".add()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L29",
+      "id": "favoritesrepository_favoritesrepository_add",
+      "community": 10
+    },
+    {
+      "label": ".remove()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L32",
+      "id": "favoritesrepository_favoritesrepository_remove",
+      "community": 10
+    },
+    {
+      "label": ".clearAll()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L34",
+      "id": "favoritesrepository_favoritesrepository_clearall",
+      "community": 10
+    },
+    {
+      "label": "NetworkModule.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/NetworkModule.kt",
+      "source_location": "L1",
+      "id": "networkmodule",
+      "community": 16
+    },
+    {
+      "label": "NetworkModule",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/NetworkModule.kt",
+      "source_location": "L16",
+      "id": "networkmodule_networkmodule",
+      "community": 16
+    },
+    {
+      "label": ".provideJson()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/NetworkModule.kt",
+      "source_location": "L20",
+      "id": "networkmodule_networkmodule_providejson",
+      "community": 16
+    },
+    {
+      "label": ".provideOkHttp()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/NetworkModule.kt",
+      "source_location": "L27",
+      "id": "networkmodule_networkmodule_provideokhttp",
+      "community": 16
+    },
+    {
+      "label": ".provideRetrofit()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/NetworkModule.kt",
+      "source_location": "L36",
+      "id": "networkmodule_networkmodule_provideretrofit",
+      "community": 16
+    },
+    {
+      "label": ".provideXtreamApi()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/NetworkModule.kt",
+      "source_location": "L44",
+      "id": "networkmodule_networkmodule_providextreamapi",
+      "community": 16
+    },
+    {
+      "label": "XtreamRepository.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L1",
+      "id": "xtreamrepository",
+      "community": 7
+    },
+    {
+      "label": "XtreamRepository",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L9",
+      "id": "xtreamrepository_xtreamrepository",
+      "community": 7
+    },
+    {
+      "label": ".refreshAll()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L23",
+      "id": "xtreamrepository_xtreamrepository_refreshall",
+      "community": 7
+    },
+    {
+      "label": ".clearCache()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L46",
+      "id": "xtreamrepository_xtreamrepository_clearcache",
+      "community": 7
+    },
+    {
+      "label": ".seriesInfo()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L50",
+      "id": "xtreamrepository_xtreamrepository_seriesinfo",
+      "community": 7
+    },
+    {
+      "label": ".shortEpg()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L55",
+      "id": "xtreamrepository_xtreamrepository_shortepg",
+      "community": 7
+    },
+    {
+      "label": ".vodInfo()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L61",
+      "id": "xtreamrepository_xtreamrepository_vodinfo",
+      "community": 7
+    },
+    {
+      "label": ".liveStreamUrl()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L68",
+      "id": "xtreamrepository_xtreamrepository_livestreamurl",
+      "community": 7
+    },
+    {
+      "label": ".vodStreamUrl()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L71",
+      "id": "xtreamrepository_xtreamrepository_vodstreamurl",
+      "community": 7
+    },
+    {
+      "label": ".episodeStreamUrl()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L74",
+      "id": "xtreamrepository_xtreamrepository_episodestreamurl",
+      "community": 7
+    },
+    {
+      "label": ".resolveStreamUrl()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L78",
+      "id": "xtreamrepository_xtreamrepository_resolvestreamurl",
+      "community": 7
+    },
+    {
+      "label": "Models.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L1",
+      "id": "models",
+      "community": 1
+    },
+    {
+      "label": "XtreamCredentials",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L13",
+      "id": "models_xtreamcredentials",
+      "community": 1
+    },
+    {
+      "label": "parseM3uUrl()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L28",
+      "id": "models_parsem3uurl",
+      "community": 1
+    },
+    {
+      "label": "LiveCategory",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L40",
+      "id": "models_livecategory",
+      "community": 1
+    },
+    {
+      "label": "LiveChannel",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L46",
+      "id": "models_livechannel",
+      "community": 1
+    },
+    {
+      "label": "VodItem",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L56",
+      "id": "models_voditem",
+      "community": 1
+    },
+    {
+      "label": "SeriesItem",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L66",
+      "id": "models_seriesitem",
+      "community": 1
+    },
+    {
+      "label": "SeriesInfo",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L82",
+      "id": "models_seriesinfo",
+      "community": 1
+    },
+    {
+      "label": "SeriesInfoMeta",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L89",
+      "id": "models_seriesinfometa",
+      "community": 1
+    },
+    {
+      "label": "Season",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L101",
+      "id": "models_season",
+      "community": 1
+    },
+    {
+      "label": "Episode",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L110",
+      "id": "models_episode",
+      "community": 1
+    },
+    {
+      "label": "EpisodeInfo",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L119",
+      "id": "models_episodeinfo",
+      "community": 1
+    },
+    {
+      "label": "EpgResponse",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L128",
+      "id": "models_epgresponse",
+      "community": 1
+    },
+    {
+      "label": "EpgListing",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L137",
+      "id": "models_epglisting",
+      "community": 1
+    },
+    {
+      "label": "decodeBase64()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L152",
+      "id": "models_decodebase64",
+      "community": 1
+    },
+    {
+      "label": "VodInfoResponse",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L158",
+      "id": "models_vodinforesponse",
+      "community": 1
+    },
+    {
+      "label": "VodInfoMeta",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L164",
+      "id": "models_vodinfometa",
+      "community": 1
+    },
+    {
+      "label": "VodMovieData",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L176",
+      "id": "models_vodmoviedata",
+      "community": 1
+    },
+    {
+      "label": "XtreamCacheSnapshot",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L190",
+      "id": "models_xtreamcachesnapshot",
+      "community": 1
+    },
+    {
+      "label": "XtreamApi.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L1",
+      "id": "xtreamapi",
+      "community": 2
+    },
+    {
+      "label": "XtreamApi",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L13",
+      "id": "xtreamapi_xtreamapi",
+      "community": 2
+    },
+    {
+      "label": ".liveCategories()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L15",
+      "id": "xtreamapi_xtreamapi_livecategories",
+      "community": 2
+    },
+    {
+      "label": ".liveStreams()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L18",
+      "id": "xtreamapi_xtreamapi_livestreams",
+      "community": 2
+    },
+    {
+      "label": ".vodCategories()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L21",
+      "id": "xtreamapi_xtreamapi_vodcategories",
+      "community": 2
+    },
+    {
+      "label": ".vodStreams()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L24",
+      "id": "xtreamapi_xtreamapi_vodstreams",
+      "community": 2
+    },
+    {
+      "label": ".seriesCategories()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L27",
+      "id": "xtreamapi_xtreamapi_seriescategories",
+      "community": 2
+    },
+    {
+      "label": ".series()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L30",
+      "id": "xtreamapi_xtreamapi_series",
+      "community": 2
+    },
+    {
+      "label": ".seriesInfo()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L33",
+      "id": "xtreamapi_xtreamapi_seriesinfo",
+      "community": 2
+    },
+    {
+      "label": ".shortEpg()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L36",
+      "id": "xtreamapi_xtreamapi_shortepg",
+      "community": 2
+    },
+    {
+      "label": ".vodInfo()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L39",
+      "id": "xtreamapi_xtreamapi_vodinfo",
+      "community": 2
+    },
+    {
+      "label": "XtreamUrls",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L43",
+      "id": "xtreamapi_xtreamurls",
+      "community": 2
+    },
+    {
+      "label": ".action()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L44",
+      "id": "xtreamapi_xtreamurls_action",
+      "community": 2
+    },
+    {
+      "label": ".liveStream()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L51",
+      "id": "xtreamapi_xtreamurls_livestream",
+      "community": 2
+    },
+    {
+      "label": ".vodStream()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L54",
+      "id": "xtreamapi_xtreamurls_vodstream",
+      "community": 2
+    },
+    {
+      "label": ".seriesEpisode()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L57",
+      "id": "xtreamapi_xtreamurls_seriesepisode",
+      "community": 2
+    },
+    {
+      "label": "WatchHistoryRepository.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L1",
+      "id": "watchhistoryrepository",
+      "community": 11
+    },
+    {
+      "label": "WatchHistoryRepository",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L13",
+      "id": "watchhistoryrepository_watchhistoryrepository",
+      "community": 11
+    },
+    {
+      "label": ".savePositionInBackground()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L25",
+      "id": "watchhistoryrepository_watchhistoryrepository_savepositioninbackground",
+      "community": 11
+    },
+    {
+      "label": ".observeRecent()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L29",
+      "id": "watchhistoryrepository_watchhistoryrepository_observerecent",
+      "community": 11
+    },
+    {
+      "label": ".get()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L32",
+      "id": "watchhistoryrepository_watchhistoryrepository_get",
+      "community": 11
+    },
+    {
+      "label": ".touch()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L35",
+      "id": "watchhistoryrepository_watchhistoryrepository_touch",
+      "community": 11
+    },
+    {
+      "label": ".updatePosition()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L57",
+      "id": "watchhistoryrepository_watchhistoryrepository_updateposition",
+      "community": 11
+    },
+    {
+      "label": ".delete()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L65",
+      "id": "watchhistoryrepository_watchhistoryrepository_delete",
+      "community": 11
+    },
+    {
+      "label": ".clearAll()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L67",
+      "id": "watchhistoryrepository_watchhistoryrepository_clearall",
+      "community": 11
+    },
+    {
+      "label": "XtreamContentCache.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamContentCache.kt",
+      "source_location": "L1",
+      "id": "xtreamcontentcache",
+      "community": 22
+    },
+    {
+      "label": "XtreamContentCache",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamContentCache.kt",
+      "source_location": "L31",
+      "id": "xtreamcontentcache_xtreamcontentcache",
+      "community": 22
+    },
+    {
+      "label": ".update()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamContentCache.kt",
+      "source_location": "L54",
+      "id": "xtreamcontentcache_xtreamcontentcache_update",
+      "community": 22
+    },
+    {
+      "label": ".clear()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamContentCache.kt",
+      "source_location": "L63",
+      "id": "xtreamcontentcache_xtreamcontentcache_clear",
+      "community": 22
+    },
+    {
+      "label": "Entities.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Entities.kt",
+      "source_location": "L1",
+      "id": "entities",
+      "community": 23
+    },
+    {
+      "label": "StreamType",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Entities.kt",
+      "source_location": "L9",
+      "id": "entities_streamtype",
+      "community": 23
+    },
+    {
+      "label": "FavoriteEntity",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Entities.kt",
+      "source_location": "L16",
+      "id": "entities_favoriteentity",
+      "community": 23
+    },
+    {
+      "label": "WatchHistoryEntity",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Entities.kt",
+      "source_location": "L27",
+      "id": "entities_watchhistoryentity",
+      "community": 23
+    },
+    {
+      "label": "Daos.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L1",
+      "id": "daos",
+      "community": 3
+    },
+    {
+      "label": "FavoritesDao",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L9",
+      "id": "daos_favoritesdao",
+      "community": 3
+    },
+    {
+      "label": ".observeAll()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L12",
+      "id": "daos_favoritesdao_observeall",
+      "community": 3
+    },
+    {
+      "label": ".observeByType()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L15",
+      "id": "daos_favoritesdao_observebytype",
+      "community": 3
+    },
+    {
+      "label": ".isFavorite()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L18",
+      "id": "daos_favoritesdao_isfavorite",
+      "community": 3
+    },
+    {
+      "label": ".insert()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L21",
+      "id": "daos_favoritesdao_insert",
+      "community": 3
+    },
+    {
+      "label": ".delete()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L24",
+      "id": "daos_favoritesdao_delete",
+      "community": 3
+    },
+    {
+      "label": ".clear()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L27",
+      "id": "daos_favoritesdao_clear",
+      "community": 3
+    },
+    {
+      "label": "WatchHistoryDao",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L31",
+      "id": "daos_watchhistorydao",
+      "community": 3
+    },
+    {
+      "label": ".observeRecent()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L34",
+      "id": "daos_watchhistorydao_observerecent",
+      "community": 3
+    },
+    {
+      "label": ".get()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L37",
+      "id": "daos_watchhistorydao_get",
+      "community": 3
+    },
+    {
+      "label": ".upsert()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L40",
+      "id": "daos_watchhistorydao_upsert",
+      "community": 3
+    },
+    {
+      "label": ".updatePosition()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L43",
+      "id": "daos_watchhistorydao_updateposition",
+      "community": 3
+    },
+    {
+      "label": ".delete()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L55",
+      "id": "daos_watchhistorydao_delete",
+      "community": 3
+    },
+    {
+      "label": ".clear()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L58",
+      "id": "daos_watchhistorydao_clear",
+      "community": 3
+    },
+    {
+      "label": "DatabaseModule.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/DatabaseModule.kt",
+      "source_location": "L1",
+      "id": "databasemodule",
+      "community": 18
+    },
+    {
+      "label": "DatabaseModule",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/DatabaseModule.kt",
+      "source_location": "L12",
+      "id": "databasemodule_databasemodule",
+      "community": 18
+    },
+    {
+      "label": ".provideDatabase()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/DatabaseModule.kt",
+      "source_location": "L16",
+      "id": "databasemodule_databasemodule_providedatabase",
+      "community": 18
+    },
+    {
+      "label": ".provideFavoritesDao()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/DatabaseModule.kt",
+      "source_location": "L22",
+      "id": "databasemodule_databasemodule_providefavoritesdao",
+      "community": 18
+    },
+    {
+      "label": ".provideWatchHistoryDao()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/DatabaseModule.kt",
+      "source_location": "L23",
+      "id": "databasemodule_databasemodule_providewatchhistorydao",
+      "community": 18
+    },
+    {
+      "label": "LiveboxDatabase.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/LiveboxDatabase.kt",
+      "source_location": "L1",
+      "id": "liveboxdatabase",
+      "community": 24
+    },
+    {
+      "label": "LiveboxDatabase",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/LiveboxDatabase.kt",
+      "source_location": "L6",
+      "id": "liveboxdatabase_liveboxdatabase",
+      "community": 24
+    },
+    {
+      "label": ".favoritesDao()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/LiveboxDatabase.kt",
+      "source_location": "L12",
+      "id": "liveboxdatabase_liveboxdatabase_favoritesdao",
+      "community": 24
+    },
+    {
+      "label": ".watchHistoryDao()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/LiveboxDatabase.kt",
+      "source_location": "L13",
+      "id": "liveboxdatabase_liveboxdatabase_watchhistorydao",
+      "community": 24
+    },
+    {
+      "label": "LiveboxPlayer.kt",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/player/LiveboxPlayer.kt",
+      "source_location": "L1",
+      "id": "liveboxplayer",
+      "community": 25
+    },
+    {
+      "label": "LiveboxPlayer",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/player/LiveboxPlayer.kt",
+      "source_location": "L22",
+      "id": "liveboxplayer_liveboxplayer",
+      "community": 25
+    },
+    {
+      "label": ".build()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/player/LiveboxPlayer.kt",
+      "source_location": "L26",
+      "id": "liveboxplayer_liveboxplayer_build",
+      "community": 25
+    },
+    {
+      "label": ".mediaItem()",
+      "file_type": "code",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/player/LiveboxPlayer.kt",
+      "source_location": "L76",
+      "id": "liveboxplayer_liveboxplayer_mediaitem",
+      "community": 25
+    },
+    {
+      "label": "m3uParser.js",
+      "file_type": "code",
+      "source_file": "src/utils/m3uParser.js",
+      "source_location": "L1",
+      "id": "m3uparser",
+      "community": 31
+    },
+    {
+      "label": "parseM3U()",
+      "file_type": "code",
+      "source_file": "src/utils/m3uParser.js",
+      "source_location": "L1",
+      "id": "m3uparser_parsem3u",
+      "community": 31
+    },
+    {
+      "label": "storage.js",
+      "file_type": "code",
+      "source_file": "src/utils/storage.js",
+      "source_location": "L1",
+      "id": "storage",
+      "community": 29
+    },
+    {
+      "label": "storageGet()",
+      "file_type": "code",
+      "source_file": "src/utils/storage.js",
+      "source_location": "L3",
+      "id": "storage_storageget",
+      "community": 29
+    },
+    {
+      "label": "storageSet()",
+      "file_type": "code",
+      "source_file": "src/utils/storage.js",
+      "source_location": "L12",
+      "id": "storage_storageset",
+      "community": 29
+    },
+    {
+      "label": "LiveBox Electron App",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme_livebox",
+      "community": 0
+    },
+    {
+      "label": "Xtream Codes API Integration",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme_xtream_api",
+      "community": 0
+    },
+    {
+      "label": "M3U Playlist Support",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme_m3u_support",
+      "community": 0
+    },
+    {
+      "label": "Custom Video Player (hls.js)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme_custom_player",
+      "community": 0
+    },
+    {
+      "label": "Resume Playback Feature",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme_resume_playback",
+      "community": 19
+    },
+    {
+      "label": "Favorites Library",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme_favorites",
+      "community": 19
+    },
+    {
+      "label": "Persistent Sessions",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme_persistent_sessions",
+      "community": 19
+    },
+    {
+      "label": "Electron + React + Vite Stack",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme_tech_stack",
+      "community": 0
+    },
+    {
+      "label": "Cross-Platform Builds (mac/win/linux)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme_cross_platform",
+      "community": 0
+    },
+    {
+      "label": "storage.js LocalStorage Wrapper",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme_storage_js",
+      "community": 19
+    },
+    {
+      "label": "Livebox TV Android/Google TV Client",
+      "file_type": "document",
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "androidtv_readme_client",
+      "community": 0
+    },
+    {
+      "label": "Jetpack Compose for TV",
+      "file_type": "document",
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "androidtv_compose_tv",
+      "community": 0
+    },
+    {
+      "label": "Media3 ExoPlayer (live HLS)",
+      "file_type": "document",
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "androidtv_media3_exoplayer",
+      "community": 0
+    },
+    {
+      "label": "Hilt Dependency Injection",
+      "file_type": "document",
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "androidtv_hilt_di",
+      "community": 0
+    },
+    {
+      "label": "Retrofit + OkHttp + kotlinx.serialization",
+      "file_type": "document",
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "androidtv_retrofit_okhttp",
+      "community": 0
+    },
+    {
+      "label": "DataStore Credentials Persistence",
+      "file_type": "document",
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "androidtv_datastore_creds",
+      "community": 19
+    },
+    {
+      "label": "Coil Image Loading",
+      "file_type": "document",
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "androidtv_coil_images",
+      "community": 0
+    },
+    {
+      "label": "LEANBACK_LAUNCHER Registration",
+      "file_type": "document",
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "androidtv_leanback_launcher",
+      "community": 0
+    },
+    {
+      "label": "Restreamer Mode (Threadfin/MediaMTX)",
+      "file_type": "document",
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "androidtv_restreamer_mode",
+      "community": 0
+    },
+    {
+      "label": "D-pad Focus Navigation",
+      "file_type": "document",
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "androidtv_dpad_focus",
+      "community": 0
+    },
+    {
+      "label": "OpenSubtitles Integration (TODO)",
+      "file_type": "document",
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "androidtv_opensubtitles_todo",
+      "community": 0
+    },
+    {
+      "label": "LiveBox App Icon (TV + LIVEBOX label)",
+      "file_type": "image",
+      "source_file": "icon.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "icon_svg_logo",
+      "community": 0
+    },
+    {
+      "label": "TV Screen with Play Triangle",
+      "file_type": "image",
+      "source_file": "icon.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "icon_tv_screen_element",
+      "community": 0
+    },
+    {
+      "label": "Signal Wave Motif (broadcast)",
+      "file_type": "image",
+      "source_file": "icon.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "icon_signal_waves",
+      "community": 0
+    },
+    {
+      "label": "Red (#e50914) on Dark Palette",
+      "file_type": "image",
+      "source_file": "icon.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "icon_red_dark_palette",
+      "community": 0
+    },
+    {
+      "label": "icon.png Raster Export",
+      "file_type": "image",
+      "source_file": "icon.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "icon_png_512",
+      "community": 0
+    },
+    {
+      "label": "icon-1024.png Raster Export",
+      "file_type": "image",
+      "source_file": "icon-1024.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "icon_png_1024",
+      "community": 0
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "index.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_src": "index",
+      "_tgt": "index_createwindow",
+      "source": "index",
+      "target": "index_createwindow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "index.js",
+      "source_location": "L105",
+      "weight": 1.0,
+      "_src": "index",
+      "_tgt": "index_follow",
+      "source": "index",
+      "target": "index_follow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "index.js",
+      "source_location": "L164",
+      "weight": 1.0,
+      "_src": "index",
+      "_tgt": "index_opensub",
+      "source": "index",
+      "target": "index_opensub",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "index.js",
+      "source_location": "L235",
+      "weight": 1.0,
+      "_src": "index",
+      "_tgt": "index_doreq",
+      "source": "index",
+      "target": "index_doreq",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/MainActivity.kt",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_src": "mainactivity",
+      "_tgt": "mainactivity_mainactivity",
+      "source": "mainactivity",
+      "target": "mainactivity_mainactivity",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/MainActivity.kt",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_src": "mainactivity_mainactivity",
+      "_tgt": "mainactivity_mainactivity_oncreate",
+      "source": "mainactivity_mainactivity",
+      "target": "mainactivity_mainactivity_oncreate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/LiveboxApp.kt",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_src": "liveboxapp",
+      "_tgt": "liveboxapp_liveboxapp",
+      "source": "liveboxapp",
+      "target": "liveboxapp_liveboxapp",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/LiveboxApp.kt",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_src": "liveboxapp_liveboxapp",
+      "_tgt": "liveboxapp_liveboxapp_oncreate",
+      "source": "liveboxapp_liveboxapp",
+      "target": "liveboxapp_liveboxapp_oncreate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/LiveboxApp.kt",
+      "source_location": "L43",
+      "weight": 1.0,
+      "_src": "liveboxapp_liveboxapp",
+      "_tgt": "liveboxapp_liveboxapp_newimageloader",
+      "source": "liveboxapp_liveboxapp",
+      "target": "liveboxapp_liveboxapp_newimageloader",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_src": "appviewmodel",
+      "_tgt": "appviewmodel_signinstate",
+      "source": "appviewmodel",
+      "target": "appviewmodel_signinstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_src": "appviewmodel",
+      "_tgt": "appviewmodel_idle",
+      "source": "appviewmodel",
+      "target": "appviewmodel_idle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_src": "appviewmodel",
+      "_tgt": "appviewmodel_loading",
+      "source": "appviewmodel",
+      "target": "appviewmodel_loading",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_src": "appviewmodel",
+      "_tgt": "appviewmodel_error",
+      "source": "appviewmodel",
+      "target": "appviewmodel_error",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_src": "appviewmodel",
+      "_tgt": "appviewmodel_appviewmodel",
+      "source": "appviewmodel",
+      "target": "appviewmodel_appviewmodel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L49",
+      "weight": 1.0,
+      "_src": "appviewmodel_appviewmodel",
+      "_tgt": "appviewmodel_appviewmodel_signin",
+      "source": "appviewmodel_appviewmodel",
+      "target": "appviewmodel_appviewmodel_signin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L68",
+      "weight": 1.0,
+      "_src": "appviewmodel_appviewmodel",
+      "_tgt": "appviewmodel_appviewmodel_resetsigninstate",
+      "source": "appviewmodel_appviewmodel",
+      "target": "appviewmodel_appviewmodel_resetsigninstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/AppViewModel.kt",
+      "source_location": "L72",
+      "weight": 1.0,
+      "_src": "appviewmodel_appviewmodel",
+      "_tgt": "appviewmodel_appviewmodel_signout",
+      "source": "appviewmodel_appviewmodel",
+      "target": "appviewmodel_appviewmodel_signout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/util/WindowSize.kt",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_src": "windowsize",
+      "_tgt": "windowsize_iscompactwidth",
+      "source": "windowsize",
+      "target": "windowsize_iscompactwidth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L51",
+      "weight": 1.0,
+      "_src": "moviedetailscreen",
+      "_tgt": "moviedetailscreen_moviedetailstate",
+      "source": "moviedetailscreen",
+      "target": "moviedetailscreen_moviedetailstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L57",
+      "weight": 1.0,
+      "_src": "moviedetailscreen",
+      "_tgt": "moviedetailscreen_moviedetailviewmodel",
+      "source": "moviedetailscreen",
+      "target": "moviedetailscreen_moviedetailviewmodel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L109",
+      "weight": 1.0,
+      "_src": "moviedetailscreen",
+      "_tgt": "moviedetailscreen_moviedetailscreen",
+      "source": "moviedetailscreen",
+      "target": "moviedetailscreen_moviedetailscreen",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L147",
+      "weight": 1.0,
+      "_src": "moviedetailscreen",
+      "_tgt": "moviedetailscreen_moviebodycompact",
+      "source": "moviedetailscreen",
+      "target": "moviedetailscreen_moviebodycompact",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L222",
+      "weight": 1.0,
+      "_src": "moviedetailscreen",
+      "_tgt": "moviedetailscreen_moviebodyexpanded",
+      "source": "moviedetailscreen",
+      "target": "moviedetailscreen_moviebodyexpanded",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L288",
+      "weight": 1.0,
+      "_src": "moviedetailscreen",
+      "_tgt": "moviedetailscreen_metaline",
+      "source": "moviedetailscreen",
+      "target": "moviedetailscreen_metaline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L294",
+      "weight": 1.0,
+      "_src": "moviedetailscreen",
+      "_tgt": "moviedetailscreen_backchip",
+      "source": "moviedetailscreen",
+      "target": "moviedetailscreen_backchip",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L82",
+      "weight": 1.0,
+      "_src": "moviedetailscreen_moviedetailviewmodel",
+      "_tgt": "moviedetailscreen_moviedetailviewmodel_togglefavorite",
+      "source": "moviedetailscreen_moviedetailviewmodel",
+      "target": "moviedetailscreen_moviedetailviewmodel_togglefavorite",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MovieDetailScreen.kt",
+      "source_location": "L95",
+      "weight": 1.0,
+      "_src": "moviedetailscreen_moviedetailviewmodel",
+      "_tgt": "moviedetailscreen_moviedetailviewmodel_touchhistoryandplay",
+      "source": "moviedetailscreen_moviedetailviewmodel",
+      "target": "moviedetailscreen_moviedetailviewmodel_touchhistoryandplay",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L37",
+      "weight": 1.0,
+      "_src": "settingscontent",
+      "_tgt": "settingscontent_settingsviewmodel",
+      "source": "settingscontent",
+      "target": "settingscontent_settingsviewmodel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L64",
+      "weight": 1.0,
+      "_src": "settingscontent",
+      "_tgt": "settingscontent_confirmkind",
+      "source": "settingscontent",
+      "target": "settingscontent_confirmkind",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L66",
+      "weight": 1.0,
+      "_src": "settingscontent",
+      "_tgt": "settingscontent_settingscontent",
+      "source": "settingscontent",
+      "target": "settingscontent_settingscontent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L140",
+      "weight": 1.0,
+      "_src": "settingscontent",
+      "_tgt": "settingscontent_sectiontitle",
+      "source": "settingscontent",
+      "target": "settingscontent_sectiontitle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L152",
+      "weight": 1.0,
+      "_src": "settingscontent",
+      "_tgt": "settingscontent_settingrow",
+      "source": "settingscontent",
+      "target": "settingscontent_settingrow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L185",
+      "weight": 1.0,
+      "_src": "settingscontent",
+      "_tgt": "settingscontent_confirmdialog",
+      "source": "settingscontent",
+      "target": "settingscontent_confirmdialog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L45",
+      "weight": 1.0,
+      "_src": "settingscontent_settingsviewmodel",
+      "_tgt": "settingscontent_settingsviewmodel_signout",
+      "source": "settingscontent_settingsviewmodel",
+      "target": "settingscontent_settingsviewmodel_signout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L51",
+      "weight": 1.0,
+      "_src": "settingscontent_settingsviewmodel",
+      "_tgt": "settingscontent_settingsviewmodel_clearfavorites",
+      "source": "settingscontent_settingsviewmodel",
+      "target": "settingscontent_settingsviewmodel_clearfavorites",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L53",
+      "weight": 1.0,
+      "_src": "settingscontent_settingsviewmodel",
+      "_tgt": "settingscontent_settingsviewmodel_clearhistory",
+      "source": "settingscontent_settingsviewmodel",
+      "target": "settingscontent_settingsviewmodel_clearhistory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SettingsContent.kt",
+      "source_location": "L55",
+      "weight": 1.0,
+      "_src": "settingscontent_settingsviewmodel",
+      "_tgt": "settingscontent_settingsviewmodel_clearall",
+      "source": "settingscontent_settingsviewmodel",
+      "target": "settingscontent_settingsviewmodel_clearall",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/FavoritesContent.kt",
+      "source_location": "L31",
+      "weight": 1.0,
+      "_src": "favoritescontent",
+      "_tgt": "favoritescontent_favoritesactions",
+      "source": "favoritescontent",
+      "target": "favoritescontent_favoritesactions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/FavoritesContent.kt",
+      "source_location": "L37",
+      "weight": 1.0,
+      "_src": "favoritescontent",
+      "_tgt": "favoritescontent_favoritesviewmodel",
+      "source": "favoritescontent",
+      "target": "favoritescontent_favoritesviewmodel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/FavoritesContent.kt",
+      "source_location": "L45",
+      "weight": 1.0,
+      "_src": "favoritescontent",
+      "_tgt": "favoritescontent_favoritescontent",
+      "source": "favoritescontent",
+      "target": "favoritescontent_favoritescontent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/PlayerScreen.kt",
+      "source_location": "L44",
+      "weight": 1.0,
+      "_src": "playerscreen",
+      "_tgt": "playerscreen_playerviewmodel",
+      "source": "playerscreen",
+      "target": "playerscreen_playerviewmodel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/PlayerScreen.kt",
+      "source_location": "L64",
+      "weight": 1.0,
+      "_src": "playerscreen",
+      "_tgt": "playerscreen_playerscreen",
+      "source": "playerscreen",
+      "target": "playerscreen_playerscreen",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/PlayerScreen.kt",
+      "source_location": "L203",
+      "weight": 1.0,
+      "_src": "playerscreen",
+      "_tgt": "playerscreen_livebadge",
+      "source": "playerscreen",
+      "target": "playerscreen_livebadge",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/PlayerScreen.kt",
+      "source_location": "L229",
+      "weight": 1.0,
+      "_src": "playerscreen",
+      "_tgt": "playerscreen_findactivity",
+      "source": "playerscreen",
+      "target": "playerscreen_findactivity",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/PlayerScreen.kt",
+      "source_location": "L50",
+      "weight": 1.0,
+      "_src": "playerscreen_playerviewmodel",
+      "_tgt": "playerscreen_playerviewmodel_streamurl",
+      "source": "playerscreen_playerviewmodel",
+      "target": "playerscreen_playerviewmodel_streamurl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/PlayerScreen.kt",
+      "source_location": "L53",
+      "weight": 1.0,
+      "_src": "playerscreen_playerviewmodel",
+      "_tgt": "playerscreen_playerviewmodel_resumeposition",
+      "source": "playerscreen_playerviewmodel",
+      "target": "playerscreen_playerviewmodel_resumeposition",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/PlayerScreen.kt",
+      "source_location": "L58",
+      "weight": 1.0,
+      "_src": "playerscreen_playerviewmodel",
+      "_tgt": "playerscreen_playerviewmodel_saveposition",
+      "source": "playerscreen_playerviewmodel",
+      "target": "playerscreen_playerviewmodel_saveposition",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LoginScreen.kt",
+      "source_location": "L50",
+      "weight": 1.0,
+      "_src": "loginscreen",
+      "_tgt": "loginscreen_loginscreen",
+      "source": "loginscreen",
+      "target": "loginscreen_loginscreen",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LoginScreen.kt",
+      "source_location": "L184",
+      "weight": 1.0,
+      "_src": "loginscreen",
+      "_tgt": "loginscreen_loadingoverlay",
+      "source": "loginscreen",
+      "target": "loginscreen_loadingoverlay",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LoginScreen.kt",
+      "source_location": "L226",
+      "weight": 1.0,
+      "_src": "loginscreen",
+      "_tgt": "loginscreen_herologo",
+      "source": "loginscreen",
+      "target": "loginscreen_herologo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LoginScreen.kt",
+      "source_location": "L258",
+      "weight": 1.0,
+      "_src": "loginscreen",
+      "_tgt": "loginscreen_featurecard",
+      "source": "loginscreen",
+      "target": "loginscreen_featurecard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LoginScreen.kt",
+      "source_location": "L290",
+      "weight": 1.0,
+      "_src": "loginscreen",
+      "_tgt": "loginscreen_urlmodal",
+      "source": "loginscreen",
+      "target": "loginscreen_urlmodal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/HomeScreen.kt",
+      "source_location": "L39",
+      "weight": 1.0,
+      "_src": "homescreen",
+      "_tgt": "homescreen_navtab",
+      "source": "homescreen",
+      "target": "homescreen_navtab",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/HomeScreen.kt",
+      "source_location": "L49",
+      "weight": 1.0,
+      "_src": "homescreen",
+      "_tgt": "homescreen_homescreen",
+      "source": "homescreen",
+      "target": "homescreen_homescreen",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesContent.kt",
+      "source_location": "L36",
+      "weight": 1.0,
+      "_src": "seriescontent",
+      "_tgt": "seriescontent_seriesstate",
+      "source": "seriescontent",
+      "target": "seriescontent_seriesstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesContent.kt",
+      "source_location": "L44",
+      "weight": 1.0,
+      "_src": "seriescontent",
+      "_tgt": "seriescontent_seriesviewmodel",
+      "source": "seriescontent",
+      "target": "seriescontent_seriesviewmodel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesContent.kt",
+      "source_location": "L88",
+      "weight": 1.0,
+      "_src": "seriescontent",
+      "_tgt": "seriescontent_seriescontent",
+      "source": "seriescontent",
+      "target": "seriescontent_seriescontent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesContent.kt",
+      "source_location": "L77",
+      "weight": 1.0,
+      "_src": "seriescontent_seriesviewmodel",
+      "_tgt": "seriescontent_seriesviewmodel_refresh",
+      "source": "seriescontent_seriesviewmodel",
+      "target": "seriescontent_seriesviewmodel_refresh",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesContent.kt",
+      "source_location": "L83",
+      "weight": 1.0,
+      "_src": "seriescontent_seriesviewmodel",
+      "_tgt": "seriescontent_seriesviewmodel_selectcategory",
+      "source": "seriescontent_seriesviewmodel",
+      "target": "seriescontent_seriesviewmodel_selectcategory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MoviesContent.kt",
+      "source_location": "L44",
+      "weight": 1.0,
+      "_src": "moviescontent",
+      "_tgt": "moviescontent_moviesstate",
+      "source": "moviescontent",
+      "target": "moviescontent_moviesstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MoviesContent.kt",
+      "source_location": "L52",
+      "weight": 1.0,
+      "_src": "moviescontent",
+      "_tgt": "moviescontent_moviesviewmodel",
+      "source": "moviescontent",
+      "target": "moviescontent_moviesviewmodel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MoviesContent.kt",
+      "source_location": "L96",
+      "weight": 1.0,
+      "_src": "moviescontent",
+      "_tgt": "moviescontent_moviescontent",
+      "source": "moviescontent",
+      "target": "moviescontent_moviescontent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MoviesContent.kt",
+      "source_location": "L151",
+      "weight": 1.0,
+      "_src": "moviescontent",
+      "_tgt": "moviescontent_postercard",
+      "source": "moviescontent",
+      "target": "moviescontent_postercard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MoviesContent.kt",
+      "source_location": "L85",
+      "weight": 1.0,
+      "_src": "moviescontent_moviesviewmodel",
+      "_tgt": "moviescontent_moviesviewmodel_refresh",
+      "source": "moviescontent_moviesviewmodel",
+      "target": "moviescontent_moviesviewmodel_refresh",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/MoviesContent.kt",
+      "source_location": "L91",
+      "weight": 1.0,
+      "_src": "moviescontent_moviesviewmodel",
+      "_tgt": "moviescontent_moviesviewmodel_selectcategory",
+      "source": "moviescontent_moviesviewmodel",
+      "target": "moviescontent_moviesviewmodel_selectcategory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L53",
+      "weight": 1.0,
+      "_src": "seriesdetailscreen",
+      "_tgt": "seriesdetailscreen_seriesdetailstate",
+      "source": "seriesdetailscreen",
+      "target": "seriesdetailscreen_seriesdetailstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L60",
+      "weight": 1.0,
+      "_src": "seriesdetailscreen",
+      "_tgt": "seriesdetailscreen_seriesdetailviewmodel",
+      "source": "seriesdetailscreen",
+      "target": "seriesdetailscreen_seriesdetailviewmodel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L123",
+      "weight": 1.0,
+      "_src": "seriesdetailscreen",
+      "_tgt": "seriesdetailscreen_seriesdetailscreen",
+      "source": "seriesdetailscreen",
+      "target": "seriesdetailscreen_seriesdetailscreen",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L168",
+      "weight": 1.0,
+      "_src": "seriesdetailscreen",
+      "_tgt": "seriesdetailscreen_seriesbodycompact",
+      "source": "seriesdetailscreen",
+      "target": "seriesdetailscreen_seriesbodycompact",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L275",
+      "weight": 1.0,
+      "_src": "seriesdetailscreen",
+      "_tgt": "seriesdetailscreen_episoderowcompact",
+      "source": "seriesdetailscreen",
+      "target": "seriesdetailscreen_episoderowcompact",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L317",
+      "weight": 1.0,
+      "_src": "seriesdetailscreen",
+      "_tgt": "seriesdetailscreen_seriesbodyexpanded",
+      "source": "seriesdetailscreen",
+      "target": "seriesdetailscreen_seriesbodyexpanded",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L376",
+      "weight": 1.0,
+      "_src": "seriesdetailscreen",
+      "_tgt": "seriesdetailscreen_seriesheader",
+      "source": "seriesdetailscreen",
+      "target": "seriesdetailscreen_seriesheader",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L438",
+      "weight": 1.0,
+      "_src": "seriesdetailscreen",
+      "_tgt": "seriesdetailscreen_episodecardexpanded",
+      "source": "seriesdetailscreen",
+      "target": "seriesdetailscreen_episodecardexpanded",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L93",
+      "weight": 1.0,
+      "_src": "seriesdetailscreen_seriesdetailviewmodel",
+      "_tgt": "seriesdetailscreen_seriesdetailviewmodel_selectseason",
+      "source": "seriesdetailscreen_seriesdetailviewmodel",
+      "target": "seriesdetailscreen_seriesdetailviewmodel_selectseason",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L97",
+      "weight": 1.0,
+      "_src": "seriesdetailscreen_seriesdetailviewmodel",
+      "_tgt": "seriesdetailscreen_seriesdetailviewmodel_togglefavorite",
+      "source": "seriesdetailscreen_seriesdetailviewmodel",
+      "target": "seriesdetailscreen_seriesdetailviewmodel_togglefavorite",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/SeriesDetailScreen.kt",
+      "source_location": "L109",
+      "weight": 1.0,
+      "_src": "seriesdetailscreen_seriesdetailviewmodel",
+      "_tgt": "seriesdetailscreen_seriesdetailviewmodel_touchandplayepisode",
+      "source": "seriesdetailscreen_seriesdetailviewmodel",
+      "target": "seriesdetailscreen_seriesdetailviewmodel_touchandplayepisode",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L50",
+      "weight": 1.0,
+      "_src": "livecontent",
+      "_tgt": "livecontent_livestate",
+      "source": "livecontent",
+      "target": "livecontent_livestate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L58",
+      "weight": 1.0,
+      "_src": "livecontent",
+      "_tgt": "livecontent_liveviewmodel",
+      "source": "livecontent",
+      "target": "livecontent_liveviewmodel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L108",
+      "weight": 1.0,
+      "_src": "livecontent",
+      "_tgt": "livecontent_livecontent",
+      "source": "livecontent",
+      "target": "livecontent_livecontent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L210",
+      "weight": 1.0,
+      "_src": "livecontent",
+      "_tgt": "livecontent_channelslistbody",
+      "source": "livecontent",
+      "target": "livecontent_channelslistbody",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L243",
+      "weight": 1.0,
+      "_src": "livecontent",
+      "_tgt": "livecontent_groupspanel",
+      "source": "livecontent",
+      "target": "livecontent_groupspanel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L308",
+      "weight": 1.0,
+      "_src": "livecontent",
+      "_tgt": "livecontent_categorychiprow",
+      "source": "livecontent",
+      "target": "livecontent_categorychiprow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L342",
+      "weight": 1.0,
+      "_src": "livecontent",
+      "_tgt": "livecontent_searchbar",
+      "source": "livecontent",
+      "target": "livecontent_searchbar",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L393",
+      "weight": 1.0,
+      "_src": "livecontent",
+      "_tgt": "livecontent_channelrow",
+      "source": "livecontent",
+      "target": "livecontent_channelrow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L445",
+      "weight": 1.0,
+      "_src": "livecontent",
+      "_tgt": "livecontent_categorysidebarlayout",
+      "source": "livecontent",
+      "target": "livecontent_categorysidebarlayout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L97",
+      "weight": 1.0,
+      "_src": "livecontent_liveviewmodel",
+      "_tgt": "livecontent_liveviewmodel_refresh",
+      "source": "livecontent_liveviewmodel",
+      "target": "livecontent_liveviewmodel_refresh",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/screens/LiveContent.kt",
+      "source_location": "L103",
+      "weight": 1.0,
+      "_src": "livecontent_liveviewmodel",
+      "_tgt": "livecontent_liveviewmodel_selectcategory",
+      "source": "livecontent_liveviewmodel",
+      "target": "livecontent_liveviewmodel_selectcategory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/theme/Theme.kt",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_src": "theme",
+      "_tgt": "theme_lbcolors",
+      "source": "theme",
+      "target": "theme_lbcolors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/ui/theme/Theme.kt",
+      "source_location": "L51",
+      "weight": 1.0,
+      "_src": "theme",
+      "_tgt": "theme_liveboxtheme",
+      "source": "theme",
+      "target": "theme_liveboxtheme",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_src": "favoritesrepository",
+      "_tgt": "favoritesrepository_favoritesrepository",
+      "source": "favoritesrepository",
+      "target": "favoritesrepository_favoritesrepository",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_src": "favoritesrepository_favoritesrepository",
+      "_tgt": "favoritesrepository_favoritesrepository_observeall",
+      "source": "favoritesrepository_favoritesrepository",
+      "target": "favoritesrepository_favoritesrepository_observeall",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_src": "favoritesrepository_favoritesrepository",
+      "_tgt": "favoritesrepository_favoritesrepository_observebytype",
+      "source": "favoritesrepository_favoritesrepository",
+      "target": "favoritesrepository_favoritesrepository_observebytype",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_src": "favoritesrepository_favoritesrepository",
+      "_tgt": "favoritesrepository_favoritesrepository_isfavorite",
+      "source": "favoritesrepository_favoritesrepository",
+      "target": "favoritesrepository_favoritesrepository_isfavorite",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_src": "favoritesrepository_favoritesrepository",
+      "_tgt": "favoritesrepository_favoritesrepository_toggle",
+      "source": "favoritesrepository_favoritesrepository",
+      "target": "favoritesrepository_favoritesrepository_toggle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L29",
+      "weight": 1.0,
+      "_src": "favoritesrepository_favoritesrepository",
+      "_tgt": "favoritesrepository_favoritesrepository_add",
+      "source": "favoritesrepository_favoritesrepository",
+      "target": "favoritesrepository_favoritesrepository_add",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_src": "favoritesrepository_favoritesrepository",
+      "_tgt": "favoritesrepository_favoritesrepository_remove",
+      "source": "favoritesrepository_favoritesrepository",
+      "target": "favoritesrepository_favoritesrepository_remove",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/FavoritesRepository.kt",
+      "source_location": "L34",
+      "weight": 1.0,
+      "_src": "favoritesrepository_favoritesrepository",
+      "_tgt": "favoritesrepository_favoritesrepository_clearall",
+      "source": "favoritesrepository_favoritesrepository",
+      "target": "favoritesrepository_favoritesrepository_clearall",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/NetworkModule.kt",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_src": "networkmodule",
+      "_tgt": "networkmodule_networkmodule",
+      "source": "networkmodule",
+      "target": "networkmodule_networkmodule",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/NetworkModule.kt",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_src": "networkmodule_networkmodule",
+      "_tgt": "networkmodule_networkmodule_providejson",
+      "source": "networkmodule_networkmodule",
+      "target": "networkmodule_networkmodule_providejson",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/NetworkModule.kt",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_src": "networkmodule_networkmodule",
+      "_tgt": "networkmodule_networkmodule_provideokhttp",
+      "source": "networkmodule_networkmodule",
+      "target": "networkmodule_networkmodule_provideokhttp",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/NetworkModule.kt",
+      "source_location": "L36",
+      "weight": 1.0,
+      "_src": "networkmodule_networkmodule",
+      "_tgt": "networkmodule_networkmodule_provideretrofit",
+      "source": "networkmodule_networkmodule",
+      "target": "networkmodule_networkmodule_provideretrofit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/NetworkModule.kt",
+      "source_location": "L44",
+      "weight": 1.0,
+      "_src": "networkmodule_networkmodule",
+      "_tgt": "networkmodule_networkmodule_providextreamapi",
+      "source": "networkmodule_networkmodule",
+      "target": "networkmodule_networkmodule_providextreamapi",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_src": "xtreamrepository",
+      "_tgt": "xtreamrepository_xtreamrepository",
+      "source": "xtreamrepository",
+      "target": "xtreamrepository_xtreamrepository",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_src": "xtreamrepository_xtreamrepository",
+      "_tgt": "xtreamrepository_xtreamrepository_refreshall",
+      "source": "xtreamrepository_xtreamrepository",
+      "target": "xtreamrepository_xtreamrepository_refreshall",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L46",
+      "weight": 1.0,
+      "_src": "xtreamrepository_xtreamrepository",
+      "_tgt": "xtreamrepository_xtreamrepository_clearcache",
+      "source": "xtreamrepository_xtreamrepository",
+      "target": "xtreamrepository_xtreamrepository_clearcache",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L50",
+      "weight": 1.0,
+      "_src": "xtreamrepository_xtreamrepository",
+      "_tgt": "xtreamrepository_xtreamrepository_seriesinfo",
+      "source": "xtreamrepository_xtreamrepository",
+      "target": "xtreamrepository_xtreamrepository_seriesinfo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L55",
+      "weight": 1.0,
+      "_src": "xtreamrepository_xtreamrepository",
+      "_tgt": "xtreamrepository_xtreamrepository_shortepg",
+      "source": "xtreamrepository_xtreamrepository",
+      "target": "xtreamrepository_xtreamrepository_shortepg",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L61",
+      "weight": 1.0,
+      "_src": "xtreamrepository_xtreamrepository",
+      "_tgt": "xtreamrepository_xtreamrepository_vodinfo",
+      "source": "xtreamrepository_xtreamrepository",
+      "target": "xtreamrepository_xtreamrepository_vodinfo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L68",
+      "weight": 1.0,
+      "_src": "xtreamrepository_xtreamrepository",
+      "_tgt": "xtreamrepository_xtreamrepository_livestreamurl",
+      "source": "xtreamrepository_xtreamrepository",
+      "target": "xtreamrepository_xtreamrepository_livestreamurl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L71",
+      "weight": 1.0,
+      "_src": "xtreamrepository_xtreamrepository",
+      "_tgt": "xtreamrepository_xtreamrepository_vodstreamurl",
+      "source": "xtreamrepository_xtreamrepository",
+      "target": "xtreamrepository_xtreamrepository_vodstreamurl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L74",
+      "weight": 1.0,
+      "_src": "xtreamrepository_xtreamrepository",
+      "_tgt": "xtreamrepository_xtreamrepository_episodestreamurl",
+      "source": "xtreamrepository_xtreamrepository",
+      "target": "xtreamrepository_xtreamrepository_episodestreamurl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamRepository.kt",
+      "source_location": "L78",
+      "weight": 1.0,
+      "_src": "xtreamrepository_xtreamrepository",
+      "_tgt": "xtreamrepository_xtreamrepository_resolvestreamurl",
+      "source": "xtreamrepository_xtreamrepository",
+      "target": "xtreamrepository_xtreamrepository_resolvestreamurl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_xtreamcredentials",
+      "source": "models",
+      "target": "models_xtreamcredentials",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L28",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_parsem3uurl",
+      "source": "models",
+      "target": "models_parsem3uurl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L40",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_livecategory",
+      "source": "models",
+      "target": "models_livecategory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L46",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_livechannel",
+      "source": "models",
+      "target": "models_livechannel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L56",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_voditem",
+      "source": "models",
+      "target": "models_voditem",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L66",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_seriesitem",
+      "source": "models",
+      "target": "models_seriesitem",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L82",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_seriesinfo",
+      "source": "models",
+      "target": "models_seriesinfo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L89",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_seriesinfometa",
+      "source": "models",
+      "target": "models_seriesinfometa",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L101",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_season",
+      "source": "models",
+      "target": "models_season",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L110",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_episode",
+      "source": "models",
+      "target": "models_episode",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L119",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_episodeinfo",
+      "source": "models",
+      "target": "models_episodeinfo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L128",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_epgresponse",
+      "source": "models",
+      "target": "models_epgresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L137",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_epglisting",
+      "source": "models",
+      "target": "models_epglisting",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L152",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_decodebase64",
+      "source": "models",
+      "target": "models_decodebase64",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L158",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_vodinforesponse",
+      "source": "models",
+      "target": "models_vodinforesponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L164",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_vodinfometa",
+      "source": "models",
+      "target": "models_vodinfometa",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L176",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_vodmoviedata",
+      "source": "models",
+      "target": "models_vodmoviedata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/Models.kt",
+      "source_location": "L190",
+      "weight": 1.0,
+      "_src": "models",
+      "_tgt": "models_xtreamcachesnapshot",
+      "source": "models",
+      "target": "models_xtreamcachesnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_src": "xtreamapi",
+      "_tgt": "xtreamapi_xtreamapi",
+      "source": "xtreamapi",
+      "target": "xtreamapi_xtreamapi",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L43",
+      "weight": 1.0,
+      "_src": "xtreamapi",
+      "_tgt": "xtreamapi_xtreamurls",
+      "source": "xtreamapi",
+      "target": "xtreamapi_xtreamurls",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_src": "xtreamapi_xtreamapi",
+      "_tgt": "xtreamapi_xtreamapi_livecategories",
+      "source": "xtreamapi_xtreamapi",
+      "target": "xtreamapi_xtreamapi_livecategories",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_src": "xtreamapi_xtreamapi",
+      "_tgt": "xtreamapi_xtreamapi_livestreams",
+      "source": "xtreamapi_xtreamapi",
+      "target": "xtreamapi_xtreamapi_livestreams",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_src": "xtreamapi_xtreamapi",
+      "_tgt": "xtreamapi_xtreamapi_vodcategories",
+      "source": "xtreamapi_xtreamapi",
+      "target": "xtreamapi_xtreamapi_vodcategories",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_src": "xtreamapi_xtreamapi",
+      "_tgt": "xtreamapi_xtreamapi_vodstreams",
+      "source": "xtreamapi_xtreamapi",
+      "target": "xtreamapi_xtreamapi_vodstreams",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_src": "xtreamapi_xtreamapi",
+      "_tgt": "xtreamapi_xtreamapi_seriescategories",
+      "source": "xtreamapi_xtreamapi",
+      "target": "xtreamapi_xtreamapi_seriescategories",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L30",
+      "weight": 1.0,
+      "_src": "xtreamapi_xtreamapi",
+      "_tgt": "xtreamapi_xtreamapi_series",
+      "source": "xtreamapi_xtreamapi",
+      "target": "xtreamapi_xtreamapi_series",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L33",
+      "weight": 1.0,
+      "_src": "xtreamapi_xtreamapi",
+      "_tgt": "xtreamapi_xtreamapi_seriesinfo",
+      "source": "xtreamapi_xtreamapi",
+      "target": "xtreamapi_xtreamapi_seriesinfo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L36",
+      "weight": 1.0,
+      "_src": "xtreamapi_xtreamapi",
+      "_tgt": "xtreamapi_xtreamapi_shortepg",
+      "source": "xtreamapi_xtreamapi",
+      "target": "xtreamapi_xtreamapi_shortepg",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L39",
+      "weight": 1.0,
+      "_src": "xtreamapi_xtreamapi",
+      "_tgt": "xtreamapi_xtreamapi_vodinfo",
+      "source": "xtreamapi_xtreamapi",
+      "target": "xtreamapi_xtreamapi_vodinfo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L44",
+      "weight": 1.0,
+      "_src": "xtreamapi_xtreamurls",
+      "_tgt": "xtreamapi_xtreamurls_action",
+      "source": "xtreamapi_xtreamurls",
+      "target": "xtreamapi_xtreamurls_action",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L51",
+      "weight": 1.0,
+      "_src": "xtreamapi_xtreamurls",
+      "_tgt": "xtreamapi_xtreamurls_livestream",
+      "source": "xtreamapi_xtreamurls",
+      "target": "xtreamapi_xtreamurls_livestream",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L54",
+      "weight": 1.0,
+      "_src": "xtreamapi_xtreamurls",
+      "_tgt": "xtreamapi_xtreamurls_vodstream",
+      "source": "xtreamapi_xtreamurls",
+      "target": "xtreamapi_xtreamurls_vodstream",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamApi.kt",
+      "source_location": "L57",
+      "weight": 1.0,
+      "_src": "xtreamapi_xtreamurls",
+      "_tgt": "xtreamapi_xtreamurls_seriesepisode",
+      "source": "xtreamapi_xtreamurls",
+      "target": "xtreamapi_xtreamurls_seriesepisode",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_src": "watchhistoryrepository",
+      "_tgt": "watchhistoryrepository_watchhistoryrepository",
+      "source": "watchhistoryrepository",
+      "target": "watchhistoryrepository_watchhistoryrepository",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_src": "watchhistoryrepository_watchhistoryrepository",
+      "_tgt": "watchhistoryrepository_watchhistoryrepository_savepositioninbackground",
+      "source": "watchhistoryrepository_watchhistoryrepository",
+      "target": "watchhistoryrepository_watchhistoryrepository_savepositioninbackground",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L29",
+      "weight": 1.0,
+      "_src": "watchhistoryrepository_watchhistoryrepository",
+      "_tgt": "watchhistoryrepository_watchhistoryrepository_observerecent",
+      "source": "watchhistoryrepository_watchhistoryrepository",
+      "target": "watchhistoryrepository_watchhistoryrepository_observerecent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_src": "watchhistoryrepository_watchhistoryrepository",
+      "_tgt": "watchhistoryrepository_watchhistoryrepository_get",
+      "source": "watchhistoryrepository_watchhistoryrepository",
+      "target": "watchhistoryrepository_watchhistoryrepository_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L35",
+      "weight": 1.0,
+      "_src": "watchhistoryrepository_watchhistoryrepository",
+      "_tgt": "watchhistoryrepository_watchhistoryrepository_touch",
+      "source": "watchhistoryrepository_watchhistoryrepository",
+      "target": "watchhistoryrepository_watchhistoryrepository_touch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L57",
+      "weight": 1.0,
+      "_src": "watchhistoryrepository_watchhistoryrepository",
+      "_tgt": "watchhistoryrepository_watchhistoryrepository_updateposition",
+      "source": "watchhistoryrepository_watchhistoryrepository",
+      "target": "watchhistoryrepository_watchhistoryrepository_updateposition",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L65",
+      "weight": 1.0,
+      "_src": "watchhistoryrepository_watchhistoryrepository",
+      "_tgt": "watchhistoryrepository_watchhistoryrepository_delete",
+      "source": "watchhistoryrepository_watchhistoryrepository",
+      "target": "watchhistoryrepository_watchhistoryrepository_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/WatchHistoryRepository.kt",
+      "source_location": "L67",
+      "weight": 1.0,
+      "_src": "watchhistoryrepository_watchhistoryrepository",
+      "_tgt": "watchhistoryrepository_watchhistoryrepository_clearall",
+      "source": "watchhistoryrepository_watchhistoryrepository",
+      "target": "watchhistoryrepository_watchhistoryrepository_clearall",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamContentCache.kt",
+      "source_location": "L31",
+      "weight": 1.0,
+      "_src": "xtreamcontentcache",
+      "_tgt": "xtreamcontentcache_xtreamcontentcache",
+      "source": "xtreamcontentcache",
+      "target": "xtreamcontentcache_xtreamcontentcache",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamContentCache.kt",
+      "source_location": "L54",
+      "weight": 1.0,
+      "_src": "xtreamcontentcache_xtreamcontentcache",
+      "_tgt": "xtreamcontentcache_xtreamcontentcache_update",
+      "source": "xtreamcontentcache_xtreamcontentcache",
+      "target": "xtreamcontentcache_xtreamcontentcache_update",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/XtreamContentCache.kt",
+      "source_location": "L63",
+      "weight": 1.0,
+      "_src": "xtreamcontentcache_xtreamcontentcache",
+      "_tgt": "xtreamcontentcache_xtreamcontentcache_clear",
+      "source": "xtreamcontentcache_xtreamcontentcache",
+      "target": "xtreamcontentcache_xtreamcontentcache_clear",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Entities.kt",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_src": "entities",
+      "_tgt": "entities_streamtype",
+      "source": "entities",
+      "target": "entities_streamtype",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Entities.kt",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_src": "entities",
+      "_tgt": "entities_favoriteentity",
+      "source": "entities",
+      "target": "entities_favoriteentity",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Entities.kt",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_src": "entities",
+      "_tgt": "entities_watchhistoryentity",
+      "source": "entities",
+      "target": "entities_watchhistoryentity",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_src": "daos",
+      "_tgt": "daos_favoritesdao",
+      "source": "daos",
+      "target": "daos_favoritesdao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L31",
+      "weight": 1.0,
+      "_src": "daos",
+      "_tgt": "daos_watchhistorydao",
+      "source": "daos",
+      "target": "daos_watchhistorydao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_src": "daos_favoritesdao",
+      "_tgt": "daos_favoritesdao_observeall",
+      "source": "daos_favoritesdao",
+      "target": "daos_favoritesdao_observeall",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_src": "daos_favoritesdao",
+      "_tgt": "daos_favoritesdao_observebytype",
+      "source": "daos_favoritesdao",
+      "target": "daos_favoritesdao_observebytype",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_src": "daos_favoritesdao",
+      "_tgt": "daos_favoritesdao_isfavorite",
+      "source": "daos_favoritesdao",
+      "target": "daos_favoritesdao_isfavorite",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_src": "daos_favoritesdao",
+      "_tgt": "daos_favoritesdao_insert",
+      "source": "daos_favoritesdao",
+      "target": "daos_favoritesdao_insert",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_src": "daos_favoritesdao",
+      "_tgt": "daos_favoritesdao_delete",
+      "source": "daos_favoritesdao",
+      "target": "daos_favoritesdao_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_src": "daos_favoritesdao",
+      "_tgt": "daos_favoritesdao_clear",
+      "source": "daos_favoritesdao",
+      "target": "daos_favoritesdao_clear",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L34",
+      "weight": 1.0,
+      "_src": "daos_watchhistorydao",
+      "_tgt": "daos_watchhistorydao_observerecent",
+      "source": "daos_watchhistorydao",
+      "target": "daos_watchhistorydao_observerecent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L37",
+      "weight": 1.0,
+      "_src": "daos_watchhistorydao",
+      "_tgt": "daos_watchhistorydao_get",
+      "source": "daos_watchhistorydao",
+      "target": "daos_watchhistorydao_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L40",
+      "weight": 1.0,
+      "_src": "daos_watchhistorydao",
+      "_tgt": "daos_watchhistorydao_upsert",
+      "source": "daos_watchhistorydao",
+      "target": "daos_watchhistorydao_upsert",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L43",
+      "weight": 1.0,
+      "_src": "daos_watchhistorydao",
+      "_tgt": "daos_watchhistorydao_updateposition",
+      "source": "daos_watchhistorydao",
+      "target": "daos_watchhistorydao_updateposition",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L55",
+      "weight": 1.0,
+      "_src": "daos_watchhistorydao",
+      "_tgt": "daos_watchhistorydao_delete",
+      "source": "daos_watchhistorydao",
+      "target": "daos_watchhistorydao_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/Daos.kt",
+      "source_location": "L58",
+      "weight": 1.0,
+      "_src": "daos_watchhistorydao",
+      "_tgt": "daos_watchhistorydao_clear",
+      "source": "daos_watchhistorydao",
+      "target": "daos_watchhistorydao_clear",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/DatabaseModule.kt",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_src": "databasemodule",
+      "_tgt": "databasemodule_databasemodule",
+      "source": "databasemodule",
+      "target": "databasemodule_databasemodule",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/DatabaseModule.kt",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_src": "databasemodule_databasemodule",
+      "_tgt": "databasemodule_databasemodule_providedatabase",
+      "source": "databasemodule_databasemodule",
+      "target": "databasemodule_databasemodule_providedatabase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/DatabaseModule.kt",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_src": "databasemodule_databasemodule",
+      "_tgt": "databasemodule_databasemodule_providefavoritesdao",
+      "source": "databasemodule_databasemodule",
+      "target": "databasemodule_databasemodule_providefavoritesdao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/DatabaseModule.kt",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_src": "databasemodule_databasemodule",
+      "_tgt": "databasemodule_databasemodule_providewatchhistorydao",
+      "source": "databasemodule_databasemodule",
+      "target": "databasemodule_databasemodule_providewatchhistorydao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/LiveboxDatabase.kt",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_src": "liveboxdatabase",
+      "_tgt": "liveboxdatabase_liveboxdatabase",
+      "source": "liveboxdatabase",
+      "target": "liveboxdatabase_liveboxdatabase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/LiveboxDatabase.kt",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_src": "liveboxdatabase_liveboxdatabase",
+      "_tgt": "liveboxdatabase_liveboxdatabase_favoritesdao",
+      "source": "liveboxdatabase_liveboxdatabase",
+      "target": "liveboxdatabase_liveboxdatabase_favoritesdao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/data/db/LiveboxDatabase.kt",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_src": "liveboxdatabase_liveboxdatabase",
+      "_tgt": "liveboxdatabase_liveboxdatabase_watchhistorydao",
+      "source": "liveboxdatabase_liveboxdatabase",
+      "target": "liveboxdatabase_liveboxdatabase_watchhistorydao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/player/LiveboxPlayer.kt",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_src": "liveboxplayer",
+      "_tgt": "liveboxplayer_liveboxplayer",
+      "source": "liveboxplayer",
+      "target": "liveboxplayer_liveboxplayer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/player/LiveboxPlayer.kt",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_src": "liveboxplayer_liveboxplayer",
+      "_tgt": "liveboxplayer_liveboxplayer_build",
+      "source": "liveboxplayer_liveboxplayer",
+      "target": "liveboxplayer_liveboxplayer_build",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "android-tv/app/src/main/java/com/livebox/tv/player/LiveboxPlayer.kt",
+      "source_location": "L76",
+      "weight": 1.0,
+      "_src": "liveboxplayer_liveboxplayer",
+      "_tgt": "liveboxplayer_liveboxplayer_mediaitem",
+      "source": "liveboxplayer_liveboxplayer",
+      "target": "liveboxplayer_liveboxplayer_mediaitem",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/utils/m3uParser.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "m3uparser",
+      "_tgt": "m3uparser_parsem3u",
+      "source": "m3uparser",
+      "target": "m3uparser_parsem3u",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/utils/storage.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_src": "storage",
+      "_tgt": "storage_storageget",
+      "source": "storage",
+      "target": "storage_storageget",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/utils/storage.js",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_src": "storage",
+      "_tgt": "storage_storageset",
+      "source": "storage",
+      "target": "storage_storageset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "readme_livebox",
+      "_tgt": "readme_xtream_api",
+      "source": "readme_livebox",
+      "target": "readme_xtream_api"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "readme_livebox",
+      "_tgt": "readme_m3u_support",
+      "source": "readme_livebox",
+      "target": "readme_m3u_support"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "readme_livebox",
+      "_tgt": "readme_custom_player",
+      "source": "readme_livebox",
+      "target": "readme_custom_player"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "readme_livebox",
+      "_tgt": "readme_tech_stack",
+      "source": "readme_livebox",
+      "target": "readme_tech_stack"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "readme_livebox",
+      "_tgt": "readme_cross_platform",
+      "source": "readme_livebox",
+      "target": "readme_cross_platform"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "androidtv_readme_client",
+      "_tgt": "readme_livebox",
+      "source": "readme_livebox",
+      "target": "androidtv_readme_client"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "icon.svg",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "icon_svg_logo",
+      "_tgt": "readme_livebox",
+      "source": "readme_livebox",
+      "target": "icon_svg_logo"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "androidtv_readme_client",
+      "_tgt": "readme_xtream_api",
+      "source": "readme_xtream_api",
+      "target": "androidtv_readme_client"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "androidtv_media3_exoplayer",
+      "_tgt": "readme_custom_player",
+      "source": "readme_custom_player",
+      "target": "androidtv_media3_exoplayer"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.7,
+      "source_file": "icon.svg",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "icon_tv_screen_element",
+      "_tgt": "readme_custom_player",
+      "source": "readme_custom_player",
+      "target": "icon_tv_screen_element"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "readme_resume_playback",
+      "_tgt": "readme_storage_js",
+      "source": "readme_resume_playback",
+      "target": "readme_storage_js"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "readme_favorites",
+      "_tgt": "readme_storage_js",
+      "source": "readme_favorites",
+      "target": "readme_storage_js"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "readme_persistent_sessions",
+      "_tgt": "readme_storage_js",
+      "source": "readme_persistent_sessions",
+      "target": "readme_storage_js"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "androidtv_datastore_creds",
+      "_tgt": "readme_persistent_sessions",
+      "source": "readme_persistent_sessions",
+      "target": "androidtv_datastore_creds"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "androidtv_readme_client",
+      "_tgt": "androidtv_compose_tv",
+      "source": "androidtv_readme_client",
+      "target": "androidtv_compose_tv"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "androidtv_readme_client",
+      "_tgt": "androidtv_media3_exoplayer",
+      "source": "androidtv_readme_client",
+      "target": "androidtv_media3_exoplayer"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "androidtv_readme_client",
+      "_tgt": "androidtv_hilt_di",
+      "source": "androidtv_readme_client",
+      "target": "androidtv_hilt_di"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "androidtv_readme_client",
+      "_tgt": "androidtv_retrofit_okhttp",
+      "source": "androidtv_readme_client",
+      "target": "androidtv_retrofit_okhttp"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "androidtv_readme_client",
+      "_tgt": "androidtv_datastore_creds",
+      "source": "androidtv_readme_client",
+      "target": "androidtv_datastore_creds"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "androidtv_readme_client",
+      "_tgt": "androidtv_coil_images",
+      "source": "androidtv_readme_client",
+      "target": "androidtv_coil_images"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "androidtv_readme_client",
+      "_tgt": "androidtv_leanback_launcher",
+      "source": "androidtv_readme_client",
+      "target": "androidtv_leanback_launcher"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "androidtv_readme_client",
+      "_tgt": "androidtv_dpad_focus",
+      "source": "androidtv_readme_client",
+      "target": "androidtv_dpad_focus"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "androidtv_readme_client",
+      "_tgt": "androidtv_restreamer_mode",
+      "source": "androidtv_readme_client",
+      "target": "androidtv_restreamer_mode"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "android-tv/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "androidtv_readme_client",
+      "_tgt": "androidtv_opensubtitles_todo",
+      "source": "androidtv_readme_client",
+      "target": "androidtv_opensubtitles_todo"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "icon.svg",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "icon_svg_logo",
+      "_tgt": "icon_tv_screen_element",
+      "source": "icon_svg_logo",
+      "target": "icon_tv_screen_element"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "icon.svg",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "icon_svg_logo",
+      "_tgt": "icon_signal_waves",
+      "source": "icon_svg_logo",
+      "target": "icon_signal_waves"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "icon.svg",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "icon_svg_logo",
+      "_tgt": "icon_red_dark_palette",
+      "source": "icon_svg_logo",
+      "target": "icon_red_dark_palette"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "icon.png",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "icon_png_512",
+      "_tgt": "icon_svg_logo",
+      "source": "icon_svg_logo",
+      "target": "icon_png_512"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "icon-1024.png",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "icon_png_1024",
+      "_tgt": "icon_svg_logo",
+      "source": "icon_svg_logo",
+      "target": "icon_png_1024"
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "xtream_shared_backend",
+      "label": "Shared Xtream Backend Across Clients",
+      "nodes": [
+        "readme_livebox",
+        "androidtv_readme_client",
+        "readme_xtream_api"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.95,
+      "source_file": "android-tv/README.md"
+    },
+    {
+      "id": "android_tv_stack",
+      "label": "Android TV Technology Stack",
+      "nodes": [
+        "androidtv_compose_tv",
+        "androidtv_media3_exoplayer",
+        "androidtv_hilt_di",
+        "androidtv_retrofit_okhttp"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "android-tv/README.md"
+    },
+    {
+      "id": "livebox_brand_identity",
+      "label": "LiveBox Visual Brand (icon + TV + red)",
+      "nodes": [
+        "icon_svg_logo",
+        "icon_tv_screen_element",
+        "icon_red_dark_palette",
+        "icon_signal_waves"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "icon.svg"
+    }
+  ]
+}

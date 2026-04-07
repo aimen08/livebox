@@ -6,3 +6,8 @@ dist/
 *.deb
 *.AppImage
 *.blockmap
+
+# graphify
+graphify-out/cache/
+graphify-out/cost.json
+graphify-out/manifest.json
