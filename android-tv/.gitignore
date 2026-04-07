@@ -1,0 +1,82 @@
+# Built application files
+*.apk
+*.aar
+*.aab
+*.ap_
+*.dex
+
+# Java / Kotlin build artifacts
+*.class
+*.jar
+*.hprof
+*.log
+
+# Generated files
+bin/
+gen/
+out/
+release/
+
+# Gradle
+.gradle/
+build/
+/build/
+**/build/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+.gradletasknamecache
+
+# Kotlin (K2 incremental cache, daemon state)
+.kotlin/
+
+# Local configuration (sdk path, signing creds)
+local.properties
+keystore.properties
+*.keystore
+*.jks
+
+# Android Studio / IntelliJ
+*.iml
+.idea/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+.idea/caches
+.idea/modules.xml
+.idea/navEditor.xml
+
+# NDK
+.externalNativeBuild/
+.cxx/
+
+# Captures + profiling
+captures/
+*.trace
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Lint reports
+lint/intermediates/
+lint/generated/
+lint/outputs/
+lint/tmp/
+lint/reports/
+
+# Navigation editor cache
+.navigation/
+
+# Crashlytics / Firebase
+crashlytics-build.properties
+crashlytics.properties
+com_crashlytics_export_strings.xml
+fabric.properties
+google-services.json
+
+# APK Profiler
+.profileable
