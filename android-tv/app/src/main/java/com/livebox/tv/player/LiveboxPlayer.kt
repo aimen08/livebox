@@ -27,21 +27,26 @@ object LiveboxPlayer {
         val httpFactory = DefaultHttpDataSource.Factory()
             .setUserAgent(UA)
             .setAllowCrossProtocolRedirects(true)
-            .setConnectTimeoutMs(15_000)
-            .setReadTimeoutMs(30_000)
+            // Match React's fragLoadingTimeOut (8s for live, 20s for VOD).
+            .setConnectTimeoutMs(if (isLive) 8_000 else 15_000)
+            .setReadTimeoutMs(if (isLive) 8_000 else 30_000)
 
         val mediaSourceFactory = DefaultMediaSourceFactory(context)
             .setDataSourceFactory(httpFactory)
 
         val loadControl = if (isLive) {
-            // Live: tight buffer to stay near edge. Tolerates rebuffers.
+            // Live: tuned to mirror the React app's hls.js config
+            //   maxBufferLength: 10s, maxMaxBufferLength: 20s, backBufferLength: 15s
+            // Tighter than VOD but loose enough to avoid stalls on real-world
+            // IPTV streams (the previous 2–8s window was rebuffering).
             DefaultLoadControl.Builder()
                 .setBufferDurationsMs(
-                    /* minBufferMs = */ 2_000,
-                    /* maxBufferMs = */ 8_000,
-                    /* bufferForPlaybackMs = */ 1_000,
-                    /* bufferForPlaybackAfterRebufferMs = */ 2_000,
+                    /* minBufferMs = */ 8_000,
+                    /* maxBufferMs = */ 20_000,
+                    /* bufferForPlaybackMs = */ 2_500,
+                    /* bufferForPlaybackAfterRebufferMs = */ 5_000,
                 )
+                .setBackBuffer(/* backBufferDurationMs = */ 15_000, /* retainBackBufferFromKeyframe = */ true)
                 .setPrioritizeTimeOverSizeThresholds(true)
                 .build()
         } else {
@@ -81,7 +86,8 @@ object LiveboxPlayer {
             builder.setLiveConfiguration(
                 MediaItem.LiveConfiguration.Builder()
                     .setMaxPlaybackSpeed(1.04f)   // catch up to live faster
-                    .setTargetOffsetMs(3_000)     // ~3s behind live edge
+                    .setTargetOffsetMs(6_000)     // ~6s behind live edge — gives buffer headroom
+                    .setMinOffsetMs(2_000)
                     .build()
             )
         }

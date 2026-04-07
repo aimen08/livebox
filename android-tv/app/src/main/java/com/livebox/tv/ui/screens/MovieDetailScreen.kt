@@ -3,6 +3,9 @@ package com.livebox.tv.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -113,7 +116,12 @@ fun MovieDetailScreen(
     val isFav by vm.isFavorite.collectAsState()
     val compact = isCompactWidth()
 
-    Box(Modifier.fillMaxSize().background(LbColors.Bg)) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(LbColors.Bg)
+            .windowInsetsPadding(WindowInsets.safeDrawing),
+    ) {
         when {
             state.loading -> Text("Loading…",
                 modifier = Modifier.align(Alignment.Center), color = LbColors.Text3)
