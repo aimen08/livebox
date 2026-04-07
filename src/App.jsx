@@ -263,7 +263,7 @@ export default function App() {
         onOpenURL={() => { setPlaying(null); handleOpenURL(); }}
         hasContent={hasContent}
       />
-      <div className={`main${hasCustomTitlebar ? " has-titlebar" : ""}${playing ? " playing" : ""}`}>
+      <div className={`main${hasCustomTitlebar ? " has-titlebar" : ""}`}>
         {loading && (
           <div className="loading-overlay">
             <div className="loading-card">
@@ -289,7 +289,7 @@ export default function App() {
             watchProgress={watchProgress}
           />
         )}
-        <div className="pages-container" style={{ display: playing || loading ? "none" : "contents" }}>
+        <div className="pages-container" style={{ display: loading ? "none" : "contents" }}>
           <div style={{ display: page === "home" ? "contents" : "none" }}>
             <HomePage
               channels={channels}
