@@ -4,10 +4,34 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
+    <!-- Pre-O fallback launcher icon — simpler than the adaptive version -->
+
+    <!-- Background -->
     <path
-        android:fillColor="#0B0F14"
-        android:pathData="M0,0h108v108h-108z" />
+        android:fillColor="#0A0A0A"
+        android:pathData="M0,0 h108 v108 h-108 z" />
+
+    <!-- Rounded square plate -->
     <path
-        android:fillColor="#4FC3F7"
-        android:pathData="M30,30h48v48h-48z" />
+        android:fillColor="#1A1A1A"
+        android:pathData="M22,22 h64 a8,8 0 0 1 8,8 v48 a8,8 0 0 1 -8,8 h-64 a8,8 0 0 1 -8,-8 v-48 a8,8 0 0 1 8,-8 z" />
+    <path
+        android:strokeColor="#E50914"
+        android:strokeWidth="2"
+        android:fillColor="#00000000"
+        android:pathData="M22,22 h64 a8,8 0 0 1 8,8 v48 a8,8 0 0 1 -8,8 h-64 a8,8 0 0 1 -8,-8 v-48 a8,8 0 0 1 8,-8 z" />
+
+    <!-- Letter L (white) -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M32,36 h7 v28 h15 v7 h-22 z" />
+
+    <!-- Letter B (red, two stacked rounded blocks) -->
+    <path
+        android:fillColor="#FFE50914"
+        android:pathData="M58,36 h13 a6,6 0 0 1 6,6 v4 a6,6 0 0 1 -6,6 h-13 z" />
+    <path
+        android:fillColor="#FFE50914"
+        android:pathData="M58,55 h14 a6,6 0 0 1 6,6 v4 a6,6 0 0 1 -6,6 h-14 z" />
 </vector>

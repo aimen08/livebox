@@ -4,7 +4,36 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
+    <!-- Adaptive icon foreground: 108x108 viewport with the safe zone being
+         the central 66x66 area (21..87). Anything outside may be cropped
+         by the launcher mask. -->
+
+    <!-- Soft red glow behind the LB monogram -->
     <path
-        android:fillColor="#4FC3F7"
-        android:pathData="M30,30h48v48h-48z" />
+        android:fillColor="#33E50914"
+        android:pathData="M54,54m-32,0a32,32 0,1 1,64 0a32,32 0,1 1,-64 0z" />
+
+    <!-- Rounded square plate (matches React .sidebar-logo background) -->
+    <path
+        android:fillColor="#1A1A1A"
+        android:pathData="M30,30 h48 a6,6 0 0 1 6,6 v36 a6,6 0 0 1 -6,6 h-48 a6,6 0 0 1 -6,-6 v-36 a6,6 0 0 1 6,-6 z" />
+    <path
+        android:strokeColor="#E50914"
+        android:strokeWidth="1.5"
+        android:fillColor="#00000000"
+        android:pathData="M30,30 h48 a6,6 0 0 1 6,6 v36 a6,6 0 0 1 -6,6 h-48 a6,6 0 0 1 -6,-6 v-36 a6,6 0 0 1 6,-6 z" />
+
+    <!-- Letter L (white) -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M37,40 h6 v22 h12 v6 h-18 z" />
+
+    <!-- Letter B (red, two stacked rounded blocks) -->
+    <path
+        android:fillColor="#FFE50914"
+        android:pathData="M59,40 h10 a5,5 0 0 1 5,5 v3 a5,5 0 0 1 -5,5 h-10 z" />
+    <path
+        android:fillColor="#FFE50914"
+        android:pathData="M59,55 h11 a5,5 0 0 1 5,5 v3 a5,5 0 0 1 -5,5 h-11 z" />
 </vector>
