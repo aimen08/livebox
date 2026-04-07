@@ -12,6 +12,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -30,8 +34,10 @@ import com.livebox.tv.ui.theme.LbColors
 import com.livebox.tv.ui.util.isCompactWidth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -47,28 +53,43 @@ data class MoviesState(
 class MoviesViewModel @Inject constructor(
     private val repo: XtreamRepository,
 ) : ViewModel() {
-    private val _state = MutableStateFlow(MoviesState())
-    val state: StateFlow<MoviesState> = _state.asStateFlow()
 
-    init { load() }
+    private val selectedCategory = MutableStateFlow<String?>(null)
+    private val errorFlow = MutableStateFlow<String?>(null)
 
-    fun load() = viewModelScope.launch {
-        _state.value = _state.value.copy(loading = true, error = null)
-        runCatching {
-            val cats = repo.vodCategories()
-            val first = cats.firstOrNull()?.categoryId
-            val items = repo.vodItems(first)
-            _state.value = MoviesState(false, cats, items, first, null)
-        }.onFailure { e ->
-            _state.value = _state.value.copy(loading = false, error = e.message)
+    val state: StateFlow<MoviesState> = combine(
+        repo.cachedSnapshot,
+        selectedCategory,
+        errorFlow,
+    ) { snap, selected, error ->
+        if (snap == null) {
+            MoviesState(loading = true, error = error)
+        } else {
+            val activeId = selected ?: snap.vodCategories.firstOrNull()?.categoryId
+            val items = if (activeId == null) snap.vodItems
+            else snap.vodItems.filter { it.categoryId == activeId }
+            MoviesState(
+                loading = false,
+                categories = snap.vodCategories,
+                items = items,
+                selectedCategoryId = activeId,
+                error = error,
+            )
         }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, MoviesState())
+
+    init {
+        if (repo.cachedSnapshot.value == null) refresh()
     }
 
-    fun selectCategory(id: String) = viewModelScope.launch {
-        _state.value = _state.value.copy(selectedCategoryId = id, loading = true)
-        runCatching { repo.vodItems(id) }
-            .onSuccess { _state.value = _state.value.copy(loading = false, items = it) }
-            .onFailure { _state.value = _state.value.copy(loading = false, error = it.message) }
+    fun refresh() = viewModelScope.launch {
+        errorFlow.value = null
+        runCatching { repo.refreshAll() }
+            .onFailure { e -> errorFlow.value = e.message }
+    }
+
+    fun selectCategory(id: String) {
+        selectedCategory.value = id
     }
 }
 
@@ -78,9 +99,15 @@ fun MoviesContent(
     vm: MoviesViewModel = hiltViewModel(),
 ) {
     val state by vm.state.collectAsState()
+    var search by rememberSaveable { mutableStateOf("") }
     val activeName = state.categories
         .firstOrNull { it.categoryId == state.selectedCategoryId }
         ?.categoryName ?: "Movies"
+
+    val filtered = remember(state.items, search) {
+        if (search.isBlank()) state.items
+        else state.items.filter { it.name.contains(search, ignoreCase = true) }
+    }
 
     val minSize = if (isCompactWidth()) 120.dp else 180.dp
     CategorySidebarLayout(
@@ -91,18 +118,27 @@ fun MoviesContent(
         error = state.error,
         title = activeName,
     ) {
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = minSize),
-            contentPadding = PaddingValues(vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            items(state.items, key = { it.streamId }) { item ->
-                PosterCard(
-                    title = item.name,
-                    imageUrl = item.streamIcon,
-                    onClick = { onOpenMovie(item.streamId) },
-                )
+        Column(Modifier.fillMaxSize()) {
+            SearchBar(
+                value = search,
+                onValueChange = { search = it },
+                placeholder = "Search movies...",
+            )
+            Spacer(Modifier.height(12.dp))
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = minSize),
+                contentPadding = PaddingValues(vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+            ) {
+                items(filtered, key = { it.streamId }) { item ->
+                    PosterCard(
+                        title = item.name,
+                        imageUrl = item.streamIcon,
+                        onClick = { onOpenMovie(item.streamId) },
+                    )
+                }
             }
         }
     }

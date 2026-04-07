@@ -179,3 +179,23 @@ data class VodMovieData(
     val name: String = "",
     @SerialName("container_extension") val containerExtension: String = "mp4",
 )
+
+/* ---------- Cache snapshot (persisted to disk) ---------- */
+
+/**
+ * One-shot snapshot of everything fetched from a provider — equivalent to
+ * the React app's `xtreamCache` localStorage entry. Persisted as JSON in
+ * the app's files dir so the next launch is instant.
+ */
+@Serializable
+data class XtreamCacheSnapshot(
+    val baseUrl: String,
+    val username: String,
+    val liveCategories: List<LiveCategory> = emptyList(),
+    val liveChannels: List<LiveChannel> = emptyList(),
+    val vodCategories: List<LiveCategory> = emptyList(),
+    val vodItems: List<VodItem> = emptyList(),
+    val seriesCategories: List<LiveCategory> = emptyList(),
+    val seriesItems: List<SeriesItem> = emptyList(),
+    val cachedAt: Long = System.currentTimeMillis(),
+)

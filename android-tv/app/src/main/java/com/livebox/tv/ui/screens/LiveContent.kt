@@ -40,9 +40,10 @@ import com.livebox.tv.ui.theme.LbColors
 import com.livebox.tv.ui.util.isCompactWidth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -58,30 +59,49 @@ data class LiveState(
 class LiveViewModel @Inject constructor(
     private val repo: XtreamRepository,
 ) : ViewModel() {
-    private val _state = MutableStateFlow(LiveState())
-    val state: StateFlow<LiveState> = _state.asStateFlow()
 
-    init { load() }
+    private val selectedCategory = MutableStateFlow<String?>(null)
+    private val errorFlow = MutableStateFlow<String?>(null)
 
-    fun load() = viewModelScope.launch {
-        _state.update { it.copy(loading = true, error = null) }
-        runCatching {
-            val cats = repo.liveCategories()
-            val first = cats.firstOrNull()?.categoryId
-            val channels = repo.liveChannels(first)
-            _state.update {
-                it.copy(loading = false, categories = cats, channels = channels, selectedCategoryId = first)
-            }
-        }.onFailure { e ->
-            _state.update { it.copy(loading = false, error = e.message) }
+    /**
+     * Reactive state derived from the singleton cache snapshot. Switching tabs
+     * is now instant: no fetch on init, no per-category re-fetch — we just
+     * filter the cached list client-side (same approach as the React app).
+     */
+    val state: StateFlow<LiveState> = combine(
+        repo.cachedSnapshot,
+        selectedCategory,
+        errorFlow,
+    ) { snap, selected, error ->
+        if (snap == null) {
+            LiveState(loading = true, error = error)
+        } else {
+            val activeId = selected ?: snap.liveCategories.firstOrNull()?.categoryId
+            val channels = if (activeId == null) snap.liveChannels
+            else snap.liveChannels.filter { it.categoryId == activeId }
+            LiveState(
+                loading = false,
+                categories = snap.liveCategories,
+                channels = channels,
+                selectedCategoryId = activeId,
+                error = error,
+            )
         }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, LiveState())
+
+    init {
+        // First-ever launch: cache is empty → trigger a full fetch.
+        if (repo.cachedSnapshot.value == null) refresh()
     }
 
-    fun selectCategory(id: String) = viewModelScope.launch {
-        _state.update { it.copy(selectedCategoryId = id, loading = true) }
-        runCatching { repo.liveChannels(id) }
-            .onSuccess { ch -> _state.update { it.copy(loading = false, channels = ch) } }
-            .onFailure { e -> _state.update { it.copy(loading = false, error = e.message) } }
+    fun refresh() = viewModelScope.launch {
+        errorFlow.value = null
+        runCatching { repo.refreshAll() }
+            .onFailure { e -> errorFlow.value = e.message }
+    }
+
+    fun selectCategory(id: String) {
+        selectedCategory.value = id
     }
 }
 
@@ -130,6 +150,7 @@ fun LiveContent(
             )
             Spacer(Modifier.height(8.dp))
             ChannelsListBody(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
                 loading = state.loading,
                 error = state.error,
                 channels = filtered,
@@ -172,6 +193,7 @@ fun LiveContent(
                 SearchBar(value = search, onValueChange = { search = it })
                 Spacer(Modifier.height(8.dp))
                 ChannelsListBody(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
                     loading = state.loading,
                     error = state.error,
                     channels = filtered,
@@ -192,21 +214,22 @@ private fun ChannelsListBody(
     channels: List<LiveChannel>,
     onPlay: (Long) -> Unit,
     horizontalPadding: androidx.compose.ui.unit.Dp,
+    modifier: Modifier = Modifier,
 ) {
     when {
-        loading -> Box(Modifier.fillMaxSize(), Alignment.Center) {
+        loading -> Box(modifier.fillMaxSize(), Alignment.Center) {
             Text("Loading…", color = LbColors.Text3)
         }
-        error != null -> Box(Modifier.fillMaxSize(), Alignment.Center) {
+        error != null -> Box(modifier.fillMaxSize(), Alignment.Center) {
             Text("Error: $error", color = LbColors.AccentBright)
         }
-        channels.isEmpty() -> Box(Modifier.fillMaxSize(), Alignment.Center) {
+        channels.isEmpty() -> Box(modifier.fillMaxSize(), Alignment.Center) {
             Text("No channels", color = LbColors.Text3)
         }
         else -> LazyColumn(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             contentPadding = PaddingValues(horizontal = horizontalPadding),
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier,
         ) {
             items(channels, key = { it.streamId }) { ch ->
                 ChannelRow(ch, onClick = { onPlay(ch.streamId) })
@@ -314,10 +337,14 @@ fun CategoryChipRow(
     }
 }
 
-/* ───────── Search bar ───────── */
+/* ───────── Search bar (shared) ───────── */
 
 @Composable
-private fun SearchBar(value: String, onValueChange: (String) -> Unit) {
+fun SearchBar(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String = "Search channels...",
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -336,7 +363,7 @@ private fun SearchBar(value: String, onValueChange: (String) -> Unit) {
         Spacer(Modifier.width(10.dp))
         Box(modifier = Modifier.weight(1f)) {
             if (value.isEmpty()) {
-                Text("Search channels...", color = LbColors.Text3, fontSize = 14.sp)
+                Text(placeholder, color = LbColors.Text3, fontSize = 14.sp)
             }
             BasicTextField(
                 value = value,

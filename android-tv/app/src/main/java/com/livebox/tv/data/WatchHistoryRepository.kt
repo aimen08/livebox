@@ -63,4 +63,6 @@ class WatchHistoryRepository @Inject constructor(
     }
 
     suspend fun delete(type: String, id: Long) = dao.delete(type, id)
+
+    suspend fun clearAll() = dao.clear()
 }

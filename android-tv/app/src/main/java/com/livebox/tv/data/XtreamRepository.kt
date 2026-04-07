@@ -1,5 +1,8 @@
 package com.livebox.tv.data
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -7,39 +10,42 @@ import javax.inject.Singleton
 class XtreamRepository @Inject constructor(
     private val api: XtreamApi,
     private val credsStore: CredentialsStore,
+    private val cache: XtreamContentCache,
 ) {
-    suspend fun liveCategories(): List<LiveCategory> {
+    /** Catalog cache snapshot — backs Live/Movies/Series tabs. */
+    val cachedSnapshot: StateFlow<XtreamCacheSnapshot?> = cache.snapshot
+
+    /**
+     * Fetch every catalog endpoint in parallel and update the cache.
+     * Mirrors React's `loadXtreamAPI` flow — single round-trip per endpoint
+     * with no category filter, then filtering happens client-side.
+     */
+    suspend fun refreshAll() = coroutineScope {
         val c = credsStore.require()
-        return api.liveCategories(XtreamUrls.action(c, "get_live_categories"))
+        val liveCats = async { api.liveCategories(XtreamUrls.action(c, "get_live_categories")) }
+        val live = async { api.liveStreams(XtreamUrls.action(c, "get_live_streams")) }
+        val vodCats = async { api.vodCategories(XtreamUrls.action(c, "get_vod_categories")) }
+        val vod = async { api.vodStreams(XtreamUrls.action(c, "get_vod_streams")) }
+        val serCats = async { api.seriesCategories(XtreamUrls.action(c, "get_series_categories")) }
+        val ser = async { api.series(XtreamUrls.action(c, "get_series")) }
+
+        cache.update(
+            XtreamCacheSnapshot(
+                baseUrl = c.baseUrl,
+                username = c.username,
+                liveCategories = liveCats.await(),
+                liveChannels = live.await(),
+                vodCategories = vodCats.await(),
+                vodItems = vod.await(),
+                seriesCategories = serCats.await(),
+                seriesItems = ser.await(),
+            )
+        )
     }
 
-    suspend fun liveChannels(categoryId: String? = null): List<LiveChannel> {
-        val c = credsStore.require()
-        val extra = categoryId?.let { "&category_id=$it" } ?: ""
-        return api.liveStreams(XtreamUrls.action(c, "get_live_streams", extra))
-    }
+    fun clearCache() = cache.clear()
 
-    suspend fun vodCategories(): List<LiveCategory> {
-        val c = credsStore.require()
-        return api.vodCategories(XtreamUrls.action(c, "get_vod_categories"))
-    }
-
-    suspend fun vodItems(categoryId: String? = null): List<VodItem> {
-        val c = credsStore.require()
-        val extra = categoryId?.let { "&category_id=$it" } ?: ""
-        return api.vodStreams(XtreamUrls.action(c, "get_vod_streams", extra))
-    }
-
-    suspend fun seriesCategories(): List<LiveCategory> {
-        val c = credsStore.require()
-        return api.seriesCategories(XtreamUrls.action(c, "get_series_categories"))
-    }
-
-    suspend fun series(categoryId: String? = null): List<SeriesItem> {
-        val c = credsStore.require()
-        val extra = categoryId?.let { "&category_id=$it" } ?: ""
-        return api.series(XtreamUrls.action(c, "get_series", extra))
-    }
+    /* ───────── Per-item lookups (not cached — fetched on demand) ───────── */
 
     suspend fun seriesInfo(seriesId: Long): SeriesInfo {
         val c = credsStore.require()
@@ -56,6 +62,8 @@ class XtreamRepository @Inject constructor(
         val c = credsStore.require()
         return api.vodInfo(XtreamUrls.action(c, "get_vod_info", "&vod_id=$vodId"))
     }
+
+    /* ───────── Stream URL builders ───────── */
 
     fun liveStreamUrl(streamId: Long): String =
         XtreamUrls.liveStream(credsStore.require(), streamId)

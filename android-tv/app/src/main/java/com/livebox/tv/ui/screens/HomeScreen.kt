@@ -2,10 +2,15 @@ package com.livebox.tv.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LiveTv
 import androidx.compose.material.icons.filled.Movie
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.Icon
@@ -38,6 +43,7 @@ private val TABS = listOf(
     NavTab("Movies", Icons.Filled.Movie),
     NavTab("Series", Icons.Filled.Tv),
     NavTab("Favorites", Icons.Filled.Star),
+    NavTab("Settings", Icons.Filled.Settings),
 )
 
 @Composable
@@ -45,6 +51,7 @@ fun HomeScreen(
     onPlayLive: (streamId: Long) -> Unit,
     onOpenMovie: (streamId: Long) -> Unit,
     onOpenSeries: (seriesId: Long) -> Unit,
+    onSignedOut: () -> Unit,
 ) {
     var selected by rememberSaveable { mutableStateOf(0) }
     val compact = isCompactWidth()
@@ -61,6 +68,7 @@ fun HomeScreen(
                     onOpenSeries = onOpenSeries,
                 ),
             )
+            4 -> SettingsContent(onSignedOut = onSignedOut)
         }
     }
 
@@ -91,8 +99,13 @@ fun HomeScreen(
             Box(Modifier.padding(padding).fillMaxSize()) { content() }
         }
     } else {
-        // ── Tablet / TV: left NavigationRail ──
-        Row(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        // ── Tablet / TV / phone landscape: left NavigationRail ──
+        Row(
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .windowInsetsPadding(WindowInsets.safeDrawing),
+        ) {
             NavigationRail(
                 containerColor = LbColors.Surface,
                 modifier = Modifier.fillMaxHeight(),

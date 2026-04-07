@@ -41,8 +41,13 @@ class CredentialsStore @Inject constructor(
         context.dataStore.edit { it.clear() }
     }
 
-    /** Synchronous accessor for repository calls. Cached after first read. */
-    fun require(): XtreamCredentials = runBlocking {
-        flow.first() ?: error("No credentials saved")
-    }
+    /**
+     * Synchronous read used during MainActivity.onCreate so we can pick the
+     * correct nav start destination *before* the first composition runs and
+     * avoid the login screen briefly flashing on already-logged-in startup.
+     */
+    fun peek(): XtreamCredentials? = runBlocking { flow.first() }
+
+    /** Synchronous accessor for repository calls. Throws if not signed in. */
+    fun require(): XtreamCredentials = peek() ?: error("No credentials saved")
 }

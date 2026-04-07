@@ -4,9 +4,18 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -17,8 +26,10 @@ import com.livebox.tv.data.XtreamRepository
 import com.livebox.tv.ui.util.isCompactWidth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,28 +45,43 @@ data class SeriesState(
 class SeriesViewModel @Inject constructor(
     private val repo: XtreamRepository,
 ) : ViewModel() {
-    private val _state = MutableStateFlow(SeriesState())
-    val state: StateFlow<SeriesState> = _state.asStateFlow()
 
-    init { load() }
+    private val selectedCategory = MutableStateFlow<String?>(null)
+    private val errorFlow = MutableStateFlow<String?>(null)
 
-    fun load() = viewModelScope.launch {
-        _state.value = _state.value.copy(loading = true, error = null)
-        runCatching {
-            val cats = repo.seriesCategories()
-            val first = cats.firstOrNull()?.categoryId
-            val items = repo.series(first)
-            _state.value = SeriesState(false, cats, items, first, null)
-        }.onFailure { e ->
-            _state.value = _state.value.copy(loading = false, error = e.message)
+    val state: StateFlow<SeriesState> = combine(
+        repo.cachedSnapshot,
+        selectedCategory,
+        errorFlow,
+    ) { snap, selected, error ->
+        if (snap == null) {
+            SeriesState(loading = true, error = error)
+        } else {
+            val activeId = selected ?: snap.seriesCategories.firstOrNull()?.categoryId
+            val items = if (activeId == null) snap.seriesItems
+            else snap.seriesItems.filter { it.categoryId == activeId }
+            SeriesState(
+                loading = false,
+                categories = snap.seriesCategories,
+                items = items,
+                selectedCategoryId = activeId,
+                error = error,
+            )
         }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, SeriesState())
+
+    init {
+        if (repo.cachedSnapshot.value == null) refresh()
     }
 
-    fun selectCategory(id: String) = viewModelScope.launch {
-        _state.value = _state.value.copy(selectedCategoryId = id, loading = true)
-        runCatching { repo.series(id) }
-            .onSuccess { _state.value = _state.value.copy(loading = false, items = it) }
-            .onFailure { _state.value = _state.value.copy(loading = false, error = it.message) }
+    fun refresh() = viewModelScope.launch {
+        errorFlow.value = null
+        runCatching { repo.refreshAll() }
+            .onFailure { e -> errorFlow.value = e.message }
+    }
+
+    fun selectCategory(id: String) {
+        selectedCategory.value = id
     }
 }
 
@@ -65,9 +91,15 @@ fun SeriesContent(
     vm: SeriesViewModel = hiltViewModel(),
 ) {
     val state by vm.state.collectAsState()
+    var search by rememberSaveable { mutableStateOf("") }
     val activeName = state.categories
         .firstOrNull { it.categoryId == state.selectedCategoryId }
         ?.categoryName ?: "Series"
+
+    val filtered = remember(state.items, search) {
+        if (search.isBlank()) state.items
+        else state.items.filter { it.name.contains(search, ignoreCase = true) }
+    }
 
     val minSize = if (isCompactWidth()) 120.dp else 180.dp
     CategorySidebarLayout(
@@ -78,18 +110,27 @@ fun SeriesContent(
         error = state.error,
         title = activeName,
     ) {
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = minSize),
-            contentPadding = PaddingValues(vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            items(state.items, key = { it.seriesId }) { show ->
-                PosterCard(
-                    title = show.name,
-                    imageUrl = show.cover,
-                    onClick = { onOpenSeries(show.seriesId) },
-                )
+        Column(Modifier.fillMaxSize()) {
+            SearchBar(
+                value = search,
+                onValueChange = { search = it },
+                placeholder = "Search series...",
+            )
+            Spacer(Modifier.height(12.dp))
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = minSize),
+                contentPadding = PaddingValues(vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+            ) {
+                items(filtered, key = { it.seriesId }) { show ->
+                    PosterCard(
+                        title = show.name,
+                        imageUrl = show.cover,
+                        onClick = { onOpenSeries(show.seriesId) },
+                    )
+                }
             }
         }
     }

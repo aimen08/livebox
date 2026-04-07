@@ -30,4 +30,6 @@ class FavoritesRepository @Inject constructor(
         dao.insert(FavoriteEntity(type, id, name, imageUrl, ext))
 
     suspend fun remove(type: String, id: Long) = dao.delete(type, id)
+
+    suspend fun clearAll() = dao.clear()
 }
