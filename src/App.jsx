@@ -13,6 +13,7 @@ import SettingsPage, { ACCENT_COLORS } from "./pages/SettingsPage";
 import { parseM3U } from "./utils/m3uParser";
 import { storageGet, storageSet } from "./utils/storage";
 import { idbGet, idbSet, idbDelete } from "./utils/db";
+import { filterAdultCatalog, isAdultGroup } from "./utils/contentFilter";
 
 function applyAccent(index) {
   const c = ACCENT_COLORS[index] || ACCENT_COLORS[0];
@@ -78,12 +79,13 @@ export default function App() {
         cache.username === _savedCreds.username;
 
       if (fresh) {
-        setChannels(cache.channels || []);
-        setGroups(cache.groups || []);
-        setMovies(cache.movies || []);
-        setMovieGroups(cache.movieGroups || []);
-        setSeries(cache.series || []);
-        setSeriesGroups(cache.seriesGroups || []);
+        const clean = filterAdultCatalog(cache);
+        setChannels(clean.channels);
+        setGroups(clean.groups);
+        setMovies(clean.movies);
+        setMovieGroups(clean.movieGroups);
+        setSeries(clean.series);
+        setSeriesGroups(clean.seriesGroups);
         setLoading(false);
         // Silent background refresh now that the user can see something
         if (_savedCreds && window.electron?.fetchURL) {
@@ -113,8 +115,11 @@ export default function App() {
 
   const loadPlaylist = useCallback((content, name) => {
     const { channels: ch, groups: gr } = parseM3U(content);
-    setChannels(ch);
-    setGroups(gr);
+    const blocked = new Set(gr.filter(isAdultGroup));
+    const cleanCh = blocked.size ? ch.filter((c) => !blocked.has(c.group)) : ch;
+    const cleanGr = blocked.size ? gr.filter((g) => !blocked.has(g)) : gr;
+    setChannels(cleanCh);
+    setGroups(cleanGr);
     setPage("live");
     setPlaying(null);
   }, []);
@@ -216,12 +221,18 @@ export default function App() {
         a === "Uncategorized" ? 1 : b === "Uncategorized" ? -1 : a.localeCompare(b)
       );
 
-      setChannels(ch);
-      setGroups(liveGroups);
-      setMovies(mov);
-      setMovieGroups(mGroups);
-      setSeries(ser);
-      setSeriesGroups(sGroups);
+      const clean = filterAdultCatalog({
+        channels: ch, groups: liveGroups,
+        movies: mov, movieGroups: mGroups,
+        series: ser, seriesGroups: sGroups,
+      });
+
+      setChannels(clean.channels);
+      setGroups(clean.groups);
+      setMovies(clean.movies);
+      setMovieGroups(clean.movieGroups);
+      setSeries(clean.series);
+      setSeriesGroups(clean.seriesGroups);
       const creds = { baseUrl, username, password };
       setXtreamCreds(creds);
       storageSet("xtreamCreds", creds);
@@ -229,9 +240,9 @@ export default function App() {
       // Cache processed data for instant startup next time. Async/non-blocking.
       idbSet("xtreamCache", {
         baseUrl, username,
-        channels: ch, groups: liveGroups,
-        movies: mov, movieGroups: mGroups,
-        series: ser, seriesGroups: sGroups,
+        channels: clean.channels, groups: clean.groups,
+        movies: clean.movies, movieGroups: clean.movieGroups,
+        series: clean.series, seriesGroups: clean.seriesGroups,
         cachedAt: Date.now(),
       });
 
