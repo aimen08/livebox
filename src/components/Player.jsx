@@ -43,7 +43,7 @@ function AudioIcon() {
   return <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>;
 }
 
-export default function Player({ channel, onClose, channels, groups, favorites, onPlay, onToggleFav, contentType = "live", onSaveProgress, watchProgress }) {
+export default function Player({ channel, onClose, channels, groups, favorites, onPlay, onToggleFav, contentType = "live", onSaveProgress, watchProgress, mode = "fullscreen", onModeChange }) {
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
   const containerRef = useRef(null);
@@ -439,6 +439,13 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
   };
 
   const toggleFullscreen = () => {
+    // In inline (side-panel) mode the bottom fullscreen control expands the
+    // player back into the in-app fullscreen view first. From the in-app
+    // fullscreen view it requests/exits real browser fullscreen.
+    if (mode === "inline") {
+      onModeChange?.("fullscreen");
+      return;
+    }
     if (!containerRef.current) return;
     if (document.fullscreenElement) {
       document.exitFullscreen();
@@ -465,10 +472,15 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     setChSearch("");
   };
 
+  const isInline = mode === "inline";
+  const toggleMode = useCallback(() => {
+    onModeChange?.(isInline ? "fullscreen" : "inline");
+  }, [isInline, onModeChange]);
+
   return (
-    <div className="player-fullscreen" ref={containerRef}>
-      {/* Left side panel - live TV only */}
-      {isLiveContent && <div
+    <div className={`player-fullscreen player-${mode}`} ref={containerRef}>
+      {/* Left side panel - live TV only, hidden in inline mode (LivePage shows the same list) */}
+      {isLiveContent && !isInline && <div
         className={`player-panel${panelOpen ? " open" : ""}`}
         onMouseLeave={() => setPanelOpen(false)}
       >
@@ -532,8 +544,8 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
         )}
       </div>}
 
-      {/* Hover trigger on left edge - live TV only */}
-      {isLiveContent && (
+      {/* Hover trigger on left edge - live TV only, hidden in inline mode */}
+      {isLiveContent && !isInline && (
         <div
           className="panel-trigger"
           onMouseEnter={() => setPanelOpen(true)}
@@ -650,7 +662,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
           )}
           <div className="player-controls-row">
             <div className="player-controls-left">
-              {isLiveContent && (
+              {isLiveContent && !isInline && (
                 <button className="player-ctrl-btn" onClick={() => setPanelOpen((v) => !v)}>
                   <ListIcon />
                 </button>

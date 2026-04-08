@@ -4,6 +4,7 @@ import WindowTitlebar from "./components/WindowTitlebar";
 import Player from "./components/Player";
 import URLModal from "./components/URLModal";
 import Spotlight from "./components/Spotlight";
+import LiveSidePanel from "./components/LiveSidePanel";
 import HomePage from "./pages/HomePage";
 import LivePage from "./pages/LivePage";
 import MoviesPage from "./pages/MoviesPage";
@@ -41,6 +42,7 @@ export default function App() {
   const [favorites, setFavorites] = useState(() => storageGet("favorites", {}));
   const [playing, setPlaying] = useState(null);
   const [playingType, setPlayingType] = useState("live"); // "live", "movie", "series"
+  const [playerMode, setPlayerMode] = useState("fullscreen"); // "inline" | "fullscreen"
   const [showURLModal, setShowURLModal] = useState(false);
   const [recentURLs, setRecentURLs] = useState(() => storageGet("recentURLs", []));
   const [accentIndex, setAccentIndex] = useState(_initAccent);
@@ -306,9 +308,17 @@ export default function App() {
     storageSet("recentURLs", []);
   }, []);
 
-  const playLive = useCallback((ch) => { setPlayingType("live"); setPlaying(ch); }, []);
-  const playMovie = useCallback((m) => { setPlayingType("movie"); setPlaying(m); }, []);
-  const playSeries = useCallback((ep) => { setPlayingType("series"); setPlaying(ep); }, []);
+  const playLive = useCallback((ch) => { setPlayingType("live"); setPlayerMode("inline"); setPlaying(ch); }, []);
+  const playMovie = useCallback((m) => { setPlayingType("movie"); setPlayerMode("fullscreen"); setPlaying(m); }, []);
+  const playSeries = useCallback((ep) => { setPlayingType("series"); setPlayerMode("fullscreen"); setPlaying(ep); }, []);
+
+  // Inline player only makes sense on the live page (you're browsing channels
+  // alongside the video). Navigating away closes it.
+  useEffect(() => {
+    if (playing && playerMode === "inline" && page !== "live") {
+      setPlaying(null);
+    }
+  }, [page, playing, playerMode]);
 
   const hasContent = channels.length > 0 || movies.length > 0 || series.length > 0;
   const hasCustomTitlebar = platform === "win32" || platform === "linux";
@@ -323,7 +333,7 @@ export default function App() {
         onOpenURL={() => { setPlaying(null); handleOpenURL(); }}
         hasContent={hasContent}
       />
-      <div className={`main${hasCustomTitlebar ? " has-titlebar" : ""}`}>
+      <div className={`main${hasCustomTitlebar ? " has-titlebar" : ""}${page === "live" && hasContent && !(playing && playerMode === "fullscreen") ? " has-live-side" : ""}`}>
         {loading && (
           <div className="loading-overlay">
             <div className="loading-card">
@@ -338,7 +348,16 @@ export default function App() {
         {playing && (
           <Player
             channel={playing}
-            onClose={() => setPlaying(null)}
+            onClose={() => {
+              // Live TV: closing the fullscreen view drops back to the inline
+              // side-panel rather than tearing the player down. From inline
+              // mode, X fully closes. Movies/series always close fully.
+              if (playingType === "live" && playerMode === "fullscreen") {
+                setPlayerMode("inline");
+              } else {
+                setPlaying(null);
+              }
+            }}
             channels={channels}
             groups={groups}
             favorites={favorites}
@@ -347,6 +366,8 @@ export default function App() {
             contentType={playingType}
             onSaveProgress={saveProgress}
             watchProgress={watchProgress}
+            mode={playerMode}
+            onModeChange={setPlayerMode}
           />
         )}
         <div className="pages-container" style={{ display: loading ? "none" : "contents" }}>
@@ -371,6 +392,9 @@ export default function App() {
               favorites={favorites}
               onToggleFav={handleToggleFav}
             />
+            {hasContent && !(playing && playerMode === "fullscreen") && (
+              <LiveSidePanel playing={playingType === "live" ? playing : null} />
+            )}
           </div>
           <div style={{ display: page === "movies" ? "contents" : "none" }}>
             <MoviesPage

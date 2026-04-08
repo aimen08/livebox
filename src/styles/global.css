@@ -89,11 +89,16 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 
 /* ── Main ── */
 .main {
+  --inline-player-w: clamp(380px, 40vw, 640px);
   margin-left: var(--sidebar-w); min-height: 100vh;
   padding: 24px 32px; overflow-y: auto;
   scrollbar-gutter: stable;
 }
 .main.has-titlebar { margin-top: 32px; min-height: calc(100vh - 32px); }
+/* Reserve space on the right for the live side panel so the channels list narrows
+   instead of being overlapped. Applied whenever the live side panel is rendered
+   (i.e. on the Live page) — even when no channel is playing, the slot is held. */
+.main.has-live-side { padding-right: calc(32px + var(--inline-player-w)); }
 
 /* ── Browse Layout (groups left, channels right) ── */
 .browse-layout {
@@ -236,6 +241,73 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
   background: #000; z-index: 50;
 }
 .main.has-titlebar .player-fullscreen { top: 32px; }
+
+/* Inline mode: pinned to the top-right, takes only the top half of the side
+   slot. Width matches the --inline-player-w padding the parent .main reserves.
+   Slightly lower z-index than fullscreen so toggling modes is just a class swap. */
+.player-fullscreen.player-inline {
+  left: auto;
+  bottom: auto;
+  top: 16px;
+  right: 16px;
+  width: calc(var(--inline-player-w, clamp(380px, 40vw, 640px)) - 32px);
+  height: calc(50vh - 24px);
+  z-index: 49;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.main.has-titlebar .player-fullscreen.player-inline {
+  top: 48px;
+  height: calc(50vh - 40px);
+}
+
+/* ── Live Side Panel ──
+   Always present on the Live page. Top half is the player slot (overlaid
+   by the inline player when something is playing, placeholder when not).
+   Bottom half holds related-content navigation. */
+.live-side-panel {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: var(--inline-player-w, clamp(380px, 40vw, 640px));
+  display: flex;
+  flex-direction: column;
+  z-index: 5;
+  pointer-events: none;
+}
+.main.has-titlebar .live-side-panel { top: 32px; }
+.live-side-top {
+  height: 50vh;
+  flex: none;
+  pointer-events: auto;
+  padding: 16px 16px 8px;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+.main.has-titlebar .live-side-top { height: calc(50vh - 16px); }
+.live-side-empty-player {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+}
+.live-side-empty-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: var(--text);
+}
+.live-side-empty-sub {
+  font-size: 12px;
+  color: var(--text3);
+}
 .player-wrap {
   flex: 1; position: relative; overflow: hidden;
   cursor: pointer;
