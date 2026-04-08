@@ -59,6 +59,18 @@ function SeriesDetail({ show, xtreamCreds, onPlay, onBack, isFav, onToggleFav, w
   const seasonKeys = seasons ? Object.keys(seasons).sort((a, b) => Number(a) - Number(b)) : [];
   const episodes = seasons && activeSeason ? seasons[activeSeason] || [] : [];
 
+  // Prefer direct_source when the provider populates it — that's the URL
+  // it knows works, often pointing at a different storage backend than
+  // the constructed /series/USER/PASS/ID.ext path. Fall back to building
+  // the standard URL when direct_source is missing or empty.
+  const buildEpisodeUrl = useCallback((ep) => {
+    if (ep.direct_source && typeof ep.direct_source === "string" && ep.direct_source.startsWith("http")) {
+      return ep.direct_source;
+    }
+    const { baseUrl, username, password } = xtreamCreds;
+    return `${baseUrl}/series/${username}/${password}/${ep.id}.${ep.container_extension || "mkv"}`;
+  }, [xtreamCreds]);
+
   // Build flat episode list for sidebar/auto-next
   const allEpisodes = useMemo(() => {
     if (!seasons) return [];
@@ -66,11 +78,10 @@ function SeriesDetail({ show, xtreamCreds, onPlay, onBack, isFav, onToggleFav, w
     const keys = Object.keys(seasons).sort((a, b) => Number(a) - Number(b));
     for (const sk of keys) {
       for (const ep of (seasons[sk] || [])) {
-        const { baseUrl, username, password } = xtreamCreds;
         list.push({
           id: ep.id,
           name: ep.title || `S${ep.season}E${ep.episode_num}`,
-          url: `${baseUrl}/series/${username}/${password}/${ep.id}.${ep.container_extension || "mkv"}`,
+          url: buildEpisodeUrl(ep),
           logo: ep.info?.movie_image || show.poster || "",
           episodeId: ep.id,
           seriesId: show.seriesId,
@@ -82,13 +93,12 @@ function SeriesDetail({ show, xtreamCreds, onPlay, onBack, isFav, onToggleFav, w
       }
     }
     return list;
-  }, [seasons, xtreamCreds, show]);
+  }, [seasons, show, buildEpisodeUrl]);
 
   const handlePlayEpisode = (ep) => {
-    const { baseUrl, username, password } = xtreamCreds;
     onPlay({
       name: ep.title || `S${ep.season}E${ep.episode_num}`,
-      url: `${baseUrl}/series/${username}/${password}/${ep.id}.${ep.container_extension || "mkv"}`,
+      url: buildEpisodeUrl(ep),
       logo: ep.info?.movie_image || show.poster || "",
       episodeId: ep.id,
       seriesId: show.seriesId,
