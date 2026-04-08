@@ -3,6 +3,7 @@ import Sidebar from "./components/Sidebar";
 import WindowTitlebar from "./components/WindowTitlebar";
 import Player from "./components/Player";
 import URLModal from "./components/URLModal";
+import Spotlight from "./components/Spotlight";
 import HomePage from "./pages/HomePage";
 import LivePage from "./pages/LivePage";
 import MoviesPage from "./pages/MoviesPage";
@@ -11,6 +12,7 @@ import FavoritesPage from "./pages/FavoritesPage";
 import SettingsPage, { ACCENT_COLORS } from "./pages/SettingsPage";
 import { parseM3U } from "./utils/m3uParser";
 import { storageGet, storageSet } from "./utils/storage";
+import { idbGet, idbSet, idbDelete } from "./utils/db";
 
 function applyAccent(index) {
   const c = ACCENT_COLORS[index] || ACCENT_COLORS[0];
@@ -19,10 +21,9 @@ function applyAccent(index) {
   document.documentElement.style.setProperty("--accent-dim", c.dim);
 }
 
-// Hydrate from cache synchronously so first render already has data
+// Sync-read the small things at module load — credentials, accent, etc.
+// xtreamCache lives in IndexedDB and is hydrated async after mount.
 const _savedCreds = storageGet("xtreamCreds", null);
-const _cached = storageGet("xtreamCache", null);
-const _hasCache = _savedCreds && _cached && _cached.baseUrl === _savedCreds.baseUrl && _cached.username === _savedCreds.username;
 const _initAccent = storageGet("accentIndex", 0);
 applyAccent(_initAccent);
 
@@ -30,36 +31,84 @@ export default function App() {
   const [platform, setPlatform] = useState(null);
   const [page, setPage] = useState("home");
   const [pendingSeries, setPendingSeries] = useState(null);
-  const [channels, setChannels] = useState(_hasCache ? _cached.channels : []);
-  const [groups, setGroups] = useState(_hasCache ? _cached.groups : []);
-  const [movies, setMovies] = useState(_hasCache ? _cached.movies : []);
-  const [movieGroups, setMovieGroups] = useState(_hasCache ? _cached.movieGroups : []);
-  const [series, setSeries] = useState(_hasCache ? _cached.series : []);
-  const [seriesGroups, setSeriesGroups] = useState(_hasCache ? _cached.seriesGroups : []);
+  const [channels, setChannels] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [movies, setMovies] = useState([]);
+  const [movieGroups, setMovieGroups] = useState([]);
+  const [series, setSeries] = useState([]);
+  const [seriesGroups, setSeriesGroups] = useState([]);
   const [favorites, setFavorites] = useState(() => storageGet("favorites", {}));
   const [playing, setPlaying] = useState(null);
   const [playingType, setPlayingType] = useState("live"); // "live", "movie", "series"
   const [showURLModal, setShowURLModal] = useState(false);
   const [recentURLs, setRecentURLs] = useState(() => storageGet("recentURLs", []));
   const [accentIndex, setAccentIndex] = useState(_initAccent);
-  const [xtreamCreds, setXtreamCreds] = useState(_hasCache ? _savedCreds : null);
-  const [loading, setLoading] = useState(false);
+  const [xtreamCreds, setXtreamCreds] = useState(_savedCreds);
+  // If we expect to find a cached catalog, show the loading overlay until
+  // hydration finishes. Otherwise stay quiet so the welcome page renders cleanly.
+  const [loading, setLoading] = useState(!!_savedCreds);
   const [loadingStep, setLoadingStep] = useState("");
   const [watchProgress, setWatchProgress] = useState(() => storageGet("watchProgress", {}));
+  const [spotlightOpen, setSpotlightOpen] = useState(false);
 
   const loadXtreamRef = useRef(null);
 
   useEffect(() => {
     window.electron?.getPlatform?.().then(setPlatform);
 
-    // Background refresh or full load if no cache
-    if (_savedCreds && window.electron?.fetchURL) {
-      if (_hasCache) {
-        loadXtreamRef.current(_savedCreds.baseUrl, _savedCreds.username, _savedCreds.password, true).catch(() => {});
-      } else {
-        loadXtreamRef.current(_savedCreds.baseUrl, _savedCreds.username, _savedCreds.password).catch(() => {});
+    // Async-hydrate the catalog from IndexedDB. If a legacy localStorage cache
+    // exists from a previous version, migrate it across once and clean up.
+    let cancelled = false;
+    (async () => {
+      let cache = await idbGet("xtreamCache");
+      if (!cache) {
+        const legacy = storageGet("xtreamCache", null);
+        if (legacy) {
+          await idbSet("xtreamCache", legacy);
+          storageSet("xtreamCache", null);
+          cache = legacy;
+        }
       }
-    }
+      if (cancelled) return;
+
+      const fresh =
+        cache &&
+        _savedCreds &&
+        cache.baseUrl === _savedCreds.baseUrl &&
+        cache.username === _savedCreds.username;
+
+      if (fresh) {
+        setChannels(cache.channels || []);
+        setGroups(cache.groups || []);
+        setMovies(cache.movies || []);
+        setMovieGroups(cache.movieGroups || []);
+        setSeries(cache.series || []);
+        setSeriesGroups(cache.seriesGroups || []);
+        setLoading(false);
+        // Silent background refresh now that the user can see something
+        if (_savedCreds && window.electron?.fetchURL) {
+          loadXtreamRef.current(_savedCreds.baseUrl, _savedCreds.username, _savedCreds.password, true).catch(() => {});
+        }
+      } else if (_savedCreds && window.electron?.fetchURL) {
+        // No usable cache — do a foreground load. loadXtreamAPI manages the loading flag.
+        loadXtreamRef.current(_savedCreds.baseUrl, _savedCreds.username, _savedCreds.password).catch(() => setLoading(false));
+      } else {
+        setLoading(false);
+      }
+    })();
+
+    // ⌘K / Ctrl+K opens the spotlight from anywhere in the app
+    const onGlobalKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSpotlightOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onGlobalKey);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("keydown", onGlobalKey);
+    };
   }, []);
 
   const loadPlaylist = useCallback((content, name) => {
@@ -177,8 +226,8 @@ export default function App() {
       setXtreamCreds(creds);
       storageSet("xtreamCreds", creds);
 
-      // Cache processed data for instant startup next time
-      storageSet("xtreamCache", {
+      // Cache processed data for instant startup next time. Async/non-blocking.
+      idbSet("xtreamCache", {
         baseUrl, username,
         channels: ch, groups: liveGroups,
         movies: mov, movieGroups: mGroups,
@@ -358,7 +407,7 @@ export default function App() {
               onClearPlaylist={() => {
                 setChannels([]); setGroups([]); setMovies([]); setMovieGroups([]);
                 setSeries([]); setSeriesGroups([]); setXtreamCreds(null);
-                storageSet("xtreamCreds", null); setPage("home");
+                storageSet("xtreamCreds", null); idbDelete("xtreamCache"); setPage("home");
               }}
               onResetAll={() => {
                 setFavorites({}); setWatchProgress({}); setRecentURLs([]);
@@ -367,7 +416,7 @@ export default function App() {
                 setAccentIndex(0); applyAccent(0);
                 storageSet("favorites", {}); storageSet("watchProgress", {});
                 storageSet("recentURLs", []); storageSet("xtreamCreds", null);
-                storageSet("accentIndex", 0); setPage("home");
+                storageSet("accentIndex", 0); idbDelete("xtreamCache"); setPage("home");
               }}
             />
           )}
@@ -375,6 +424,17 @@ export default function App() {
       </div>
       {showURLModal && (
         <URLModal onClose={() => setShowURLModal(false)} onSubmit={handleURLSubmit} />
+      )}
+      {spotlightOpen && hasContent && (
+        <Spotlight
+          channels={channels}
+          movies={movies}
+          series={series}
+          onPlayLive={playLive}
+          onPlayMovie={playMovie}
+          onOpenSeries={(s) => { setPendingSeries(s); setPage("series"); }}
+          onClose={() => setSpotlightOpen(false)}
+        />
       )}
     </>
   );

@@ -1026,6 +1026,71 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
   transition: width 0.3s;
 }
 
+/* ── Spotlight Search ── */
+.spotlight-backdrop {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 12vh;
+  animation: fadeIn 0.12s ease-out;
+}
+.spotlight {
+  width: min(640px, 92vw);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  display: flex; flex-direction: column;
+  max-height: 70vh;
+}
+.spotlight-input-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  color: var(--text3);
+}
+.spotlight-input {
+  flex: 1; background: none; border: none; outline: none;
+  color: var(--text); font-size: 16px; font-family: var(--font-body);
+}
+.spotlight-input::placeholder { color: var(--text3); }
+.spotlight-kbd {
+  font-size: 10px; color: var(--text3);
+  background: var(--surface3); padding: 2px 6px;
+  border-radius: 4px; border: 1px solid var(--border);
+  font-family: var(--font-body);
+}
+.spotlight-results {
+  flex: 1; overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding: 6px;
+}
+.spotlight-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 6px;
+  cursor: pointer; min-width: 0;
+}
+.spotlight-row.active { background: var(--accent-dim); }
+.spotlight-badge {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.5px;
+  padding: 2px 6px; border-radius: 3px;
+  flex-shrink: 0;
+}
+.spotlight-badge-live { background: rgba(229, 9, 20, 0.2); color: var(--accent-bright); }
+.spotlight-badge-movie { background: rgba(9, 132, 227, 0.2); color: #4ba3ec; }
+.spotlight-badge-series { background: rgba(108, 92, 231, 0.2); color: #8577ed; }
+.spotlight-name {
+  flex: 1; color: var(--text); font-size: 13px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.spotlight-group {
+  color: var(--text3); font-size: 11px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  max-width: 180px; flex-shrink: 0;
+}
+.spotlight-empty, .spotlight-hint {
+  padding: 24px; text-align: center;
+  color: var(--text3); font-size: 13px;
+}
+
 /* ── Animations ── */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
