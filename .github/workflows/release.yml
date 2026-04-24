@@ -90,4 +90,3 @@ jobs:
             dist/*.dmg
             dist/*.dmg.blockmap
             dist/latest-mac.yml
-          generate_release_notes: true
