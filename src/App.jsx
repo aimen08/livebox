@@ -308,7 +308,7 @@ export default function App() {
     storageSet("recentURLs", []);
   }, []);
 
-  const playLive = useCallback((ch) => { setPlayingType("live"); setPlayerMode("inline"); setPlaying(ch); }, []);
+  const playLive = useCallback((ch) => { setPage("live"); setPlayingType("live"); setPlayerMode("inline"); setPlaying(ch); }, []);
   const playMovie = useCallback((m) => { setPlayingType("movie"); setPlayerMode("fullscreen"); setPlaying(m); }, []);
   const playSeries = useCallback((ep) => { setPlayingType("series"); setPlayerMode("fullscreen"); setPlaying(ep); }, []);
 
