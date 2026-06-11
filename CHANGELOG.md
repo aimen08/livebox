@@ -6,6 +6,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## 2026-06-11
 
 ### Added
+- Bundled-ffmpeg media proxy so movies and series actually play. Provider VOD is H.264+AAC inside MKV, which Chromium can't demux — a local proxy remuxes it to fragmented MP4 on the fly (video copied = no quality loss, audio normalized to AAC). MP4 titles still play natively.
 - Netflix-style layout rehaul: a top navigation bar replaces the left sidebar (transparent over the hero, glass once scrolled, with macOS traffic-light and Windows/Linux titlebar handling). Home, Movies, and Series now lead with a billboard hero and horizontal scrolling shelves of hover-preview cards (Play / My List / More).
 - "Cinematic Streaming" design system: layered blue-black surfaces, glass chrome with backdrop blur, elevation/motion scales, and a full design-token rebuild in `global.css`; accent colors still switch at runtime via the existing three tokens.
 - Navigation upgrades: grouped sidebar rail with settings pinned to the bottom, home header with clickable ⌘K search hint, group-filter inputs on Live/Movies/Series, scoped search placeholders, and an equalizer indicator on the playing live channel row.
@@ -21,6 +22,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Player error screen now reports the actual failure reason instead of a generic message: HTTP status codes from the provider (including a dedicated hint when the network is blocked with HTTP 456, typically a VPN), decode/codec errors, and network errors for both HLS and direct streams.
 
 ### Fixed
+- Live TV no longer "keeps loading": the provider 302-redirects to a rotating CDN edge and uses relative segment paths the origin host 403s. The local proxy now follows the redirect and rewrites segment URLs to absolute edge URLs.
 - Hover-preview cards no longer overflow the shelf into a scrollbar — the preview now overlays the artwork and stays within the card.
 - Smooth vertical scrolling on Movies and Series: removed the mandatory scroll-snap and shrank the oversized shelf breathing bands that were intercepting the mouse wheel.
 - Removed the dark gradient block that painted over the last (often active) season tab.

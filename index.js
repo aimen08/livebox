@@ -3,6 +3,116 @@ const path = require("path");
 const fs = require("fs");
 const http = require("http");
 const https = require("https");
+const { spawn } = require("child_process");
+
+// Bundled ffmpeg (ffmpeg-static). In a packaged app the binary is unpacked out
+// of the asar archive so it can be spawned as an executable.
+let ffmpegPath = require("ffmpeg-static");
+if (ffmpegPath && ffmpegPath.includes("app.asar")) {
+  ffmpegPath = ffmpegPath.replace("app.asar", "app.asar.unpacked");
+}
+
+const STREAM_UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+
+// ── Local media proxy ────────────────────────────────────────────────────────
+// VOD: Chromium can't demux H.264/AAC out of a Matroska (.mkv) container, so we
+// remux it to fragmented MP4 on the fly (video copied = no re-encode/quality
+// loss; audio transcoded to AAC to cover AC3/EAC3). Live: the provider 302s to a
+// rotating CDN edge and emits relative segment paths that the origin host 403s,
+// so we follow the redirect and rewrite those paths to absolute edge URLs.
+let proxyPort = 0;
+
+function fetchFinal(url, redirects = 0) {
+  return new Promise((resolve, reject) => {
+    if (redirects > 6) return reject(new Error("too many redirects"));
+    const lib = url.startsWith("https") ? https : http;
+    const req = lib.get(url, { headers: { "User-Agent": STREAM_UA, Accept: "*/*" } }, (r) => {
+      if (r.statusCode >= 300 && r.statusCode < 400 && r.headers.location) {
+        r.resume();
+        return resolve(fetchFinal(new URL(r.headers.location, url).toString(), redirects + 1));
+      }
+      const chunks = [];
+      r.on("data", (c) => chunks.push(c));
+      r.on("end", () => resolve({ body: Buffer.concat(chunks).toString("utf-8"), finalUrl: url }));
+      r.on("error", reject);
+    });
+    req.on("error", reject);
+  });
+}
+
+function absolutize(uri, finalUrl) {
+  try { return new URL(uri, finalUrl).toString(); } catch { return uri; }
+}
+
+function serveHls(target, res) {
+  fetchFinal(target)
+    .then(({ body, finalUrl }) => {
+      const out = body
+        .split("\n")
+        .map((line) => {
+          const l = line.trim();
+          if (!l) return line;
+          if (l.startsWith("#")) {
+            return l.includes('URI="')
+              ? line.replace(/URI="([^"]+)"/, (_, u) => `URI="${absolutize(u, finalUrl)}"`)
+              : line;
+          }
+          return absolutize(l, finalUrl);
+        })
+        .join("\n");
+      res.writeHead(200, {
+        "Content-Type": "application/vnd.apple.mpegurl",
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "no-store",
+      });
+      res.end(out);
+    })
+    .catch(() => { res.writeHead(502); res.end(); });
+}
+
+function serveRemux(target, startSec, req, res) {
+  const args = [
+    "-loglevel", "error",
+    "-user_agent", STREAM_UA,
+    "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5",
+    ...(startSec > 0 ? ["-ss", String(startSec)] : []),
+    "-i", target,
+    "-c:v", "copy",
+    "-c:a", "aac", "-b:a", "192k",
+    "-movflags", "frag_keyframe+empty_moov+default_base_moof",
+    "-f", "mp4",
+    "pipe:1",
+  ];
+  res.writeHead(200, {
+    "Content-Type": "video/mp4",
+    "Access-Control-Allow-Origin": "*",
+    "Cache-Control": "no-store",
+  });
+  const ff = spawn(ffmpegPath, args);
+  ff.stdout.pipe(res);
+  ff.stderr.on("data", () => {});
+  const kill = () => { try { ff.kill("SIGKILL"); } catch {} };
+  req.on("close", kill);
+  res.on("close", kill);
+  ff.on("error", () => { try { res.destroy(); } catch {} });
+}
+
+function startProxy() {
+  return new Promise((resolve) => {
+    const server = http.createServer((req, res) => {
+      let parsed;
+      try { parsed = new URL(req.url, "http://127.0.0.1"); } catch { res.writeHead(400); res.end(); return; }
+      const target = parsed.searchParams.get("u");
+      if (!target) { res.writeHead(400); res.end(); return; }
+      if (parsed.pathname === "/hls") return serveHls(target, res);
+      if (parsed.pathname === "/vod") return serveRemux(target, parseFloat(parsed.searchParams.get("t") || "0"), req, res);
+      res.writeHead(404); res.end();
+    });
+    server.on("error", (e) => { console.error("media proxy error", e); resolve(); });
+    server.listen(0, "127.0.0.1", () => { proxyPort = server.address().port; resolve(); });
+  });
+}
 
 // Enable native audio/video track selection API for MKV containers
 app.commandLine.appendSwitch("enable-blink-features", "AudioVideoTracks");
@@ -52,7 +162,9 @@ if (!gotLock) {
     }
   });
 
-  app.whenReady().then(() => {
+  app.whenReady().then(async () => {
+    await startProxy();
+
     // Fix MIME types for video streaming (MKV, etc.)
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
       const url = details.url.toLowerCase();
@@ -78,6 +190,7 @@ app.on("window-all-closed", () => {
 });
 
 // IPC Handlers
+ipcMain.on("get-proxy-port", (e) => { e.returnValue = proxyPort; });
 ipcMain.handle("get-platform", () => process.platform);
 
 ipcMain.handle("minimize-window", () => mainWindow?.minimize());

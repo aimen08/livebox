@@ -143,8 +143,19 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     const url = channel.url;
     const isHlsUrl = url.includes(".m3u8");
     const isTsUrl = url.endsWith(".ts");
+    const isMp4 = url.toLowerCase().endsWith(".mp4");
     const resumePos = contentType !== "live" && watchProgress?.[url];
     const startAt = resumePos?.position > 10 ? resumePos.position : -1;
+
+    // Live HLS is routed through the local proxy: the provider 302-redirects to a
+    // rotating CDN edge and uses relative segment paths that the origin host 403s,
+    // so the proxy follows the redirect and rewrites them to absolute edge URLs.
+    const hlsSource = (isLiveContent && window.electron?.hlsProxyUrl)
+      ? window.electron.hlsProxyUrl(url) : url;
+    // Non-mp4 VOD (mkv/avi/…) is remuxed to fragmented MP4 by the local proxy —
+    // Chromium can't demux H.264/AAC out of a Matroska container.
+    const needsRemux = !isHlsUrl && !isTsUrl && !isMp4 && !!window.electron?.vodUrl;
+    const directSource = needsRemux ? window.electron.vodUrl(url) : url;
 
     let cancelled = false;
     const setupHls = (Hls) => {
@@ -181,7 +192,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
         startPosition: startAt > 0 ? startAt : -1,
       });
       hlsRef.current = hls;
-      hls.loadSource(url);
+      hls.loadSource(hlsSource);
       hls.attachMedia(video);
       const updateAudioTracks = () => {
         if (hls.audioTracks?.length > 0) {
@@ -231,7 +242,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
             hls.destroy();
             const newHls = new Hls(hls.config);
             hlsRef.current = newHls;
-            newHls.loadSource(url);
+            newHls.loadSource(hlsSource);
             newHls.attachMedia(video);
           }
         }
@@ -244,15 +255,17 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
         if (Hls.isSupported()) {
           setupHls(Hls);
         } else if (video.canPlayType("application/vnd.apple.mpegurl") && isHlsUrl) {
-          video.src = url;
+          video.src = hlsSource;
           video.addEventListener("loadedmetadata", () => video.play().catch(() => {}));
         }
       });
     } else {
-      video.src = url;
+      video.src = directSource;
       video.addEventListener("loadedmetadata", () => {
         setIsLive(false);
-        if (startAt > 0) video.currentTime = startAt;
+        // The remuxed (fragmented-MP4) stream isn't seekable, so only restore the
+        // resume position for natively-played files.
+        if (startAt > 0 && !needsRemux) video.currentTime = startAt;
         video.play().catch(() => {});
         // Detect native audio tracks
         if (video.audioTracks?.length > 1) {
@@ -274,8 +287,8 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
             // Retry once — reload from current position
             retried = true;
             const pos = video.currentTime;
-            video.src = url;
-            video.currentTime = pos;
+            video.src = directSource;
+            if (!needsRemux) video.currentTime = pos;
             video.play().catch(() => {});
           } else if (video.error && video.readyState < 3 && retried) {
             const kinds = {
