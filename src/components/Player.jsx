@@ -130,6 +130,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
   const mpvPosRef = useRef(0);
   const mpvDurRef = useRef(0);
   const mpvSurfaceRef = useRef(null);
+  const [engineState, setEngineState] = useState("starting");
   useEffect(() => {
     if (!MPV || !channel?.url) return;
     const url = channel.url;
@@ -155,10 +156,16 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
       }
     };
     const off = window.electron.mpv.onEvent((ev) => {
+      if (ev.type === "engine") {
+        setEngineState(ev.state);
+        if (ev.state === "ipc-failed") setError("Playback engine is running but not responding (IPC failed) — please send mpv.log and mpv-stderr.log from %APPDATA%\\LiveBox");
+        return;
+      }
       if (ev.type === "time" && typeof ev.value === "number") {
         mpvPosRef.current = ev.value;
         setCurrentTime(ev.value);
         setBuffering(false);
+        setEngineState("playing");
       } else if (ev.type === "duration" && typeof ev.value === "number") {
         mpvDurRef.current = ev.value;
         setDuration(ev.value);
@@ -186,9 +193,17 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
       }
     });
     const saveIv = setInterval(doSave, 15000);
+    // Watchdog: a black surface with no events after 15s is an engine problem —
+    // surface it instead of leaving the user staring at nothing.
+    const watchdog = setTimeout(() => {
+      if (mpvPosRef.current === 0) {
+        setError("Playback engine did not start playing (no signal after 15s) — please send mpv.log and mpv-stderr.log from %APPDATA%\\LiveBox");
+      }
+    }, 15000);
     return () => {
       off();
       clearInterval(saveIv);
+      clearTimeout(watchdog);
       doSave();
       window.electron.mpv.stop();
     };
@@ -661,6 +676,9 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
             <span className="player-live-badge">LIVE</span>
           ) : (
             <span className="player-time">{formatTime(currentTime)} / {formatTime(duration)}</span>
+          )}
+          {engineState !== "playing" && !error && (
+            <span className="mpv-strip-state">{engineState === "starting" ? "starting engine…" : engineState === "spawned" ? "engine started…" : engineState === "connected" ? "loading stream…" : engineState}</span>
           )}
           <div className="mpv-strip-actions">
             <button className="player-ctrl-btn" onClick={() => window.electron.mpv.command("pause", !paused)} title={paused ? "Play" : "Pause"}>

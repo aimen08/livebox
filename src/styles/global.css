@@ -1985,3 +1985,7 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 .mpv-strip-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; flex: none; }
 .mpv-surface { flex: 1; min-height: 0; background: #000; }
 .player-mpv .player-wrap { display: flex; align-items: center; justify-content: center; }
+.mpv-strip-state {
+  font: 400 var(--fs-caption)/1.2 var(--font-body); color: var(--text3);
+  white-space: nowrap; flex: none;
+}

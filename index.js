@@ -92,6 +92,7 @@ function connectMpvIpc(attempt = 0) {
   sock.on("connect", () => {
     mpvSock = sock;
     mpvReady = true;
+    mpvNotify({ type: "engine", state: "connected" });
     for (const line of mpvQueue) { try { sock.write(line); } catch {} }
     mpvQueue = [];
     // Push state changes to the renderer.
@@ -116,7 +117,7 @@ function connectMpvIpc(attempt = 0) {
         if (msg.name === "pause") mpvNotify({ type: "pause", value: !!msg.data });
         else if (msg.name === "duration" && typeof msg.data === "number") mpvNotify({ type: "duration", value: msg.data });
         else if (msg.name === "track-list") mpvNotify({ type: "tracks", value: msg.data });
-      } else if (msg.event === "playback-restart") {
+      } else if (msg.event === "playback-restart" || msg.event === "file-loaded") {
         mpvNotify({ type: "playing" });
       } else if (msg.event === "end-file") {
         if (msg.reason === "eof") mpvNotify({ type: "ended" });
@@ -130,6 +131,7 @@ function connectMpvIpc(attempt = 0) {
   sock.on("error", () => {
     mpvReady = false; mpvSock = null;
     if (attempt < 40 && mpvProc) setTimeout(() => connectMpvIpc(attempt + 1), 250);
+    else if (mpvProc) mpvNotify({ type: "engine", state: "ipc-failed" });
   });
   sock.on("close", () => { mpvReady = false; mpvSock = null; });
 }
@@ -140,8 +142,15 @@ function startMpv() {
   try {
     const host = ensureVideoHost();
     const hbuf = host.getNativeWindowHandle();
-    const wid = hbuf.length >= 8 ? hbuf.readBigUInt64LE(0).toString() : hbuf.readUInt32LE(0).toString();
+    // SIGNED read is deliberate: HWNDs ≥ 0x80000000 sign-extend on Win64, and
+    // mpv's --wid parses an int64 — the canonical libmpv embedding form is the
+    // signed value (an unsigned print can exceed INT64_MAX and fail to parse,
+    // leaving mpv detached while the host window stays black).
+    const wid = hbuf.length >= 8 ? hbuf.readBigInt64LE(0).toString() : hbuf.readInt32LE(0).toString();
     const logFile = path.join(app.getPath("userData"), "mpv.log");
+    const errFile = path.join(app.getPath("userData"), "mpv-stderr.log");
+    let errFd = "ignore";
+    try { errFd = fs.openSync(errFile, "a"); } catch {}
     mpvProc = spawn(mpvPath, [
       "--wid=" + wid,
       "--input-ipc-server=" + MPV_PIPE,
@@ -157,7 +166,8 @@ function startMpv() {
       "--alang=ara,ar,eng,en,fra,fr",
       "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       "--log-file=" + logFile,
-    ], { stdio: "ignore", windowsHide: true });
+    ], { stdio: ["ignore", "ignore", errFd], windowsHide: true });
+    mpvNotify({ type: "engine", state: "spawned", wid });
     // CRITICAL: without this listener a failed spawn (missing exe, antivirus
     // block, bad arch) emits an unhandled 'error' event and kills the whole
     // main process — the app "just closes".
