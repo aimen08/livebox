@@ -141,7 +141,9 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     setIsLive(contentType === "live");
     mpvPosRef.current = 0;
     mpvDurRef.current = 0;
-    window.electron.mpv.load(url, startAt);
+    window.electron.mpv.load(url, startAt).then((ok) => {
+      if (ok === false) setError("Playback engine failed to start (mpv missing or blocked by antivirus)");
+    }).catch(() => setError("Playback engine failed to start"));
 
     const saveMeta = channel?.seriesId ? {
       seriesId: channel.seriesId, season: channel.season,
@@ -179,6 +181,8 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
         setError(`Playback failed: ${ev.message || "unknown error"}`);
       } else if (ev.type === "exit") {
         setError("Playback engine exited unexpectedly — press Retry");
+      } else if (ev.type === "spawn-error") {
+        setError(`Playback engine could not start: ${ev.message || "unknown"} — check antivirus/SmartScreen`);
       }
     });
     const saveIv = setInterval(doSave, 15000);

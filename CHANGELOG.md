@@ -22,6 +22,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Player error screen now reports the actual failure reason instead of a generic message: HTTP status codes from the provider (including a dedicated hint when the network is blocked with HTTP 456, typically a VPN), decode/codec errors, and network errors for both HLS and direct streams.
 
 ### Fixed
+- Critical: a failed mpv launch on Windows (e.g. blocked by antivirus/SmartScreen) crashed the entire app the moment playback started — the child-process error event was unhandled. All mpv entry points are now crash-proofed; engine failures surface as an in-player error card with the reason, and the app keeps working.
 - Hover-preview cards no longer overflow the shelf into a scrollbar — the preview now overlays the artwork and stays within the card.
 - Smooth vertical scrolling on Movies and Series: removed the mandatory scroll-snap and shrank the oversized shelf breathing bands that were intercepting the mouse wheel.
 - Removed the dark gradient block that painted over the last (often active) season tab.
