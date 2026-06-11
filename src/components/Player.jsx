@@ -203,10 +203,20 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
       hls.on(Hls.Events.AUDIO_TRACKS_UPDATED, updateAudioTracks);
       hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED, updateSubTracks);
       let recoverAttempts = 0;
+      let lastHttpCode = 0;
       hls.on(Hls.Events.ERROR, (_, data) => {
+        if (data.response?.code) lastHttpCode = data.response.code;
         if (data.fatal) {
           if (recoverAttempts >= 5) {
-            setError("Stream unavailable or failed to load");
+            if (lastHttpCode === 456) {
+              setError("Provider blocked this network (HTTP 456) — disable VPN and try again");
+            } else if (lastHttpCode >= 400) {
+              setError(`Stream failed to load (HTTP ${lastHttpCode})`);
+            } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+              setError(`Stream failed to play (decode error: ${data.details || "unknown"})`);
+            } else {
+              setError(`Stream unavailable or failed to load (${data.details || data.type || "unknown error"})`);
+            }
             hls.destroy();
             return;
           }
@@ -267,7 +277,14 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
             video.currentTime = pos;
             video.play().catch(() => {});
           } else if (video.error && video.readyState < 3 && retried) {
-            setError("Failed to load stream");
+            const kinds = {
+              1: "aborted",
+              2: "network error — check connection/VPN",
+              3: "decode error — unsupported codec",
+              4: "format not supported",
+            };
+            const detail = video.error.message ? `: ${video.error.message}` : "";
+            setError(`Failed to load stream (${kinds[video.error.code] || "unknown"}${detail})`);
           }
         }, 1500);
       });
