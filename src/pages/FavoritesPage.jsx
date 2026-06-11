@@ -1,6 +1,12 @@
 import React from "react";
 import { StarIcon, XIcon } from "../components/Icons";
 
+// Keyboard activation helper (spec §2.9)
+const onActivate = (fn) => (e) => {
+  if (e.target !== e.currentTarget) return;
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fn(); }
+};
+
 function RemoveBtn({ onClick }) {
   return (
     <button
@@ -51,10 +57,17 @@ function FavoritesPage({ favorites, onPlayLive, onPlayMovie, onToggleFav, watchP
 
       {liveChannels.length > 0 && (
         <div className="fav-section">
-          <h2 className="fav-section-title">Live TV</h2>
+          <h2 className="fav-section-title fav-dot-live">Live TV</h2>
           <div className="ch-list">
             {liveChannels.map((ch) => (
-              <div key={ch.url} className="ch-row" onClick={() => onPlayLive(ch)}>
+              <div
+                key={ch.url}
+                className="ch-row"
+                role="button"
+                tabIndex={0}
+                onClick={() => onPlayLive(ch)}
+                onKeyDown={onActivate(() => onPlayLive(ch))}
+              >
                 <div className="ch-row-logo">
                   {ch.logo ? <img src={ch.logo} alt="" loading="lazy" /> : null}
                   <span className="ch-row-fallback" style={ch.logo ? { display: "none" } : {}}>
@@ -71,13 +84,20 @@ function FavoritesPage({ favorites, onPlayLive, onPlayMovie, onToggleFav, watchP
 
       {movieItems.length > 0 && (
         <div className="fav-section">
-          <h2 className="fav-section-title">Movies</h2>
+          <h2 className="fav-section-title fav-dot-movie">Movies</h2>
           <div className="poster-row">
             {movieItems.map((m) => {
               const prog = watchProgress?.[m.url];
               const hasProgress = prog && prog.position > 30 && prog.position < prog.duration * 0.95;
               return (
-                <div key={m.url || m.streamId} className="poster-card" onClick={() => onPlayMovie(m)}>
+                <div
+                  key={m.url || m.streamId}
+                  className="poster-card"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => onPlayMovie(m)}
+                  onKeyDown={onActivate(() => onPlayMovie(m))}
+                >
                   <div className="poster-img-wrap">
                     {m.poster ? (
                       <img src={m.poster} alt="" loading="lazy" className="poster-img" />
@@ -104,12 +124,19 @@ function FavoritesPage({ favorites, onPlayLive, onPlayMovie, onToggleFav, watchP
 
       {seriesItems.length > 0 && (
         <div className="fav-section">
-          <h2 className="fav-section-title">Series</h2>
+          <h2 className="fav-section-title fav-dot-series">Series</h2>
           <div className="poster-row">
             {seriesItems.map((s) => {
               const lastEp = getLastEpisode(s.seriesId, watchProgress);
               return (
-                <div key={s.seriesId} className="poster-card" onClick={() => onOpenSeries(s)}>
+                <div
+                  key={s.seriesId}
+                  className="poster-card"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => onOpenSeries(s)}
+                  onKeyDown={onActivate(() => onOpenSeries(s))}
+                >
                   <div className="poster-img-wrap">
                     {s.poster ? (
                       <img src={s.poster} alt="" loading="lazy" className="poster-img" />
@@ -139,8 +166,16 @@ function FavoritesPage({ favorites, onPlayLive, onPlayMovie, onToggleFav, watchP
           <h2 className="fav-section-title">Other</h2>
           <div className="ch-list">
             {otherItems.map((item) => (
-              <div key={item.url || item.seriesId} className="ch-row" onClick={() => item.url && onPlayLive(item)}>
+              <div
+                key={item.url || item.seriesId}
+                className={`ch-row${item.url ? "" : " is-disabled"}`}
+                role={item.url ? "button" : undefined}
+                tabIndex={item.url ? 0 : undefined}
+                onClick={() => item.url && onPlayLive(item)}
+                onKeyDown={item.url ? onActivate(() => onPlayLive(item)) : undefined}
+              >
                 <span className="ch-row-name">{item.name}</span>
+                {!item.url && <span className="no-stream-chip">no stream</span>}
                 <RemoveBtn onClick={() => onToggleFav(item)} />
               </div>
             ))}

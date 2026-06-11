@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import pkg from "../../package.json";
 
 const ACCENT_COLORS = [
   { name: "Red", primary: "#e50914", bright: "#ff1a24", dim: "rgba(229,9,20,0.15)" },
@@ -53,6 +54,7 @@ function SettingsPage({
                 style={{ background: c.primary }}
                 onClick={() => onAccentChange(i)}
                 title={c.name}
+                aria-label={c.name}
               />
             ))}
           </div>
@@ -94,7 +96,8 @@ function SettingsPage({
           </SettingRow>
         ) : (
           <div className="setting-confirm">
-            <p>This will delete all favorites, watch history, playlists, and settings. This cannot be undone.</p>
+            <p>This will delete all favorites, watch history, playlists, and settings.</p>
+            <span className="setting-confirm-warn">⚠ This cannot be undone</span>
             <div className="setting-confirm-actions">
               <button className="btn btn-sm btn-secondary" onClick={() => setConfirmReset(false)}>Cancel</button>
               <button className="btn btn-sm btn-danger" onClick={() => { onResetAll(); setConfirmReset(false); }}>
@@ -107,7 +110,7 @@ function SettingsPage({
 
       <div className="settings-about">
         <span className="settings-about-name">LiveBox</span>
-        <span className="settings-about-ver">v1.0.0</span>
+        <span className="settings-about-ver">v{pkg.version}</span>
       </div>
     </div>
   );

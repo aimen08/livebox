@@ -1,9 +1,17 @@
 import React from "react";
 import { TvIcon, FolderIcon, LinkIcon, FilmIcon, MonitorIcon } from "../components/Icons";
 
+// Keyboard-activation helper for clickable divs (a11y, spec §2.9)
+const onActivate = (fn) => (e) => {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    fn();
+  }
+};
+
 function WelcomeLogo() {
   return (
-    <svg width="80" height="80" viewBox="0 0 512 512" fill="none">
+    <svg width="88" height="88" viewBox="0 0 512 512" fill="none">
       <defs>
         <linearGradient id="logo-grad" x1="100" y1="100" x2="420" y2="420">
           <stop offset="0%" stopColor="var(--accent)" />
@@ -45,6 +53,8 @@ function HomePage({
   onNavigate,
   onOpenFile,
   onOpenURL,
+  onOpenSeries,
+  onOpenSearch,
   hasContent,
   watchProgress,
 }) {
@@ -84,7 +94,7 @@ function HomePage({
         </div>
 
         <p className="welcome-hint">
-          Supports M3U playlists and Xtream Codes API
+          Supports M3U playlists — Xtream <span className="kbd">get.php</span> URLs supported
         </p>
       </div>
     );
@@ -92,12 +102,26 @@ function HomePage({
 
   return (
     <div className="home-dashboard fade-in">
-      <h1 className="home-greeting">LiveBox</h1>
-      <p className="home-sub">What would you like to watch?</p>
+      <div className="home-header">
+        <div className="home-header-left">
+          <h1 className="home-greeting">LiveBox</h1>
+          <p className="home-sub">What would you like to watch?</p>
+        </div>
+        <button type="button" className="home-search-hint" onClick={onOpenSearch}>
+          <span>Search</span>
+          <span className="kbd">⌘K</span>
+        </button>
+      </div>
 
       <div className="home-cards">
         {channels.length > 0 && (
-          <div className="home-card" onClick={() => onNavigate("live")}>
+          <div
+            className="home-card"
+            role="button"
+            tabIndex={0}
+            onClick={() => onNavigate("live")}
+            onKeyDown={onActivate(() => onNavigate("live"))}
+          >
             <div className="home-card-icon"><MonitorIcon /></div>
             <div className="home-card-info">
               <span className="home-card-title">Live TV</span>
@@ -106,7 +130,13 @@ function HomePage({
           </div>
         )}
         {movies.length > 0 && (
-          <div className="home-card" onClick={() => onNavigate("movies")}>
+          <div
+            className="home-card"
+            role="button"
+            tabIndex={0}
+            onClick={() => onNavigate("movies")}
+            onKeyDown={onActivate(() => onNavigate("movies"))}
+          >
             <div className="home-card-icon"><FilmIcon /></div>
             <div className="home-card-info">
               <span className="home-card-title">Movies</span>
@@ -115,7 +145,13 @@ function HomePage({
           </div>
         )}
         {series.length > 0 && (
-          <div className="home-card" onClick={() => onNavigate("series")}>
+          <div
+            className="home-card"
+            role="button"
+            tabIndex={0}
+            onClick={() => onNavigate("series")}
+            onKeyDown={onActivate(() => onNavigate("series"))}
+          >
             <div className="home-card-icon"><TvIcon size={22} /></div>
             <div className="home-card-info">
               <span className="home-card-title">Series</span>
@@ -143,7 +179,14 @@ function HomePage({
             </div>
             <div className="poster-row">
               {items.slice(0, 10).map((item) => (
-                <div key={item.url} className="poster-card" onClick={() => onPlay(item)}>
+                <div
+                  key={item.url}
+                  className="poster-card"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => onPlay(item)}
+                  onKeyDown={onActivate(() => onPlay(item))}
+                >
                   <div className="poster-img-wrap">
                     {item.poster ? (
                       <img src={item.poster} alt="" loading="lazy" className="poster-img" />
@@ -173,12 +216,21 @@ function HomePage({
           </div>
           <div className="poster-row">
             {movies.slice(0, 10).map((m) => (
-              <div key={m.id} className="poster-card" onClick={() => onPlay(m)}>
-                {m.poster ? (
-                  <img src={m.poster} alt="" loading="lazy" className="poster-img" />
-                ) : (
-                  <div className="poster-fallback">{m.name.charAt(0)}</div>
-                )}
+              <div
+                key={m.id}
+                className="poster-card"
+                role="button"
+                tabIndex={0}
+                onClick={() => onPlay(m)}
+                onKeyDown={onActivate(() => onPlay(m))}
+              >
+                <div className="poster-img-wrap">
+                  {m.poster ? (
+                    <img src={m.poster} alt="" loading="lazy" className="poster-img" />
+                  ) : (
+                    <div className="poster-fallback">{m.name.charAt(0)}</div>
+                  )}
+                </div>
                 <span className="poster-name">{m.name}</span>
               </div>
             ))}
@@ -194,12 +246,21 @@ function HomePage({
           </div>
           <div className="poster-row">
             {series.slice(0, 10).map((s) => (
-              <div key={s.id} className="poster-card" onClick={() => onNavigate("series")}>
-                {s.poster ? (
-                  <img src={s.poster} alt="" loading="lazy" className="poster-img" />
-                ) : (
-                  <div className="poster-fallback">{s.name.charAt(0)}</div>
-                )}
+              <div
+                key={s.id}
+                className="poster-card"
+                role="button"
+                tabIndex={0}
+                onClick={() => onOpenSeries(s)}
+                onKeyDown={onActivate(() => onOpenSeries(s))}
+              >
+                <div className="poster-img-wrap">
+                  {s.poster ? (
+                    <img src={s.poster} alt="" loading="lazy" className="poster-img" />
+                  ) : (
+                    <div className="poster-fallback">{s.name.charAt(0)}</div>
+                  )}
+                </div>
                 <span className="poster-name">{s.name}</span>
               </div>
             ))}

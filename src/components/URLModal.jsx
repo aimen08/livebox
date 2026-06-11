@@ -9,9 +9,16 @@ export default function URLModal({ onClose, onSubmit }) {
     if (url.trim()) onSubmit(url.trim());
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      onClose();
+    }
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()} onKeyDown={handleKeyDown}>
         <div className="modal-header">
           <h2>Open M3U URL</h2>
           <button className="btn-icon" onClick={onClose}><XIcon /></button>

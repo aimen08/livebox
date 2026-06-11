@@ -75,6 +75,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
   const isSeriesContent = contentType === "series";
   const episodes = channel?.episodes || [];
   const [epPanelOpen, setEpPanelOpen] = useState(false);
+  const [retryNonce, setRetryNonce] = useState(0);
   const favKey = isSeriesContent ? channel?.seriesId : (channel?.url || channel?.streamId);
   const isFav = !!(favKey && favorites?.[favKey]);
 
@@ -414,13 +415,62 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
       video.removeAttribute("src");
       video.load();
     };
-  }, [channel]);
+  }, [channel, retryNonce]);
 
   useEffect(() => {
     const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", onFsChange);
     return () => document.removeEventListener("fullscreenchange", onFsChange);
   }, []);
+
+  // Keyboard shortcuts — guarded so Cmd/Ctrl combos (e.g. Cmd/Ctrl+K spotlight)
+  // and typing in panel search inputs are never intercepted.
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.metaKey || e.ctrlKey) return;
+      const tag = e.target?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      const v = videoRef.current;
+      switch (e.key) {
+        case " ":
+          e.preventDefault();
+          if (v) v.paused ? v.play().catch(() => {}) : v.pause();
+          break;
+        case "ArrowLeft":
+          if (!isLive && v) { e.preventDefault(); v.currentTime = Math.max(0, v.currentTime - 10); }
+          break;
+        case "ArrowRight":
+          if (!isLive && v) { e.preventDefault(); v.currentTime = Math.min(v.duration || Infinity, v.currentTime + 10); }
+          break;
+        case "m":
+        case "M":
+          e.preventDefault();
+          if (v) { v.muted = !v.muted; setMuted(v.muted); }
+          break;
+        case "f":
+        case "F":
+          e.preventDefault();
+          if (mode === "inline") {
+            onModeChange?.("fullscreen");
+          } else if (containerRef.current) {
+            document.fullscreenElement ? document.exitFullscreen() : containerRef.current.requestFullscreen();
+          }
+          break;
+        case "Escape":
+          if (document.fullscreenElement) return; // let native fullscreen exit handle it
+          e.preventDefault();
+          if (panelOpen) setPanelOpen(false);
+          else if (epPanelOpen) setEpPanelOpen(false);
+          else if (showSubMenu || showAudioMenu) { setShowSubMenu(false); setShowAudioMenu(false); }
+          else onClose();
+          break;
+        default:
+          break;
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isLive, mode, onModeChange, panelOpen, epPanelOpen, showSubMenu, showAudioMenu, onClose]);
 
   // Scroll active channel into view
   useEffect(() => {
@@ -533,7 +583,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
             <div className="panel-search">
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder={selectedGroup ? `Search in ${selectedGroup}…` : "Search…"}
                 value={chSearch}
                 onChange={(e) => setChSearch(e.target.value)}
               />
@@ -564,7 +614,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
       {/* Hover trigger on left edge - live TV only, hidden in inline mode */}
       {isLiveContent && !isInline && (
         <div
-          className="panel-trigger"
+          className={`panel-trigger${showControls ? " visible" : ""}`}
           onMouseEnter={() => setPanelOpen(true)}
           onClick={() => setPanelOpen((v) => !v)}
         >
@@ -612,7 +662,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
       </div>}
       {isSeriesContent && episodes.length > 0 && (
         <div
-          className="panel-trigger"
+          className={`panel-trigger${showControls ? " visible" : ""}`}
           onMouseEnter={() => setEpPanelOpen(true)}
           onClick={() => setEpPanelOpen((v) => !v)}
         >
@@ -632,8 +682,13 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
       >
         {error ? (
           <div className="player-error">
+            <div className="player-error-icon" aria-hidden="true">⚠</div>
+            <div className="player-error-name">{channel?.name || "Unknown"}</div>
             <p>{error}</p>
-            <button className="btn btn-secondary" onClick={onClose}>Go Back</button>
+            <div className="player-error-actions">
+              <button className="btn btn-primary" onClick={() => { setError(null); setBuffering(true); setRetryNonce((n) => n + 1); }}>Retry</button>
+              <button className="btn btn-secondary" onClick={onClose}>Go Back</button>
+            </div>
           </div>
         ) : (
           <>
@@ -667,6 +722,8 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
         <div
           className={`player-controls${showControls ? " visible" : ""}`}
           onClick={(e) => e.stopPropagation()}
+          onMouseEnter={() => clearTimeout(controlsTimer.current)}
+          onMouseLeave={resetControlsTimer}
         >
           {!isLive && duration > 0 && (
             <div className="player-progress">
@@ -674,6 +731,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
                 type="range" min={0} max={duration || 0} value={currentTime}
                 onChange={(e) => { const v = videoRef.current; if (v) v.currentTime = parseFloat(e.target.value); }}
                 className="player-seek"
+                style={{ "--seek-pct": `${duration ? (currentTime / duration) * 100 : 0}%` }}
               />
             </div>
           )}
@@ -814,7 +872,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
                                 setSubOffset(0);
                               }}>Reset</button>
                             )}
-                            <div className="sub-offset-label" style={{ marginTop: 8 }}>
+                            <div className="sub-offset-label sub-offset-gap">
                               <span>Size</span>
                               <span className="sub-offset-val">{subSize.toFixed(1)}</span>
                             </div>

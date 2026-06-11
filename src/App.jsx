@@ -312,6 +312,11 @@ export default function App() {
   const playMovie = useCallback((m) => { setPlayingType("movie"); setPlayerMode("fullscreen"); setPlaying(m); }, []);
   const playSeries = useCallback((ep) => { setPlayingType("series"); setPlayerMode("fullscreen"); setPlaying(ep); }, []);
 
+  // Stable callbacks for memoized pages — never recreated, so they don't
+  // break React.memo prop identity on HomePage/FavoritesPage/Spotlight.
+  const handleOpenSeries = useCallback((s) => { setPendingSeries(s); setPage("series"); }, []);
+  const handleOpenSearch = useCallback(() => setSpotlightOpen(true), []);
+
   // Inline player only makes sense on the live page (you're browsing channels
   // alongside the video). Navigating away closes it.
   useEffect(() => {
@@ -382,6 +387,8 @@ export default function App() {
               onOpenURL={handleOpenURL}
               hasContent={hasContent}
               watchProgress={watchProgress}
+              onOpenSeries={handleOpenSeries}
+              onOpenSearch={handleOpenSearch}
             />
           </div>
           <div style={{ display: page === "live" ? "contents" : "none" }}>
@@ -391,6 +398,7 @@ export default function App() {
               onPlay={playLive}
               favorites={favorites}
               onToggleFav={handleToggleFav}
+              playingUrl={playingType === "live" ? (playing?.url ?? null) : null}
             />
             {hasContent && !(playing && playerMode === "fullscreen") && (
               <LiveSidePanel playing={playingType === "live" ? playing : null} />
@@ -426,7 +434,7 @@ export default function App() {
               onPlayMovie={playMovie}
               onToggleFav={handleToggleFav}
               watchProgress={watchProgress}
-              onOpenSeries={(s) => { setPendingSeries(s); setPage("series"); }}
+              onOpenSeries={handleOpenSeries}
             />
           )}
           {page === "settings" && (
@@ -467,7 +475,7 @@ export default function App() {
           series={series}
           onPlayLive={playLive}
           onPlayMovie={playMovie}
-          onOpenSeries={(s) => { setPendingSeries(s); setPage("series"); }}
+          onOpenSeries={handleOpenSeries}
           onClose={() => setSpotlightOpen(false)}
         />
       )}

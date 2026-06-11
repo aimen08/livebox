@@ -3,9 +3,21 @@ import { SearchIcon, TvIcon, FolderIcon, LinkIcon } from "../components/Icons";
 
 const BATCH_SIZE = 80;
 
-function ChannelRow({ channel, onPlay, onToggleFav, isFav }) {
+// Keyboard activation helper (spec §2.9)
+const onActivate = (fn) => (e) => {
+  if (e.target !== e.currentTarget) return;
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fn(); }
+};
+
+function ChannelRow({ channel, onPlay, onToggleFav, isFav, isActive }) {
   return (
-    <div className="ch-row" onClick={() => onPlay(channel)}>
+    <div
+      className={`ch-row${isActive ? " active" : ""}`}
+      role="button"
+      tabIndex={0}
+      onClick={() => onPlay(channel)}
+      onKeyDown={onActivate(() => onPlay(channel))}
+    >
       <div className="ch-row-logo">
         {channel.logo ? (
           <img src={channel.logo} alt="" loading="lazy" onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }} />
@@ -33,8 +45,10 @@ function LivePage({
   onPlay,
   favorites,
   onToggleFav,
+  playingUrl,
 }) {
   const [search, setSearch] = useState("");
+  const [groupFilter, setGroupFilter] = useState("");
   const [activeGroup, setActiveGroup] = useState(null);
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
   const listRef = useRef(null);
@@ -69,6 +83,12 @@ function LivePage({
 
   const visibleChannels = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
 
+  const visibleGroups = useMemo(() => {
+    if (!groupFilter.trim()) return groups;
+    const q = groupFilter.toLowerCase();
+    return groups.filter((g) => g.toLowerCase().includes(q));
+  }, [groups, groupFilter]);
+
   const handleScroll = useCallback((e) => {
     const el = e.target;
     if (el.scrollHeight - el.scrollTop - el.clientHeight < 200) {
@@ -77,7 +97,13 @@ function LivePage({
   }, [filtered.length]);
 
   if (!channels.length) {
-    return <div className="no-results">No live channels available</div>;
+    return (
+      <div className="empty-state">
+        <TvIcon />
+        <h2>No live channels available</h2>
+        <p>Add a playlist to start watching live TV</p>
+      </div>
+    );
   }
 
   return (
@@ -88,12 +114,24 @@ function LivePage({
           <span className="groups-panel-title">Groups</span>
           <span className="groups-panel-count">{groups.length}</span>
         </div>
+        {groups.length > 12 && (
+          <input
+            type="text"
+            className="group-filter"
+            placeholder="Filter groups…"
+            value={groupFilter}
+            onChange={(e) => setGroupFilter(e.target.value)}
+          />
+        )}
         <div className="groups-panel-list">
-          {groups.map((g) => (
+          {visibleGroups.map((g) => (
             <div
               key={g}
               className={`group-item${activeGroup === g ? " active" : ""}`}
+              role="button"
+              tabIndex={0}
               onClick={() => setActiveGroup(g)}
+              onKeyDown={onActivate(() => setActiveGroup(g))}
             >
               <span className="group-item-name">{g}</span>
               <span className="group-item-count">{groupCounts[g] || 0}</span>
@@ -113,7 +151,7 @@ function LivePage({
           <SearchIcon />
           <input
             type="text"
-            placeholder="Search channels..."
+            placeholder={activeGroup ? `Search in ${activeGroup}…` : "Search…"}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -135,11 +173,19 @@ function LivePage({
                 onPlay={onPlay}
                 onToggleFav={onToggleFav}
                 isFav={!!favorites[ch.url]}
+                isActive={playingUrl === ch.url}
               />
             ))
           )}
           {visibleCount < filtered.length && (
-            <div className="ch-list-loading">Loading more...</div>
+            <div className="ch-list-loading">
+              {[0, 1, 2].map((i) => (
+                <div className="skeleton-row" key={i}>
+                  <div className="skeleton skeleton-circle" />
+                  <div className="skeleton skeleton-bar" />
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>

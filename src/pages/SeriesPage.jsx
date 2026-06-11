@@ -1,17 +1,37 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
-import { SearchIcon, StarIcon } from "../components/Icons";
+import { SearchIcon, StarIcon, MonitorIcon } from "../components/Icons";
 
 const BATCH_SIZE = 40;
 
+// Keyboard activation helper (spec §2.9)
+const onActivate = (fn) => (e) => {
+  if (e.target !== e.currentTarget) return;
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fn(); }
+};
+
 function SeriesCard({ show, onClick, isFav, onToggleFav, lastEpisode }) {
   return (
-    <div className="poster-card" onClick={onClick}>
+    <div
+      className="poster-card"
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={onActivate(onClick)}
+    >
       <div className="poster-img-wrap">
         {show.poster ? (
           <img src={show.poster} alt="" loading="lazy" className="poster-img" />
         ) : (
           <div className="poster-fallback">{show.name.charAt(0)}</div>
         )}
+        {show.rating && <span className="poster-rating">{show.rating}</span>}
+        <button
+          className={`poster-fav${isFav ? " is-fav" : ""}`}
+          onClick={(e) => { e.stopPropagation(); onToggleFav(show); }}
+          title={isFav ? "Remove from favorites" : "Add to favorites"}
+        >
+          <StarIcon />
+        </button>
         {lastEpisode && (
           <div className="poster-continue">
             <div className="poster-continue-text">S{lastEpisode.season}E{lastEpisode.ep}</div>
@@ -22,14 +42,6 @@ function SeriesCard({ show, onClick, isFav, onToggleFav, lastEpisode }) {
         )}
       </div>
       <span className="poster-name">{show.name}</span>
-      {show.rating && <span className="poster-rating">{show.rating}</span>}
-      <button
-        className={`poster-fav${isFav ? " is-fav" : ""}`}
-        onClick={(e) => { e.stopPropagation(); onToggleFav(show); }}
-        title={isFav ? "Remove from favorites" : "Add to favorites"}
-      >
-        <StarIcon />
-      </button>
     </div>
   );
 }
@@ -112,8 +124,13 @@ function SeriesDetail({ show, xtreamCreds, onPlay, onBack, isFav, onToggleFav, w
 
   return (
     <div className="series-detail fade-in">
+      {show.poster && (
+        <div className="series-detail-backdrop">
+          <img src={show.poster} alt="" aria-hidden="true" />
+        </div>
+      )}
       <div className="series-detail-top">
-        <button className="btn btn-secondary" onClick={onBack}>Back</button>
+        <button className="btn btn-secondary" onClick={onBack}>&larr; Back</button>
         <button
           className={`btn ${isFav ? "btn-primary" : "btn-secondary"}`}
           onClick={() => onToggleFav(show)}
@@ -134,7 +151,20 @@ function SeriesDetail({ show, xtreamCreds, onPlay, onBack, isFav, onToggleFav, w
       </div>
 
       {loading ? (
-        <div className="series-loading"><div className="player-spinner" /></div>
+        <>
+          <div className="series-loading"><div className="player-spinner" /></div>
+          <div className="episode-list">
+            {[0, 1, 2].map((i) => (
+              <div className="skeleton-ep-row" key={i}>
+                <div className="skeleton skeleton-thumb" />
+                <div className="skeleton-ep-info">
+                  <div className="skeleton skeleton-bar" />
+                  <div className="skeleton skeleton-bar-sm" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       ) : (
         <>
           {seasonKeys.length > 1 && (
@@ -155,7 +185,14 @@ function SeriesDetail({ show, xtreamCreds, onPlay, onBack, isFav, onToggleFav, w
                 const isLastWatched = lastEp && lastEp.ep === ep.episode_num && lastEp.season === ep.season;
                 const isWatched = prog && prog.position > prog.duration * 0.9;
                 return (
-                  <div key={ep.id} className={`episode-row${isLastWatched ? " last-watched" : ""}${isWatched ? " watched" : ""}`} onClick={() => handlePlayEpisode(ep)}>
+                  <div
+                    key={ep.id}
+                    className={`episode-row${isLastWatched ? " last-watched" : ""}${isWatched ? " watched" : ""}`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => handlePlayEpisode(ep)}
+                    onKeyDown={onActivate(() => handlePlayEpisode(ep))}
+                  >
                     {ep.info?.movie_image && (
                       <img src={ep.info.movie_image} alt="" className="episode-thumb" loading="lazy" />
                     )}
@@ -198,6 +235,7 @@ function getLastEpisode(seriesId, watchProgress) {
 
 function SeriesPage({ series, groups, xtreamCreds, onPlay, favorites, onToggleFav, watchProgress, pendingSeries, onClearPending }) {
   const [search, setSearch] = useState("");
+  const [groupFilter, setGroupFilter] = useState("");
   const [activeGroup, setActiveGroup] = useState(null);
   const [selectedShow, setSelectedShow] = useState(null);
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
@@ -242,6 +280,12 @@ function SeriesPage({ series, groups, xtreamCreds, onPlay, favorites, onToggleFa
 
   const visible = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
 
+  const visibleGroups = useMemo(() => {
+    if (!groupFilter.trim()) return groups;
+    const q = groupFilter.toLowerCase();
+    return groups.filter((g) => g.toLowerCase().includes(q));
+  }, [groups, groupFilter]);
+
   const handleScroll = useCallback((e) => {
     const el = e.target;
     if (el.scrollHeight - el.scrollTop - el.clientHeight < 300) {
@@ -261,7 +305,15 @@ function SeriesPage({ series, groups, xtreamCreds, onPlay, favorites, onToggleFa
     );
   }
 
-  if (!series.length) return <div className="no-results">No series available</div>;
+  if (!series.length) {
+    return (
+      <div className="empty-state">
+        <MonitorIcon />
+        <h2>No series available</h2>
+        <p>Add a playlist with series content to browse shows</p>
+      </div>
+    );
+  }
 
   return (
     <div className="browse-layout fade-in">
@@ -270,10 +322,22 @@ function SeriesPage({ series, groups, xtreamCreds, onPlay, favorites, onToggleFa
           <span className="groups-panel-title">Series</span>
           <span className="groups-panel-count">{groups.length}</span>
         </div>
+        {groups.length > 12 && (
+          <input
+            type="text"
+            className="group-filter"
+            placeholder="Filter groups…"
+            value={groupFilter}
+            onChange={(e) => setGroupFilter(e.target.value)}
+          />
+        )}
         <div className="groups-panel-list">
-          {groups.map((g) => (
+          {visibleGroups.map((g) => (
             <div key={g} className={`group-item${activeGroup === g ? " active" : ""}`}
-              onClick={() => setActiveGroup(g)}>
+              role="button"
+              tabIndex={0}
+              onClick={() => setActiveGroup(g)}
+              onKeyDown={onActivate(() => setActiveGroup(g))}>
               <span className="group-item-name">{g}</span>
               <span className="group-item-count">{groupCounts[g] || 0}</span>
             </div>
@@ -289,7 +353,7 @@ function SeriesPage({ series, groups, xtreamCreds, onPlay, favorites, onToggleFa
 
         <div className="search-bar">
           <SearchIcon />
-          <input type="text" placeholder="Search series..." value={search}
+          <input type="text" placeholder={activeGroup ? `Search in ${activeGroup}…` : "Search…"} value={search}
             onChange={(e) => setSearch(e.target.value)} />
           {search && <button className="search-clear" onClick={() => setSearch("")}>&times;</button>}
         </div>
@@ -304,7 +368,13 @@ function SeriesPage({ series, groups, xtreamCreds, onPlay, favorites, onToggleFa
                 lastEpisode={getLastEpisode(s.seriesId, watchProgress)} />
             ))
           )}
-          {visibleCount < filtered.length && <div className="ch-list-loading">Loading more...</div>}
+          {visibleCount < filtered.length && (
+            <div className="ch-list-loading">
+              {[0, 1, 2].map((i) => (
+                <div className="skeleton skeleton-poster" key={i} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

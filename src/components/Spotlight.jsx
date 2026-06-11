@@ -113,6 +113,7 @@ export default function Spotlight({
           <kbd className="spotlight-kbd">esc</kbd>
         </div>
         {query.trim() && (
+          <>
           <div className="spotlight-results" ref={listRef}>
             {results.length === 0 ? (
               <div className="spotlight-empty">No matches</div>
@@ -133,6 +134,20 @@ export default function Spotlight({
               ))
             )}
           </div>
+          <div className="spotlight-footer">
+            <span className="spotlight-footer-count">
+              {results.length} result{results.length === 1 ? "" : "s"}
+              {results.length === MAX_RESULTS && (
+                <span className="spotlight-footer-cap"> · Top {MAX_RESULTS} shown — keep typing</span>
+              )}
+            </span>
+            <span className="spotlight-footer-keys">
+              <kbd className="kbd">↑↓</kbd> navigate
+              <kbd className="kbd">↵</kbd> open
+              <kbd className="kbd">esc</kbd> close
+            </span>
+          </div>
+          </>
         )}
         {!query.trim() && (
           <div className="spotlight-hint">
