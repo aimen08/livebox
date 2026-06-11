@@ -4,85 +4,6 @@ const fs = require("fs");
 const http = require("http");
 const https = require("https");
 
-const STREAM_UA =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
-
-// ── Local HLS proxy ──────────────────────────────────────────────────────────
-// Live streams 302-redirect to a rotating CDN edge and emit relative segment
-// paths that the origin host 403s. We follow the redirect and rewrite those
-// paths to absolute edge URLs so hls.js fetches segments from the edge.
-let proxyPort = 0;
-
-function fetchFinal(url, redirects = 0) {
-  return new Promise((resolve, reject) => {
-    if (redirects > 6) return reject(new Error("too many redirects"));
-    const lib = url.startsWith("https") ? https : http;
-    const req = lib.get(url, { headers: { "User-Agent": STREAM_UA, Accept: "*/*" } }, (r) => {
-      if (r.statusCode >= 300 && r.statusCode < 400 && r.headers.location) {
-        r.resume();
-        return resolve(fetchFinal(new URL(r.headers.location, url).toString(), redirects + 1));
-      }
-      const chunks = [];
-      r.on("data", (c) => chunks.push(c));
-      r.on("end", () => resolve({ body: Buffer.concat(chunks).toString("utf-8"), finalUrl: url }));
-      r.on("error", reject);
-    });
-    req.on("error", reject);
-  });
-}
-
-function absolutize(uri, finalUrl) {
-  try { return new URL(uri, finalUrl).toString(); } catch { return uri; }
-}
-
-function serveHls(target, res, attempt = 0) {
-  fetchFinal(target)
-    .then(({ body, finalUrl }) => {
-      // The provider intermittently returns an empty body or an HTML error page
-      // instead of a manifest. Don't hand that to hls.js (it throws a fatal
-      // levelParsingError) — retry once, then 502 so hls.js retries the load.
-      if (!body || body.indexOf("#EXTM3U") === -1) {
-        if (attempt < 1) return setTimeout(() => serveHls(target, res, attempt + 1), 300);
-        res.writeHead(502); res.end(); return;
-      }
-      const out = body
-        .split("\n")
-        .map((line) => {
-          const l = line.trim();
-          if (!l) return line;
-          if (l.startsWith("#")) {
-            return l.includes('URI="')
-              ? line.replace(/URI="([^"]+)"/, (_, u) => `URI="${absolutize(u, finalUrl)}"`)
-              : line;
-          }
-          return absolutize(l, finalUrl);
-        })
-        .join("\n");
-      res.writeHead(200, {
-        "Content-Type": "application/vnd.apple.mpegurl",
-        "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "no-store",
-      });
-      res.end(out);
-    })
-    .catch(() => { res.writeHead(502); res.end(); });
-}
-
-function startProxy() {
-  return new Promise((resolve) => {
-    const server = http.createServer((req, res) => {
-      let parsed;
-      try { parsed = new URL(req.url, "http://127.0.0.1"); } catch { res.writeHead(400); res.end(); return; }
-      const target = parsed.searchParams.get("u");
-      if (!target) { res.writeHead(400); res.end(); return; }
-      if (parsed.pathname === "/hls") return serveHls(target, res);
-      res.writeHead(404); res.end();
-    });
-    server.on("error", (e) => { console.error("hls proxy error", e); resolve(); });
-    server.listen(0, "127.0.0.1", () => { proxyPort = server.address().port; resolve(); });
-  });
-}
-
 // Enable native audio/video track selection API for MKV containers
 app.commandLine.appendSwitch("enable-blink-features", "AudioVideoTracks");
 
@@ -131,30 +52,16 @@ if (!gotLock) {
     }
   });
 
-  app.whenReady().then(async () => {
-    await startProxy();
-
-    // The VOD catalog is H.264+AAC in Matroska (.mkv). Chromium's <video> can
-    // demux Matroska, but only when the response is labelled `video/webm` (WebM
-    // is a Matroska subset) — served as `video/x-matroska` it fails to play on
-    // Windows. So relabel any Matroska stream to video/webm. (Verified on macOS
-    // the relabel still plays; this is the no-transcode fix for Windows.)
+  app.whenReady().then(() => {
+    // CORS for the renderer's media/stream requests.
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-      const headers = { ...details.responseHeaders };
-      const ctKey = Object.keys(headers).find((k) => k.toLowerCase() === "content-type");
-      const ct = ctKey ? String(headers[ctKey]).toLowerCase() : "";
       const url = details.url.toLowerCase();
-      const isVod = url.includes("/movie/") || url.includes("/series/");
-      if (ct.includes("matroska") || (isVod && (ct.includes("octet-stream") || ct === ""))) {
-        if (ctKey) delete headers[ctKey];
-        headers["Content-Type"] = ["video/webm"];
-        headers["access-control-allow-origin"] = ["*"];
-        callback({ responseHeaders: headers });
-      } else if (isVod) {
+      if (url.includes("/movie/") || url.includes("/series/")) {
+        const headers = { ...details.responseHeaders };
         headers["access-control-allow-origin"] = ["*"];
         callback({ responseHeaders: headers });
       } else {
-        callback({ responseHeaders: headers });
+        callback({ responseHeaders: details.responseHeaders });
       }
     });
 
@@ -170,7 +77,6 @@ app.on("window-all-closed", () => {
 });
 
 // IPC Handlers
-ipcMain.on("get-proxy-port", (e) => { e.returnValue = proxyPort; });
 ipcMain.handle("get-platform", () => process.platform);
 
 ipcMain.handle("minimize-window", () => mainWindow?.minimize());

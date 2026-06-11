@@ -146,15 +146,6 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     const resumePos = contentType !== "live" && watchProgress?.[url];
     const startAt = resumePos?.position > 10 ? resumePos.position : -1;
 
-    // Live HLS is routed through the local proxy: the provider 302-redirects to a
-    // rotating CDN edge and uses relative segment paths that the origin host 403s,
-    // so the proxy follows the redirect and rewrites them to absolute edge URLs.
-    const hlsSource = (isLiveContent && window.electron?.hlsProxyUrl)
-      ? window.electron.hlsProxyUrl(url) : url;
-    // VOD (mkv/mp4) plays directly — the video element handles the container and
-    // the edge supports range requests, so seeking/resume work.
-    const directSource = url;
-
     let cancelled = false;
     const setupHls = (Hls) => {
       if (cancelled) return;
@@ -190,7 +181,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
         startPosition: startAt > 0 ? startAt : -1,
       });
       hlsRef.current = hls;
-      hls.loadSource(hlsSource);
+      hls.loadSource(url);
       hls.attachMedia(video);
       const updateAudioTracks = () => {
         if (hls.audioTracks?.length > 0) {
@@ -240,7 +231,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
             hls.destroy();
             const newHls = new Hls(hls.config);
             hlsRef.current = newHls;
-            newHls.loadSource(hlsSource);
+            newHls.loadSource(url);
             newHls.attachMedia(video);
           }
         }
@@ -253,12 +244,12 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
         if (Hls.isSupported()) {
           setupHls(Hls);
         } else if (video.canPlayType("application/vnd.apple.mpegurl") && isHlsUrl) {
-          video.src = hlsSource;
+          video.src = url;
           video.addEventListener("loadedmetadata", () => video.play().catch(() => {}));
         }
       });
     } else {
-      video.src = directSource;
+      video.src = url;
       video.addEventListener("loadedmetadata", () => {
         setIsLive(false);
         if (startAt > 0) video.currentTime = startAt;
@@ -283,7 +274,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
             // Retry once — reload from current position
             retried = true;
             const pos = video.currentTime;
-            video.src = directSource;
+            video.src = url;
             video.currentTime = pos;
             video.play().catch(() => {});
           } else if (video.error && video.readyState < 3 && retried) {

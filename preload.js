@@ -1,12 +1,6 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
-// Local media-proxy port (started in the main process before the window loads).
-const proxyPort = ipcRenderer.sendSync("get-proxy-port");
-const proxyBase = `http://127.0.0.1:${proxyPort}`;
-
 contextBridge.exposeInMainWorld("electron", {
-  // Route a live HLS manifest through the redirect-following / URL-rewriting proxy.
-  hlsProxyUrl: (u) => `${proxyBase}/hls?u=${encodeURIComponent(u)}`,
   getPlatform: () => ipcRenderer.invoke("get-platform"),
   minimizeWindow: () => ipcRenderer.invoke("minimize-window"),
   maximizeWindow: () => ipcRenderer.invoke("maximize-window"),
