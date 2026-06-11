@@ -3,24 +3,14 @@ const path = require("path");
 const fs = require("fs");
 const http = require("http");
 const https = require("https");
-const { spawn } = require("child_process");
-
-// Bundled ffmpeg (ffmpeg-static). In a packaged app the binary is unpacked out
-// of the asar archive so it can be spawned as an executable.
-let ffmpegPath = require("ffmpeg-static");
-if (ffmpegPath && ffmpegPath.includes("app.asar")) {
-  ffmpegPath = ffmpegPath.replace("app.asar", "app.asar.unpacked");
-}
 
 const STREAM_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
-// ── Local media proxy ────────────────────────────────────────────────────────
-// VOD: Chromium can't demux H.264/AAC out of a Matroska (.mkv) container, so we
-// remux it to fragmented MP4 on the fly (video copied = no re-encode/quality
-// loss; audio transcoded to AAC to cover AC3/EAC3). Live: the provider 302s to a
-// rotating CDN edge and emits relative segment paths that the origin host 403s,
-// so we follow the redirect and rewrite those paths to absolute edge URLs.
+// ── Local HLS proxy ──────────────────────────────────────────────────────────
+// Live streams 302-redirect to a rotating CDN edge and emit relative segment
+// paths that the origin host 403s. We follow the redirect and rewrite those
+// paths to absolute edge URLs so hls.js fetches segments from the edge.
 let proxyPort = 0;
 
 function fetchFinal(url, redirects = 0) {
@@ -71,33 +61,6 @@ function serveHls(target, res) {
     .catch(() => { res.writeHead(502); res.end(); });
 }
 
-function serveRemux(target, startSec, req, res) {
-  const args = [
-    "-loglevel", "error",
-    "-user_agent", STREAM_UA,
-    "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5",
-    ...(startSec > 0 ? ["-ss", String(startSec)] : []),
-    "-i", target,
-    "-c:v", "copy",
-    "-c:a", "aac", "-b:a", "192k",
-    "-movflags", "frag_keyframe+empty_moov+default_base_moof",
-    "-f", "mp4",
-    "pipe:1",
-  ];
-  res.writeHead(200, {
-    "Content-Type": "video/mp4",
-    "Access-Control-Allow-Origin": "*",
-    "Cache-Control": "no-store",
-  });
-  const ff = spawn(ffmpegPath, args);
-  ff.stdout.pipe(res);
-  ff.stderr.on("data", () => {});
-  const kill = () => { try { ff.kill("SIGKILL"); } catch {} };
-  req.on("close", kill);
-  res.on("close", kill);
-  ff.on("error", () => { try { res.destroy(); } catch {} });
-}
-
 function startProxy() {
   return new Promise((resolve) => {
     const server = http.createServer((req, res) => {
@@ -106,10 +69,9 @@ function startProxy() {
       const target = parsed.searchParams.get("u");
       if (!target) { res.writeHead(400); res.end(); return; }
       if (parsed.pathname === "/hls") return serveHls(target, res);
-      if (parsed.pathname === "/vod") return serveRemux(target, parseFloat(parsed.searchParams.get("t") || "0"), req, res);
       res.writeHead(404); res.end();
     });
-    server.on("error", (e) => { console.error("media proxy error", e); resolve(); });
+    server.on("error", (e) => { console.error("hls proxy error", e); resolve(); });
     server.listen(0, "127.0.0.1", () => { proxyPort = server.address().port; resolve(); });
   });
 }

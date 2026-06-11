@@ -143,7 +143,6 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     const url = channel.url;
     const isHlsUrl = url.includes(".m3u8");
     const isTsUrl = url.endsWith(".ts");
-    const isMp4 = url.toLowerCase().endsWith(".mp4");
     const resumePos = contentType !== "live" && watchProgress?.[url];
     const startAt = resumePos?.position > 10 ? resumePos.position : -1;
 
@@ -152,10 +151,9 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     // so the proxy follows the redirect and rewrites them to absolute edge URLs.
     const hlsSource = (isLiveContent && window.electron?.hlsProxyUrl)
       ? window.electron.hlsProxyUrl(url) : url;
-    // Non-mp4 VOD (mkv/avi/…) is remuxed to fragmented MP4 by the local proxy —
-    // Chromium can't demux H.264/AAC out of a Matroska container.
-    const needsRemux = !isHlsUrl && !isTsUrl && !isMp4 && !!window.electron?.vodUrl;
-    const directSource = needsRemux ? window.electron.vodUrl(url) : url;
+    // VOD (mkv/mp4) plays directly — the video element handles the container and
+    // the edge supports range requests, so seeking/resume work.
+    const directSource = url;
 
     let cancelled = false;
     const setupHls = (Hls) => {
@@ -263,9 +261,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
       video.src = directSource;
       video.addEventListener("loadedmetadata", () => {
         setIsLive(false);
-        // The remuxed (fragmented-MP4) stream isn't seekable, so only restore the
-        // resume position for natively-played files.
-        if (startAt > 0 && !needsRemux) video.currentTime = startAt;
+        if (startAt > 0) video.currentTime = startAt;
         video.play().catch(() => {});
         // Detect native audio tracks
         if (video.audioTracks?.length > 1) {
@@ -288,7 +284,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
             retried = true;
             const pos = video.currentTime;
             video.src = directSource;
-            if (!needsRemux) video.currentTime = pos;
+            video.currentTime = pos;
             video.play().catch(() => {});
           } else if (video.error && video.readyState < 3 && retried) {
             const kinds = {

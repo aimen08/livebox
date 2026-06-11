@@ -15,7 +15,6 @@
     "dist:mac": "cross-env ELECTRON_DIST=1 vite build && electron-builder --mac"
   },
   "dependencies": {
-    "ffmpeg-static": "^5.3.0",
     "hls.js": "^1.5.17",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
@@ -43,7 +42,6 @@
       "preload.js",
       "package.json",
       "!node_modules",
-      "node_modules/ffmpeg-static/**",
       "!src",
       "!**/*.map"
     ],
@@ -98,8 +96,6 @@
       "category": "Utility",
       "icon": "icon.png"
     },
-    "asarUnpack": [
-      "node_modules/ffmpeg-static/**"
-    ]
+    "asarUnpack": []
   }
 }

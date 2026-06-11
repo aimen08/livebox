@@ -6,7 +6,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## 2026-06-11
 
 ### Added
-- Bundled-ffmpeg media proxy so movies and series actually play. Provider VOD is H.264+AAC inside MKV, which Chromium can't demux — a local proxy remuxes it to fragmented MP4 on the fly (video copied = no quality loss, audio normalized to AAC). MP4 titles still play natively.
 - Netflix-style layout rehaul: a top navigation bar replaces the left sidebar (transparent over the hero, glass once scrolled, with macOS traffic-light and Windows/Linux titlebar handling). Home, Movies, and Series now lead with a billboard hero and horizontal scrolling shelves of hover-preview cards (Play / My List / More).
 - "Cinematic Streaming" design system: layered blue-black surfaces, glass chrome with backdrop blur, elevation/motion scales, and a full design-token rebuild in `global.css`; accent colors still switch at runtime via the existing three tokens.
 - Navigation upgrades: grouped sidebar rail with settings pinned to the bottom, home header with clickable ⌘K search hint, group-filter inputs on Live/Movies/Series, scoped search placeholders, and an equalizer indicator on the playing live channel row.
