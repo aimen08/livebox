@@ -21,6 +21,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Player error screen now reports the actual failure reason instead of a generic message: HTTP status codes from the provider (including a dedicated hint when the network is blocked with HTTP 456, typically a VPN), decode/codec errors, and network errors for both HLS and direct streams.
 
 ### Fixed
+- Windows movie/series playback: the VOD catalog is H.264+AAC in Matroska (.mkv), which Chromium plays only when the stream is labelled `video/webm` (a Matroska subset) rather than `video/x-matroska`. The app now relabels these streams — no transcoding, native playback and seeking preserved (macOS was already playing them).
+- Live "levelParsing error": the HLS proxy now validates the manifest (and retries once) so an intermittent empty/HTML response from the provider returns a clean error that hls.js retries, instead of a fatal parse error.
 - Live TV no longer "keeps loading": the provider 302-redirects to a rotating CDN edge and uses relative segment paths the origin host 403s. The local proxy now follows the redirect and rewrites segment URLs to absolute edge URLs.
 - Hover-preview cards no longer overflow the shelf into a scrollbar — the preview now overlays the artwork and stays within the card.
 - Smooth vertical scrolling on Movies and Series: removed the mandatory scroll-snap and shrank the oversized shelf breathing bands that were intercepting the mouse wheel.

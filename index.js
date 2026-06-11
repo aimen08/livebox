@@ -35,9 +35,16 @@ function absolutize(uri, finalUrl) {
   try { return new URL(uri, finalUrl).toString(); } catch { return uri; }
 }
 
-function serveHls(target, res) {
+function serveHls(target, res, attempt = 0) {
   fetchFinal(target)
     .then(({ body, finalUrl }) => {
+      // The provider intermittently returns an empty body or an HTML error page
+      // instead of a manifest. Don't hand that to hls.js (it throws a fatal
+      // levelParsingError) — retry once, then 502 so hls.js retries the load.
+      if (!body || body.indexOf("#EXTM3U") === -1) {
+        if (attempt < 1) return setTimeout(() => serveHls(target, res, attempt + 1), 300);
+        res.writeHead(502); res.end(); return;
+      }
       const out = body
         .split("\n")
         .map((line) => {
@@ -127,16 +134,27 @@ if (!gotLock) {
   app.whenReady().then(async () => {
     await startProxy();
 
-    // Fix MIME types for video streaming (MKV, etc.)
+    // The VOD catalog is H.264+AAC in Matroska (.mkv). Chromium's <video> can
+    // demux Matroska, but only when the response is labelled `video/webm` (WebM
+    // is a Matroska subset) — served as `video/x-matroska` it fails to play on
+    // Windows. So relabel any Matroska stream to video/webm. (Verified on macOS
+    // the relabel still plays; this is the no-transcode fix for Windows.)
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      const headers = { ...details.responseHeaders };
+      const ctKey = Object.keys(headers).find((k) => k.toLowerCase() === "content-type");
+      const ct = ctKey ? String(headers[ctKey]).toLowerCase() : "";
       const url = details.url.toLowerCase();
-      if (url.includes("/movie/") || url.includes("/series/")) {
-        const headers = { ...details.responseHeaders };
-        headers["content-type"] = ["video/mp4"];
+      const isVod = url.includes("/movie/") || url.includes("/series/");
+      if (ct.includes("matroska") || (isVod && (ct.includes("octet-stream") || ct === ""))) {
+        if (ctKey) delete headers[ctKey];
+        headers["Content-Type"] = ["video/webm"];
+        headers["access-control-allow-origin"] = ["*"];
+        callback({ responseHeaders: headers });
+      } else if (isVod) {
         headers["access-control-allow-origin"] = ["*"];
         callback({ responseHeaders: headers });
       } else {
-        callback({ responseHeaders: details.responseHeaders });
+        callback({ responseHeaders: headers });
       }
     });
 
