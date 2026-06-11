@@ -43,9 +43,14 @@ let mpvActive = false;      // something is (or should be) playing
 let mpvQueue = [];          // commands queued until the IPC pipe connects
 let mpvLastRect = null;     // last bounds reported by the renderer (DIP, relative to content)
 let mpvPosTimer = null;
+let mpvReqSeq = 0;
+const mpvCmdNames = new Map(); // request_id → command label, to classify responses
 
 function mpvSend(command) {
-  const line = JSON.stringify({ command }) + "\n";
+  const id = ++mpvReqSeq;
+  mpvCmdNames.set(id, command.slice(0, 2).join(" "));
+  if (mpvCmdNames.size > 128) mpvCmdNames.delete(mpvCmdNames.keys().next().value);
+  const line = JSON.stringify({ command, request_id: id }) + "\n";
   if (mpvSock && mpvReady) { try { mpvSock.write(line); } catch {} }
   else mpvQueue.push(line);
 }
@@ -122,13 +127,19 @@ function connectMpvIpc(attempt = 0) {
       } else if (msg.event === "end-file") {
         if (msg.reason === "eof") mpvNotify({ type: "ended" });
         else if (msg.reason === "error") mpvNotify({ type: "error", message: msg.file_error || "playback error" });
-      } else if (typeof msg.request_id !== "undefined" && typeof msg.data === "number") {
-        // response to the time-pos poll
-        mpvNotify({ type: "time", value: msg.data });
-      } else if (msg.error && msg.error !== "success") {
-        // A rejected command must never be silent — this exact silence hid the
-        // loadfile "invalid parameter" black-screen bug.
-        mpvNotify({ type: "cmd-error", message: msg.error });
+      } else if (typeof msg.request_id !== "undefined") {
+        const cmdName = mpvCmdNames.get(msg.request_id) || "";
+        mpvCmdNames.delete(msg.request_id);
+        if (typeof msg.data === "number" && cmdName.startsWith("get_property")) {
+          // response to the time-pos poll
+          mpvNotify({ type: "time", value: msg.data });
+        } else if (msg.error && msg.error !== "success" && !cmdName.startsWith("get_property")) {
+          // Rejected COMMANDS must never be silent (this silence hid the
+          // loadfile "invalid parameter" black screen). Property reads are
+          // exempt: the time-pos poll legitimately returns "property
+          // unavailable" while a stream is still loading.
+          mpvNotify({ type: "cmd-error", message: `${msg.error} (${cmdName})` });
+        }
       }
     }
   });
