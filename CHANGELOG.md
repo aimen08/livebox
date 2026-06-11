@@ -3,6 +3,14 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 2026-06-12
+
+### Added
+- Over-the-air updates: the app now checks GitHub releases ~30s after launch, downloads updates in the background, and installs them on quit (Windows NSIS + macOS via electron-updater).
+
+### Changed
+- Windows playback engine no longer embeds mpv into an app window (three embedding strategies all hit Windows-compositor conflicts ending in audio-but-black-video). mpv now renders in its own borderless always-on-top window steered over the player area via IPC — its standard, universally working render path. The window follows app moves/resizes, minimizes with the app, drops ontop when the app loses focus, and hides behind overlays.
+
 ## 2026-06-11
 
 ### Added

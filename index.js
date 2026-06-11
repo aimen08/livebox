@@ -1,4 +1,4 @@
-const { app, BrowserWindow, BaseWindow, ipcMain, dialog, session } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, session } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const http = require("http");
@@ -35,7 +35,6 @@ const MPV_PIPE = process.platform === "win32"
   ? "\\\\.\\pipe\\livebox-mpv-" + process.pid
   : path.join(require("os").tmpdir(), "livebox-mpv-" + process.pid + ".sock");
 
-let videoHost = null;       // frameless child BrowserWindow mpv draws into
 let mpvProc = null;
 let mpvSock = null;
 let mpvReady = false;
@@ -59,40 +58,35 @@ function mpvNotify(payload) {
   try { mainWindow?.webContents.send("mpv-event", payload); } catch {}
 }
 
-function ensureVideoHost() {
-  if (videoHost && !videoHost.isDestroyed()) return videoHost;
-  // BaseWindow, NOT BrowserWindow — deliberately. A BrowserWindow carries a
-  // Chromium compositor that paints its own (opaque) content INTO the same
-  // native window mpv embeds in, overdrawing mpv's video child window: audio
-  // plays, screen stays black. BaseWindow is a bare native window with no web
-  // contents, so mpv's rendering is uncontested.
-  videoHost = new BaseWindow({
-    parent: mainWindow,
-    frame: false,
-    show: false,
-    skipTaskbar: true,
-    hasShadow: false,
-    backgroundColor: "#000000",
-    minimizable: false,
-    maximizable: false,
-    fullscreenable: false,
-    title: "LiveBox Video",
-  });
-  videoHost.on("close", (e) => { if (!appQuitting) e.preventDefault(); });
-  return videoHost;
+// NO window embedding. Three releases of --wid attempts (signed handle,
+// BaseWindow host, attach ordering) still ended in audio-but-black-video on
+// real hardware — Windows compositor interactions with foreign child windows
+// are unfixable from JS. Instead mpv keeps its OWN borderless always-on-top
+// window (its standard, universally working render path) and we steer its
+// geometry over the player area through IPC.
+function mpvGeometryString() {
+  if (!mainWindow || !mpvLastRect) return null;
+  try {
+    const { screen } = require("electron");
+    const c = mainWindow.getContentBounds();
+    const sf = screen.getDisplayMatching(mainWindow.getBounds()).scaleFactor || 1;
+    const x = Math.round((c.x + mpvLastRect.x) * sf);
+    const y = Math.round((c.y + mpvLastRect.y) * sf);
+    const w = Math.max(1, Math.round(mpvLastRect.width * sf));
+    const h = Math.max(1, Math.round(mpvLastRect.height * sf));
+    return `${w}x${h}+${x}+${y}`;
+  } catch { return null; }
 }
 
 function positionVideoHost() {
-  if (!videoHost || videoHost.isDestroyed() || !mainWindow || !mpvLastRect) return;
-  try {
-    const c = mainWindow.getContentBounds();
-    videoHost.setBounds({
-      x: Math.round(c.x + mpvLastRect.x),
-      y: Math.round(c.y + mpvLastRect.y),
-      width: Math.max(1, Math.round(mpvLastRect.width)),
-      height: Math.max(1, Math.round(mpvLastRect.height)),
-    });
-  } catch {}
+  const g = mpvGeometryString();
+  if (g && mpvProc) mpvSend(["set_property", "geometry", g]);
+}
+
+function setMpvWindowVisible(visible) {
+  if (!mpvProc) return;
+  mpvSend(["set_property", "window-minimized", !visible]);
+  if (visible) positionVideoHost();
 }
 
 function connectMpvIpc(attempt = 0) {
@@ -159,25 +153,23 @@ function startMpv() {
   if (mpvProc || !mpvPath) return mpvProc ? true : false;
   // Any failure here must surface as a player error — NEVER crash the app.
   try {
-    const host = ensureVideoHost();
-    const hbuf = host.getNativeWindowHandle();
-    // SIGNED read is deliberate: HWNDs ≥ 0x80000000 sign-extend on Win64, and
-    // mpv's --wid parses an int64 — the canonical libmpv embedding form is the
-    // signed value (an unsigned print can exceed INT64_MAX and fail to parse,
-    // leaving mpv detached while the host window stays black).
-    const wid = hbuf.length >= 8 ? hbuf.readBigInt64LE(0).toString() : hbuf.readInt32LE(0).toString();
     const logFile = path.join(app.getPath("userData"), "mpv.log");
     const errFile = path.join(app.getPath("userData"), "mpv-stderr.log");
     let errFd = "ignore";
     try { errFd = fs.openSync(errFile, "a"); } catch {}
+    const geo = mpvGeometryString();
     mpvProc = spawn(mpvPath, [
-      "--wid=" + wid,
       "--input-ipc-server=" + MPV_PIPE,
       "--no-config",
       "--idle=yes",
       "--force-window=yes",
       "--keep-open=no",
-      "--no-border",
+      "--border=no",
+      "--ontop=yes",               // floats over the app window (we steer geometry)
+      "--focus-on=never",          // don't steal focus from the app
+      "--window-dragging=no",      // dragging the video must not move the float
+      "--snap-window=no",
+      ...(geo ? ["--geometry=" + geo] : []),
       "--osc=yes",                 // mpv's on-screen controls (seek/pause/tracks)
       "--hwdec=auto-safe",
       "--cache=yes",
@@ -186,7 +178,7 @@ function startMpv() {
       "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       "--log-file=" + logFile,
     ], { stdio: ["ignore", "ignore", errFd], windowsHide: true });
-    mpvNotify({ type: "engine", state: "spawned", wid });
+    mpvNotify({ type: "engine", state: "spawned" });
     // CRITICAL: without this listener a failed spawn (missing exe, antivirus
     // block, bad arch) emits an unhandled 'error' event and kills the whole
     // main process — the app "just closes".
@@ -194,14 +186,12 @@ function startMpv() {
       mpvProc = null; mpvReady = false; mpvSock = null; mpvActive = false;
       clearInterval(mpvPosTimer);
       mpvNotify({ type: "spawn-error", message: err?.message || "failed to start mpv" });
-      if (videoHost && !videoHost.isDestroyed()) videoHost.hide();
     });
     mpvProc.on("exit", () => {
       mpvProc = null; mpvReady = false; mpvSock = null;
       clearInterval(mpvPosTimer);
       if (mpvActive) mpvNotify({ type: "exit" });
       mpvActive = false;
-      if (videoHost && !videoHost.isDestroyed()) videoHost.hide();
     });
     setTimeout(() => connectMpvIpc(), 300);
     return true;
@@ -216,7 +206,7 @@ function stopMpvPlayback() {
   mpvActive = false;
   mpvPendingLoad = null;
   mpvSend(["stop"]);
-  if (videoHost && !videoHost.isDestroyed()) videoHost.hide();
+  setMpvWindowVisible(false);
 }
 
 let appQuitting = false;
@@ -230,13 +220,10 @@ ipcMain.on("mpv-available", (e) => { e.returnValue = !!mpvPath; });
 let mpvPendingLoad = null; // load requested before the surface rect was known
 
 function execMpvLoad(url, startSec) {
-  // Order matters: the host must be VISIBLE at its real size before mpv
-  // attaches, so the embedded video child is created with correct geometry.
-  ensureVideoHost();
-  positionVideoHost();
-  if (videoHost && !videoHost.isDestroyed() && !videoHost.isVisible()) videoHost.show();
   if (!startMpv()) return false;
   mpvActive = true;
+  positionVideoHost();
+  setMpvWindowVisible(true);
   // NEVER pass extra positional args to loadfile — newer mpv changed the
   // signature (3rd arg = integer index) and an empty-string options arg makes
   // the whole command fail with "invalid parameter" (black screen, no file).
@@ -271,16 +258,12 @@ ipcMain.handle("mpv-set-bounds", (_e, rect) => {
       return;
     }
     if (!mpvActive) return;
-    ensureVideoHost();
     positionVideoHost();
-    if (videoHost && !videoHost.isDestroyed() && !videoHost.isVisible()) videoHost.show();
   } catch {}
 });
 ipcMain.handle("mpv-set-visible", (_e, visible) => {
   try {
-    if (!videoHost || videoHost.isDestroyed()) return;
-    if (visible && mpvActive) { positionVideoHost(); videoHost.show(); }
-    else videoHost.hide();
+    setMpvWindowVisible(!!visible && mpvActive);
   } catch {}
 });
 ipcMain.handle("mpv-command", (_e, cmd) => {
@@ -335,11 +318,13 @@ function createWindow() {
   mainWindow.on("maximize", () => mainWindow.webContents.send("window-maximized", true));
   mainWindow.on("unmaximize", () => mainWindow.webContents.send("window-maximized", false));
 
-  // Keep the mpv video host glued to the player region as the window moves.
+  // Keep the floating mpv window glued to the player region.
   mainWindow.on("move", positionVideoHost);
   mainWindow.on("resize", positionVideoHost);
-  mainWindow.on("minimize", () => { if (videoHost && !videoHost.isDestroyed()) videoHost.hide(); });
-  mainWindow.on("restore", () => { if (mpvActive && videoHost && !videoHost.isDestroyed()) { positionVideoHost(); videoHost.show(); } });
+  mainWindow.on("minimize", () => setMpvWindowVisible(false));
+  mainWindow.on("restore", () => { if (mpvActive) setMpvWindowVisible(true); });
+  mainWindow.on("focus", () => { if (mpvActive) mpvSend(["set_property", "ontop", true]); });
+  mainWindow.on("blur", () => { if (mpvProc) mpvSend(["set_property", "ontop", false]); });
   mainWindow.on("closed", () => { try { mpvProc?.kill(); } catch {} });
 }
 
@@ -371,6 +356,19 @@ if (!gotLock) {
     app.on("activate", () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
+
+    // Over-the-air updates from GitHub releases (checks ~30s after launch to
+    // stay out of startup's way; downloads in background, installs on quit).
+    if (app.isPackaged) {
+      setTimeout(() => {
+        try {
+          const { autoUpdater } = require("electron-updater");
+          autoUpdater.autoDownload = true;
+          autoUpdater.on("error", () => {});
+          autoUpdater.checkForUpdatesAndNotify().catch(() => {});
+        } catch {}
+      }, 30000);
+    }
   });
 }
 
