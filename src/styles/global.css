@@ -1961,3 +1961,24 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
   to { opacity: 1; transform: translateY(0); }
 }
 .fade-in { animation: fadeIn 320ms var(--ease-out); }
+
+/* ── mpv engine surface (Windows) ──
+   Video renders in a native child window glued over .mpv-surface; HTML cannot
+   overlay it, so the player chrome lives in a strip ABOVE the surface and
+   transport controls come from mpv's own OSC inside the video. */
+.player-mpv { display: flex; flex-direction: column; background: var(--bg-deep); }
+.mpv-strip {
+  height: 48px; flex: none;
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 12px;
+  background: var(--glass-heavy);
+  border-bottom: 1px solid var(--glass-border);
+}
+.mpv-strip-name {
+  font: 500 var(--fs-subtitle)/1.2 var(--font-body); color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  min-width: 0;
+}
+.mpv-strip-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; flex: none; }
+.mpv-surface { flex: 1; min-height: 0; background: #000; }
+.player-mpv .player-wrap { display: flex; align-items: center; justify-content: center; }

@@ -6,6 +6,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## 2026-06-11
 
 ### Added
+- Windows now ships a bundled mpv playback engine (full ffmpeg inside) that renders all live and VOD playback: MKV, HEVC, AC3/EAC3 and the provider's redirecting live HLS all play natively with hardware decoding. The video renders in a native surface with mpv's on-screen controls plus an app control strip (back, play/pause, favorite, inline/fullscreen). macOS keeps the existing Chromium player, which already handles this catalog. An `mpv.log` is written to the app data folder for diagnostics.
 - Netflix-style layout rehaul: a top navigation bar replaces the left sidebar (transparent over the hero, glass once scrolled, with macOS traffic-light and Windows/Linux titlebar handling). Home, Movies, and Series now lead with a billboard hero and horizontal scrolling shelves of hover-preview cards (Play / My List / More).
 - "Cinematic Streaming" design system: layered blue-black surfaces, glass chrome with backdrop blur, elevation/motion scales, and a full design-token rebuild in `global.css`; accent colors still switch at runtime via the existing three tokens.
 - Navigation upgrades: grouped sidebar rail with settings pinned to the bottom, home header with clickable ⌘K search hint, group-filter inputs on Live/Movies/Series, scoped search placeholders, and an equalizer indicator on the playing live channel row.

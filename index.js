@@ -3,6 +3,212 @@ const path = require("path");
 const fs = require("fs");
 const http = require("http");
 const https = require("https");
+const net = require("net");
+const { spawn } = require("child_process");
+
+// ── mpv playback engine (Windows only) ──────────────────────────────────────
+// Chromium's <video> on Windows cannot demux the provider's MKV catalog and
+// chokes on its redirecting live HLS. On Windows we render ALL playback with a
+// bundled mpv (ffmpeg inside: every container/codec, hw decode, robust live
+// handling). mpv runs as a child process drawing into a child window via
+// --wid and is controlled over its JSON IPC pipe — no native modules needed.
+// macOS/Linux keep the Chromium <video>/hls.js path (it works there).
+
+function resolveMpvPath() {
+  if (process.platform !== "win32") return null;
+  const candidates = [
+    path.join(process.resourcesPath || "", "mpv", "mpv.exe"),
+    path.join(__dirname, "build-res", "win", "mpv", "mpv.exe"),
+  ];
+  for (const p of candidates) {
+    try { if (fs.existsSync(p)) return p; } catch {}
+  }
+  return null;
+}
+const mpvPath = resolveMpvPath();
+const MPV_PIPE = "\\\\.\\pipe\\livebox-mpv-" + process.pid;
+
+let videoHost = null;       // frameless child BrowserWindow mpv draws into
+let mpvProc = null;
+let mpvSock = null;
+let mpvReady = false;
+let mpvActive = false;      // something is (or should be) playing
+let mpvQueue = [];          // commands queued until the IPC pipe connects
+let mpvLastRect = null;     // last bounds reported by the renderer (DIP, relative to content)
+let mpvPosTimer = null;
+
+function mpvSend(command) {
+  const line = JSON.stringify({ command }) + "\n";
+  if (mpvSock && mpvReady) { try { mpvSock.write(line); } catch {} }
+  else mpvQueue.push(line);
+}
+
+function mpvNotify(payload) {
+  try { mainWindow?.webContents.send("mpv-event", payload); } catch {}
+}
+
+function ensureVideoHost() {
+  if (videoHost && !videoHost.isDestroyed()) return videoHost;
+  videoHost = new BrowserWindow({
+    parent: mainWindow,
+    frame: false,
+    show: false,
+    skipTaskbar: true,
+    hasShadow: false,
+    backgroundColor: "#000000",
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    title: "LiveBox Video",
+  });
+  videoHost.setMenuBarVisibility(false);
+  videoHost.on("close", (e) => { if (!appQuitting) e.preventDefault(); });
+  return videoHost;
+}
+
+function positionVideoHost() {
+  if (!videoHost || videoHost.isDestroyed() || !mainWindow || !mpvLastRect) return;
+  try {
+    const c = mainWindow.getContentBounds();
+    videoHost.setBounds({
+      x: Math.round(c.x + mpvLastRect.x),
+      y: Math.round(c.y + mpvLastRect.y),
+      width: Math.max(1, Math.round(mpvLastRect.width)),
+      height: Math.max(1, Math.round(mpvLastRect.height)),
+    });
+  } catch {}
+}
+
+function connectMpvIpc(attempt = 0) {
+  if (!mpvProc) return;
+  const sock = net.connect({ path: MPV_PIPE });
+  sock.on("connect", () => {
+    mpvSock = sock;
+    mpvReady = true;
+    for (const line of mpvQueue) { try { sock.write(line); } catch {} }
+    mpvQueue = [];
+    // Push state changes to the renderer.
+    mpvSend(["observe_property", 1, "pause"]);
+    mpvSend(["observe_property", 2, "duration"]);
+    mpvSend(["observe_property", 3, "track-list"]);
+    // Position poll — 500ms is smooth enough for the UI clock.
+    clearInterval(mpvPosTimer);
+    mpvPosTimer = setInterval(() => {
+      if (mpvActive) mpvSend(["get_property", "time-pos"]);
+    }, 500);
+  });
+  let buf = "";
+  sock.on("data", (d) => {
+    buf += d.toString("utf-8");
+    let idx;
+    while ((idx = buf.indexOf("\n")) >= 0) {
+      const line = buf.slice(0, idx); buf = buf.slice(idx + 1);
+      if (!line.trim()) continue;
+      let msg; try { msg = JSON.parse(line); } catch { continue; }
+      if (msg.event === "property-change") {
+        if (msg.name === "pause") mpvNotify({ type: "pause", value: !!msg.data });
+        else if (msg.name === "duration" && typeof msg.data === "number") mpvNotify({ type: "duration", value: msg.data });
+        else if (msg.name === "track-list") mpvNotify({ type: "tracks", value: msg.data });
+      } else if (msg.event === "playback-restart") {
+        mpvNotify({ type: "playing" });
+      } else if (msg.event === "end-file") {
+        if (msg.reason === "eof") mpvNotify({ type: "ended" });
+        else if (msg.reason === "error") mpvNotify({ type: "error", message: msg.file_error || "playback error" });
+      } else if (typeof msg.request_id !== "undefined" && typeof msg.data === "number") {
+        // response to the time-pos poll
+        mpvNotify({ type: "time", value: msg.data });
+      }
+    }
+  });
+  sock.on("error", () => {
+    mpvReady = false; mpvSock = null;
+    if (attempt < 40 && mpvProc) setTimeout(() => connectMpvIpc(attempt + 1), 250);
+  });
+  sock.on("close", () => { mpvReady = false; mpvSock = null; });
+}
+
+function startMpv() {
+  if (mpvProc || !mpvPath) return;
+  const host = ensureVideoHost();
+  const hbuf = host.getNativeWindowHandle();
+  const wid = hbuf.length >= 8 ? hbuf.readBigUInt64LE(0).toString() : hbuf.readUInt32LE(0).toString();
+  const logFile = path.join(app.getPath("userData"), "mpv.log");
+  mpvProc = spawn(mpvPath, [
+    "--wid=" + wid,
+    "--input-ipc-server=" + MPV_PIPE,
+    "--no-config",
+    "--idle=yes",
+    "--force-window=yes",
+    "--keep-open=no",
+    "--no-border",
+    "--osc=yes",                 // mpv's on-screen controls (seek/pause/tracks)
+    "--hwdec=auto-safe",
+    "--cache=yes",
+    "--demuxer-max-bytes=64MiB",
+    "--alang=ara,ar,eng,en,fra,fr",
+    "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "--log-file=" + logFile,
+  ], { stdio: "ignore", windowsHide: true });
+  mpvProc.on("exit", () => {
+    mpvProc = null; mpvReady = false; mpvSock = null;
+    clearInterval(mpvPosTimer);
+    if (mpvActive) mpvNotify({ type: "exit" });
+    mpvActive = false;
+    if (videoHost && !videoHost.isDestroyed()) videoHost.hide();
+  });
+  setTimeout(() => connectMpvIpc(), 300);
+}
+
+function stopMpvPlayback() {
+  mpvActive = false;
+  mpvSend(["stop"]);
+  if (videoHost && !videoHost.isDestroyed()) videoHost.hide();
+}
+
+let appQuitting = false;
+app.on("before-quit", () => {
+  appQuitting = true;
+  try { mpvSend(["quit"]); } catch {}
+  setTimeout(() => { try { mpvProc?.kill(); } catch {} }, 200);
+});
+
+ipcMain.on("mpv-available", (e) => { e.returnValue = !!mpvPath; });
+ipcMain.handle("mpv-load", (_e, url, startSec) => {
+  if (!mpvPath) return false;
+  startMpv();
+  mpvActive = true;
+  const opts = startSec > 0 ? `start=${Math.floor(startSec)}` : "";
+  mpvSend(["loadfile", url, "replace", opts]);
+  mpvSend(["set_property", "pause", false]);
+  if (mpvLastRect) { positionVideoHost(); videoHost?.show(); mainWindow?.focus(); }
+  return true;
+});
+ipcMain.handle("mpv-stop", () => stopMpvPlayback());
+ipcMain.handle("mpv-set-bounds", (_e, rect) => {
+  mpvLastRect = rect;
+  if (!mpvActive) return;
+  ensureVideoHost();
+  positionVideoHost();
+  if (videoHost && !videoHost.isDestroyed() && !videoHost.isVisible()) videoHost.show();
+});
+ipcMain.handle("mpv-set-visible", (_e, visible) => {
+  if (!videoHost || videoHost.isDestroyed()) return;
+  if (visible && mpvActive) { positionVideoHost(); videoHost.show(); }
+  else videoHost.hide();
+});
+ipcMain.handle("mpv-command", (_e, cmd) => {
+  // whitelisted control surface from the renderer
+  const allowed = {
+    pause: (v) => mpvSend(["set_property", "pause", !!v]),
+    seek: (v) => mpvSend(["seek", Number(v) || 0, "absolute"]),
+    volume: (v) => mpvSend(["set_property", "volume", Math.max(0, Math.min(130, Number(v) || 0))]),
+    mute: (v) => mpvSend(["set_property", "mute", !!v]),
+    "audio-track": (v) => mpvSend(["set_property", "aid", v]),
+    "sub-track": (v) => mpvSend(["set_property", "sid", v]),
+  };
+  const fn = allowed[cmd?.name];
+  if (fn) fn(cmd.value);
+});
 
 // Enable native audio/video track selection API for MKV containers
 app.commandLine.appendSwitch("enable-blink-features", "AudioVideoTracks");
@@ -39,6 +245,13 @@ function createWindow() {
 
   mainWindow.on("maximize", () => mainWindow.webContents.send("window-maximized", true));
   mainWindow.on("unmaximize", () => mainWindow.webContents.send("window-maximized", false));
+
+  // Keep the mpv video host glued to the player region as the window moves.
+  mainWindow.on("move", positionVideoHost);
+  mainWindow.on("resize", positionVideoHost);
+  mainWindow.on("minimize", () => { if (videoHost && !videoHost.isDestroyed()) videoHost.hide(); });
+  mainWindow.on("restore", () => { if (mpvActive && videoHost && !videoHost.isDestroyed()) { positionVideoHost(); videoHost.show(); } });
+  mainWindow.on("closed", () => { try { mpvProc?.kill(); } catch {} });
 }
 
 const gotLock = app.requestSingleInstanceLock();

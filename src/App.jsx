@@ -54,6 +54,14 @@ export default function App() {
   const [watchProgress, setWatchProgress] = useState(() => storageGet("watchProgress", {}));
   const [spotlightOpen, setSpotlightOpen] = useState(false);
 
+  // The Windows mpv video window is a native overlay — HTML modals can't paint
+  // above it, so hide it while Spotlight or the URL modal is open.
+  useEffect(() => {
+    if (window.electron?.mpvAvailable) {
+      window.electron.mpv.setVisible(!(spotlightOpen || showURLModal));
+    }
+  }, [spotlightOpen, showURLModal]);
+
   const loadXtreamRef = useRef(null);
   const mainRef = useRef(null);
 

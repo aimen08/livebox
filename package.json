@@ -49,6 +49,12 @@
       "icon": "icon.png",
       "target": [
         "nsis"
+      ],
+      "extraResources": [
+        {
+          "from": "build-res/win/mpv",
+          "to": "mpv"
+        }
       ]
     },
     "mac": {

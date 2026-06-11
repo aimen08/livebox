@@ -1,6 +1,12 @@
 import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { XIcon } from "./Icons";
 
+// On Windows the bundled mpv engine renders ALL playback (Chromium's <video>
+// can't demux the provider's MKV catalog there and mishandles its live HLS).
+// When true, the component skips <video>/hls.js entirely and drives mpv over
+// IPC; mpv draws into a native child window positioned over .mpv-surface.
+const MPV = typeof window !== "undefined" && window.electron?.mpvAvailable === true;
+
 // Lazy-load hls.js the first time the player needs it. The chunk is ~200KB
 // and the welcome/browse screens never touch it, so paying that cost up front
 // is wasted bandwidth. Cached promise = single fetch even with rapid switches.
@@ -120,8 +126,100 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     }, 3000);
   }, []);
 
+  // ── mpv path (Windows) ──
+  const mpvPosRef = useRef(0);
+  const mpvDurRef = useRef(0);
+  const mpvSurfaceRef = useRef(null);
   useEffect(() => {
-    if (!channel?.url || !videoRef.current) return;
+    if (!MPV || !channel?.url) return;
+    const url = channel.url;
+    const resume = contentType !== "live" && watchProgress?.[url];
+    const startAt = resume?.position > 10 ? resume.position : 0;
+    setError(null);
+    setBuffering(true);
+    setPaused(false);
+    setIsLive(contentType === "live");
+    mpvPosRef.current = 0;
+    mpvDurRef.current = 0;
+    window.electron.mpv.load(url, startAt);
+
+    const saveMeta = channel?.seriesId ? {
+      seriesId: channel.seriesId, season: channel.season,
+      ep: channel.episodeNum, epName: channel.name,
+    } : undefined;
+    const doSave = () => {
+      if (contentType !== "live" && mpvPosRef.current > 10 && mpvDurRef.current > 30) {
+        onSaveProgress?.(url, mpvPosRef.current, mpvDurRef.current, saveMeta);
+      }
+    };
+    const off = window.electron.mpv.onEvent((ev) => {
+      if (ev.type === "time" && typeof ev.value === "number") {
+        mpvPosRef.current = ev.value;
+        setCurrentTime(ev.value);
+        setBuffering(false);
+      } else if (ev.type === "duration" && typeof ev.value === "number") {
+        mpvDurRef.current = ev.value;
+        setDuration(ev.value);
+      } else if (ev.type === "pause") {
+        setPaused(!!ev.value);
+      } else if (ev.type === "playing") {
+        setBuffering(false);
+      } else if (ev.type === "ended") {
+        doSave();
+        if (contentType === "series" && channel?.episodes?.length) {
+          const eps = channel.episodes;
+          const idx = eps.findIndex((e2) => e2.url === url);
+          if (idx >= 0 && idx < eps.length - 1) {
+            onPlay?.({ ...eps[idx + 1], episodes: eps, seriesName: channel.seriesName, seriesPoster: channel.seriesPoster });
+            return;
+          }
+        }
+        onClose?.();
+      } else if (ev.type === "error") {
+        setError(`Playback failed: ${ev.message || "unknown error"}`);
+      } else if (ev.type === "exit") {
+        setError("Playback engine exited unexpectedly — press Retry");
+      }
+    });
+    const saveIv = setInterval(doSave, 15000);
+    return () => {
+      off();
+      clearInterval(saveIv);
+      doSave();
+      window.electron.mpv.stop();
+    };
+  }, [channel, retryNonce]);
+
+  // Keep the native mpv window glued to the surface element's on-screen rect.
+  useEffect(() => {
+    if (!MPV || error) return;
+    const el = mpvSurfaceRef.current;
+    if (!el) return;
+    const report = () => {
+      const r = el.getBoundingClientRect();
+      window.electron.mpv.setBounds({ x: r.left, y: r.top, width: r.width, height: r.height });
+    };
+    report();
+    const ro = new ResizeObserver(report);
+    ro.observe(el);
+    window.addEventListener("resize", report);
+    // ResizeObserver misses pure position shifts (panels opening, etc.)
+    const iv = setInterval(report, 1000);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", report);
+      clearInterval(iv);
+    };
+  }, [mode, error, channel]);
+
+  // An error swaps the surface for the error card — hide the native window so
+  // it doesn't paint over the message.
+  useEffect(() => {
+    if (MPV && error) window.electron.mpv.stop();
+  }, [error]);
+
+  useEffect(() => {
+    if (MPV || !channel?.url || !videoRef.current) return;
     const video = videoRef.current;
     setError(null);
     setBuffering(true);
@@ -543,6 +641,59 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
   const toggleMode = useCallback(() => {
     onModeChange?.(isInline ? "fullscreen" : "inline");
   }, [isInline, onModeChange]);
+
+  // ── mpv render path (Windows): a control strip above a native video surface.
+  // Transport controls (seek/volume/tracks) come from mpv's on-screen controller
+  // inside the video itself; HTML can't overlay the native window.
+  if (MPV) {
+    return (
+      <div className={`player-fullscreen player-${mode}${hasTitlebar ? " has-titlebar" : ""} player-mpv`} ref={containerRef}>
+        <div className="mpv-strip">
+          <button className="player-ctrl-btn" onClick={onClose} title="Back" aria-label="Back">
+            <XIcon />
+          </button>
+          <span className="mpv-strip-name" title={channel?.name}>{channel?.name || "Unknown"}</span>
+          {isLiveContent ? (
+            <span className="player-live-badge">LIVE</span>
+          ) : (
+            <span className="player-time">{formatTime(currentTime)} / {formatTime(duration)}</span>
+          )}
+          <div className="mpv-strip-actions">
+            <button className="player-ctrl-btn" onClick={() => window.electron.mpv.command("pause", !paused)} title={paused ? "Play" : "Pause"}>
+              {paused ? <PlayIcon /> : <PauseIcon />}
+            </button>
+            <button
+              className={`player-ctrl-btn player-fav-btn${isFav ? " is-fav" : ""}`}
+              onClick={handleFav}
+              title={isFav ? "Remove from favorites" : "Add to favorites"}
+            >
+              <svg viewBox="0 0 24 24" width="20" height="20" fill={isFav ? "#f1c40f" : "none"} stroke={isFav ? "#f1c40f" : "currentColor"} strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </button>
+            {isLiveContent && (
+              <button className="player-ctrl-btn" onClick={toggleMode} title={isInline ? "Expand" : "Pin to side"}>
+                {isInline ? <FullscreenIcon /> : <ExitFullscreenIcon />}
+              </button>
+            )}
+          </div>
+        </div>
+        {error ? (
+          <div className="player-wrap">
+            <div className="player-error">
+              <div className="player-error-icon" aria-hidden="true">⚠</div>
+              <div className="player-error-name">{channel?.name || "Unknown"}</div>
+              <p>{error}</p>
+              <div className="player-error-actions">
+                <button className="btn btn-primary" onClick={() => { setError(null); setBuffering(true); setRetryNonce((n) => n + 1); }}>Retry</button>
+                <button className="btn btn-secondary" onClick={onClose}>Go Back</button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="mpv-surface" ref={mpvSurfaceRef} />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className={`player-fullscreen player-${mode}${hasTitlebar ? " has-titlebar" : ""}`} ref={containerRef}>
