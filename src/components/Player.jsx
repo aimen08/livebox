@@ -190,6 +190,8 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
         setError("Playback engine exited unexpectedly — press Retry");
       } else if (ev.type === "spawn-error") {
         setError(`Playback engine could not start: ${ev.message || "unknown"} — check antivirus/SmartScreen`);
+      } else if (ev.type === "cmd-error") {
+        setError(`Playback engine rejected a command (${ev.message})`);
       }
     });
     const saveIv = setInterval(doSave, 15000);

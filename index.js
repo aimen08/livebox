@@ -125,6 +125,10 @@ function connectMpvIpc(attempt = 0) {
       } else if (typeof msg.request_id !== "undefined" && typeof msg.data === "number") {
         // response to the time-pos poll
         mpvNotify({ type: "time", value: msg.data });
+      } else if (msg.error && msg.error !== "success") {
+        // A rejected command must never be silent — this exact silence hid the
+        // loadfile "invalid parameter" black-screen bug.
+        mpvNotify({ type: "cmd-error", message: msg.error });
       }
     }
   });
@@ -212,8 +216,12 @@ ipcMain.handle("mpv-load", (_e, url, startSec) => {
     if (!mpvPath) return false;
     if (!startMpv()) return false;
     mpvActive = true;
-    const opts = startSec > 0 ? `start=${Math.floor(startSec)}` : "";
-    mpvSend(["loadfile", url, "replace", opts]);
+    // NEVER pass extra positional args to loadfile — newer mpv changed the
+    // signature (3rd arg = integer index) and an empty-string options arg makes
+    // the whole command fail with "invalid parameter" (black screen, no file).
+    // The resume position goes through the `start` option-property instead.
+    mpvSend(["set_property", "start", startSec > 0 ? String(Math.floor(startSec)) : "none"]);
+    mpvSend(["loadfile", url, "replace"]);
     mpvSend(["set_property", "pause", false]);
     if (mpvLastRect) { positionVideoHost(); videoHost?.show(); mainWindow?.focus(); }
     return true;
