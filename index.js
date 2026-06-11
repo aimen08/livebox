@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, session } = require("electron");
+const { app, BrowserWindow, BaseWindow, ipcMain, dialog, session } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const http = require("http");
@@ -61,7 +61,12 @@ function mpvNotify(payload) {
 
 function ensureVideoHost() {
   if (videoHost && !videoHost.isDestroyed()) return videoHost;
-  videoHost = new BrowserWindow({
+  // BaseWindow, NOT BrowserWindow — deliberately. A BrowserWindow carries a
+  // Chromium compositor that paints its own (opaque) content INTO the same
+  // native window mpv embeds in, overdrawing mpv's video child window: audio
+  // plays, screen stays black. BaseWindow is a bare native window with no web
+  // contents, so mpv's rendering is uncontested.
+  videoHost = new BaseWindow({
     parent: mainWindow,
     frame: false,
     show: false,
@@ -73,7 +78,6 @@ function ensureVideoHost() {
     fullscreenable: false,
     title: "LiveBox Video",
   });
-  videoHost.setMenuBarVisibility(false);
   videoHost.on("close", (e) => { if (!appQuitting) e.preventDefault(); });
   return videoHost;
 }
@@ -210,6 +214,7 @@ function startMpv() {
 
 function stopMpvPlayback() {
   mpvActive = false;
+  mpvPendingLoad = null;
   mpvSend(["stop"]);
   if (videoHost && !videoHost.isDestroyed()) videoHost.hide();
 }
@@ -222,26 +227,49 @@ app.on("before-quit", () => {
 });
 
 ipcMain.on("mpv-available", (e) => { e.returnValue = !!mpvPath; });
+let mpvPendingLoad = null; // load requested before the surface rect was known
+
+function execMpvLoad(url, startSec) {
+  // Order matters: the host must be VISIBLE at its real size before mpv
+  // attaches, so the embedded video child is created with correct geometry.
+  ensureVideoHost();
+  positionVideoHost();
+  if (videoHost && !videoHost.isDestroyed() && !videoHost.isVisible()) videoHost.show();
+  if (!startMpv()) return false;
+  mpvActive = true;
+  // NEVER pass extra positional args to loadfile — newer mpv changed the
+  // signature (3rd arg = integer index) and an empty-string options arg makes
+  // the whole command fail with "invalid parameter" (black screen, no file).
+  // The resume position goes through the `start` option-property instead.
+  mpvSend(["set_property", "start", startSec > 0 ? String(Math.floor(startSec)) : "none"]);
+  mpvSend(["loadfile", url, "replace"]);
+  mpvSend(["set_property", "pause", false]);
+  mainWindow?.focus();
+  return true;
+}
+
 ipcMain.handle("mpv-load", (_e, url, startSec) => {
   try {
     if (!mpvPath) return false;
-    if (!startMpv()) return false;
-    mpvActive = true;
-    // NEVER pass extra positional args to loadfile — newer mpv changed the
-    // signature (3rd arg = integer index) and an empty-string options arg makes
-    // the whole command fail with "invalid parameter" (black screen, no file).
-    // The resume position goes through the `start` option-property instead.
-    mpvSend(["set_property", "start", startSec > 0 ? String(Math.floor(startSec)) : "none"]);
-    mpvSend(["loadfile", url, "replace"]);
-    mpvSend(["set_property", "pause", false]);
-    if (mpvLastRect) { positionVideoHost(); videoHost?.show(); mainWindow?.focus(); }
-    return true;
+    if (!mpvLastRect) {
+      // Surface rect not reported yet — defer so mpv never attaches to a
+      // hidden default-size window.
+      mpvPendingLoad = { url, startSec };
+      mpvActive = true;
+      return true;
+    }
+    return execMpvLoad(url, startSec);
   } catch { return false; }
 });
 ipcMain.handle("mpv-stop", () => { try { stopMpvPlayback(); } catch {} });
 ipcMain.handle("mpv-set-bounds", (_e, rect) => {
   try {
     mpvLastRect = rect;
+    if (mpvPendingLoad) {
+      const p = mpvPendingLoad; mpvPendingLoad = null;
+      if (!execMpvLoad(p.url, p.startSec)) mpvNotify({ type: "spawn-error", message: "engine failed to start" });
+      return;
+    }
     if (!mpvActive) return;
     ensureVideoHost();
     positionVideoHost();
