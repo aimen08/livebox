@@ -61,7 +61,7 @@ function FavoritesPage({ favorites, onPlayLive, onPlayMovie, onToggleFav, watchP
           <div className="ch-list">
             {liveChannels.map((ch) => (
               <div
-                key={ch.url}
+                key={ch.url || ch.tvgId}
                 className="ch-row"
                 role="button"
                 tabIndex={0}

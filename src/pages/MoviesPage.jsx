@@ -1,7 +1,12 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { SearchIcon, StarIcon, FilmIcon } from "../components/Icons";
+import Billboard from "../components/Billboard";
+import Shelf from "../components/Shelf";
+import PreviewCard from "../components/PreviewCard";
 
 const BATCH_SIZE = 40;
+const BROWSE_SHELF_CAP = 12;
+const SHELF_ITEM_CAP = 20;
 
 const onActivate = (fn) => (e) => {
   if (e.target !== e.currentTarget) return;
@@ -53,6 +58,7 @@ function MoviesPage({ movies, groups, onPlay, favorites, onToggleFav, watchProgr
   const [groupFilter, setGroupFilter] = useState("");
   const [activeGroup, setActiveGroup] = useState(null);
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
+  const [browseMode, setBrowseMode] = useState(true);
   const listRef = useRef(null);
 
   useEffect(() => {
@@ -88,6 +94,19 @@ function MoviesPage({ movies, groups, onPlay, favorites, onToggleFav, watchProgr
 
   const visible = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
 
+  const browseShelves = useMemo(() => {
+    return groups.slice(0, BROWSE_SHELF_CAP).map((g) => ({
+      group: g,
+      items: movies.filter((m) => m.group === g).slice(0, SHELF_ITEM_CAP),
+    }));
+  }, [groups, movies]);
+
+  const openGroupGrid = useCallback((g) => {
+    setActiveGroup(g);
+    setSearch("");
+    setBrowseMode(false);
+  }, []);
+
   const handleScroll = useCallback((e) => {
     const el = e.target;
     if (el.scrollHeight - el.scrollTop - el.clientHeight < 300) {
@@ -101,6 +120,33 @@ function MoviesPage({ movies, groups, onPlay, favorites, onToggleFav, watchProgr
         <FilmIcon />
         <h2>No movies available</h2>
         <p>Add a playlist with VOD content to browse movies</p>
+      </div>
+    );
+  }
+
+  if (browseMode) {
+    return (
+      <div className="movies-browse fade-in">
+        <Billboard item={movies[0]} kind="movie" onPlay={onPlay} onMoreInfo={onPlay} />
+        {browseShelves.map(({ group, items }) => (
+          <Shelf
+            key={group}
+            title={group}
+            items={items}
+            onSeeAll={() => openGroupGrid(group)}
+            renderItem={(m) => (
+              <PreviewCard
+                item={m}
+                kind="movie"
+                isFav={!!favorites[m.url || m.streamId]}
+                progress={watchProgress?.[m.url]}
+                onPlay={onPlay}
+                onDetail={onPlay}
+                onToggleFav={onToggleFav}
+              />
+            )}
+          />
+        ))}
       </div>
     );
   }
@@ -140,6 +186,9 @@ function MoviesPage({ movies, groups, onPlay, favorites, onToggleFav, watchProgr
 
       <div className="channels-panel">
         <div className="channels-panel-header">
+          <button type="button" className="btn btn-secondary btn-sm" onClick={() => setBrowseMode(true)}>
+            ← All movies
+          </button>
           <h1 className="channels-panel-title">{activeGroup || "Movies"}</h1>
           <span className="channel-count">{filtered.length} movies</span>
         </div>

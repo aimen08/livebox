@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import Sidebar from "./components/Sidebar";
+import TopNav from "./components/TopNav";
 import WindowTitlebar from "./components/WindowTitlebar";
 import Player from "./components/Player";
 import URLModal from "./components/URLModal";
@@ -55,6 +55,7 @@ export default function App() {
   const [spotlightOpen, setSpotlightOpen] = useState(false);
 
   const loadXtreamRef = useRef(null);
+  const mainRef = useRef(null);
 
   useEffect(() => {
     window.electron?.getPlatform?.().then(setPlatform);
@@ -327,18 +328,54 @@ export default function App() {
 
   const hasContent = channels.length > 0 || movies.length > 0 || series.length > 0;
   const hasCustomTitlebar = platform === "win32" || platform === "linux";
+  const hasBillboard = (page === "home" || page === "movies" || page === "series") && hasContent;
 
   return (
     <>
       {hasCustomTitlebar && <WindowTitlebar />}
-      <Sidebar
+      <TopNav
         page={page}
-        onNavigate={(p) => { setPlaying(null); setPage(p); }}
-        onOpenFile={() => { setPlaying(null); handleOpenFile(); }}
-        onOpenURL={() => { setPlaying(null); handleOpenURL(); }}
+        platform={platform}
+        hasTitlebar={hasCustomTitlebar}
         hasContent={hasContent}
+        hasBillboard={hasBillboard}
+        scrollContainerRef={mainRef}
+        onNavigate={(p) => { setPlaying(null); setPage(p); }}
+        onOpenSearch={handleOpenSearch}
       />
-      <div className={`main${hasCustomTitlebar ? " has-titlebar" : ""}${page === "live" && hasContent && !(playing && playerMode === "fullscreen") ? " has-live-side" : ""}`}>
+      {/* Hoisted OUT of `.main` so the fullscreen player's z-index (10001)
+          competes at the ROOT stacking context and can cover the TopNav (100)
+          and titlebar (10000). `.main` has `isolation: isolate`, which would
+          otherwise trap the player's z-index inside `.main`'s subtree. The
+          inline variant is `position: fixed` and only needs --inline-player-w,
+          which it reads via its own fallback, so hoisting is safe for it too. */}
+      {playing && (
+        <Player
+          channel={playing}
+          onClose={() => {
+            // Live TV: closing the fullscreen view drops back to the inline
+            // side-panel rather than tearing the player down. From inline
+            // mode, X fully closes. Movies/series always close fully.
+            if (playingType === "live" && playerMode === "fullscreen") {
+              setPlayerMode("inline");
+            } else {
+              setPlaying(null);
+            }
+          }}
+          channels={channels}
+          groups={groups}
+          favorites={favorites}
+          onPlay={setPlaying}
+          onToggleFav={handleToggleFav}
+          contentType={playingType}
+          onSaveProgress={saveProgress}
+          watchProgress={watchProgress}
+          mode={playerMode}
+          onModeChange={setPlayerMode}
+          hasTitlebar={hasCustomTitlebar}
+        />
+      )}
+      <div ref={mainRef} className={`main${hasCustomTitlebar ? " has-titlebar" : ""}${page === "live" && hasContent && !(playing && playerMode === "fullscreen") ? " has-live-side" : ""}`}>
         {loading && (
           <div className="loading-overlay">
             <div className="loading-card">
@@ -349,31 +386,6 @@ export default function App() {
               <p className="loading-step">{loadingStep}</p>
             </div>
           </div>
-        )}
-        {playing && (
-          <Player
-            channel={playing}
-            onClose={() => {
-              // Live TV: closing the fullscreen view drops back to the inline
-              // side-panel rather than tearing the player down. From inline
-              // mode, X fully closes. Movies/series always close fully.
-              if (playingType === "live" && playerMode === "fullscreen") {
-                setPlayerMode("inline");
-              } else {
-                setPlaying(null);
-              }
-            }}
-            channels={channels}
-            groups={groups}
-            favorites={favorites}
-            onPlay={setPlaying}
-            onToggleFav={handleToggleFav}
-            contentType={playingType}
-            onSaveProgress={saveProgress}
-            watchProgress={watchProgress}
-            mode={playerMode}
-            onModeChange={setPlayerMode}
-          />
         )}
         <div className="pages-container" style={{ display: loading ? "none" : "contents" }}>
           <div style={{ display: page === "home" ? "contents" : "none" }}>
@@ -389,6 +401,8 @@ export default function App() {
               watchProgress={watchProgress}
               onOpenSeries={handleOpenSeries}
               onOpenSearch={handleOpenSearch}
+              favorites={favorites}
+              onToggleFav={handleToggleFav}
             />
           </div>
           <div style={{ display: page === "live" ? "contents" : "none" }}>

@@ -1,7 +1,16 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { SearchIcon, StarIcon, MonitorIcon } from "../components/Icons";
+import Billboard from "../components/Billboard";
+import Shelf from "../components/Shelf";
+import PreviewCard from "../components/PreviewCard";
 
 const BATCH_SIZE = 40;
+const BROWSE_GROUP_CAP = 12;
+const SHELF_ITEM_CAP = 20;
+
+// IPTV titles often carry a "EN - " / "AR | " language/country prefix — strip it
+// for display so the billboard title and episode rows read cleanly.
+const stripPrefix = (s) => (s || "").replace(/^[A-Za-z]{2,4}\s*[-|:]\s*/, "").trim();
 
 // Keyboard activation helper (spec §2.9)
 const onActivate = (fn) => (e) => {
@@ -141,7 +150,7 @@ function SeriesDetail({ show, xtreamCreds, onPlay, onBack, isFav, onToggleFav, w
       <div className="series-detail-header">
         {show.poster && <img src={show.poster} alt="" className="series-detail-poster" />}
         <div className="series-detail-info">
-          <h1 className="series-detail-title">{show.name}</h1>
+          <h1 className="series-detail-title">{stripPrefix(show.name)}</h1>
           {show.genre && <span className="series-detail-meta">{show.genre}</span>}
           {show.releaseDate && <span className="series-detail-meta">{show.releaseDate}</span>}
           {show.rating && <span className="series-detail-meta">Rating: {show.rating}</span>}
@@ -179,11 +188,17 @@ function SeriesDetail({ show, xtreamCreds, onPlay, onBack, isFav, onToggleFav, w
             {(() => {
               const { baseUrl, username, password } = xtreamCreds;
               const lastEp = getLastEpisode(show.seriesId, watchProgress);
+              const seriesClean = stripPrefix(show.name).toLowerCase();
               return episodes.map((ep) => {
                 const epUrl = `${baseUrl}/series/${username}/${password}/${ep.id}.${ep.container_extension || "mkv"}`;
                 const prog = watchProgress?.[epUrl];
                 const isLastWatched = lastEp && lastEp.ep === ep.episode_num && lastEp.season === ep.season;
                 const isWatched = prog && prog.position > prog.duration * 0.9;
+                // Providers usually repeat the series name as the episode "title"
+                // ("EN - My Wife and Kids - S01E01"). Strip it down to a real title,
+                // or fall back to a clean "Episode N".
+                const epClean = stripPrefix(ep.title).replace(/\s*[-–|]\s*S\d{1,2}\s*E\d{1,3}.*$/i, "").trim();
+                const epTitle = (!epClean || epClean.toLowerCase() === seriesClean) ? `Episode ${ep.episode_num}` : epClean;
                 return (
                   <div
                     key={ep.id}
@@ -199,7 +214,7 @@ function SeriesDetail({ show, xtreamCreds, onPlay, onBack, isFav, onToggleFav, w
                     {!ep.info?.movie_image && <span className="episode-num">E{ep.episode_num}</span>}
                     <div className="episode-info">
                       <span className="episode-label">E{ep.episode_num}</span>
-                      <span className="episode-title">{ep.title || `Episode ${ep.episode_num}`}</span>
+                      <span className="episode-title">{epTitle}</span>
                       {ep.info?.duration && <span className="episode-duration">{ep.info.duration}</span>}
                       {isLastWatched && <span className="episode-last-label">Continue watching</span>}
                       {prog && prog.position > 10 && !isWatched && (
@@ -238,8 +253,11 @@ function SeriesPage({ series, groups, xtreamCreds, onPlay, favorites, onToggleFa
   const [groupFilter, setGroupFilter] = useState("");
   const [activeGroup, setActiveGroup] = useState(null);
   const [selectedShow, setSelectedShow] = useState(null);
+  const [browseMode, setBrowseMode] = useState(true);
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
   const listRef = useRef(null);
+
+  const openShow = useCallback((s) => setSelectedShow(s), []);
 
   // Handle deep-link from favorites
   useEffect(() => {
@@ -293,6 +311,15 @@ function SeriesPage({ series, groups, xtreamCreds, onPlay, favorites, onToggleFa
     }
   }, [filtered.length]);
 
+  // Browse-mode shelves: one shelf per group (capped), each with up to N shows.
+  const browseShelves = useMemo(() => {
+    const shelfGroups = groups.slice(0, BROWSE_GROUP_CAP);
+    return shelfGroups.map((g) => ({
+      group: g,
+      items: series.filter((s) => s.group === g).slice(0, SHELF_ITEM_CAP),
+    }));
+  }, [groups, series]);
+
   if (selectedShow) {
     return (
       <SeriesDetail
@@ -311,6 +338,37 @@ function SeriesPage({ series, groups, xtreamCreds, onPlay, favorites, onToggleFa
         <MonitorIcon />
         <h2>No series available</h2>
         <p>Add a playlist with series content to browse shows</p>
+      </div>
+    );
+  }
+
+  if (browseMode) {
+    return (
+      <div className="series-browse fade-in">
+        <Billboard
+          item={series[0]}
+          kind="series"
+          onPlay={openShow}
+          onMoreInfo={openShow}
+        />
+        {browseShelves.map(({ group, items }) => (
+          <Shelf
+            key={group}
+            title={group}
+            items={items}
+            onSeeAll={() => { setActiveGroup(group); setBrowseMode(false); }}
+            renderItem={(s) => (
+              <PreviewCard
+                item={s}
+                kind="series"
+                isFav={!!favorites[s.seriesId]}
+                onPlay={openShow}
+                onDetail={openShow}
+                onToggleFav={onToggleFav}
+              />
+            )}
+          />
+        ))}
       </div>
     );
   }
@@ -347,6 +405,7 @@ function SeriesPage({ series, groups, xtreamCreds, onPlay, favorites, onToggleFa
 
       <div className="channels-panel">
         <div className="channels-panel-header">
+          <button className="btn btn-secondary btn-sm" onClick={() => setBrowseMode(true)}>&larr; All series</button>
           <h1 className="channels-panel-title">{activeGroup || "Series"}</h1>
           <span className="channel-count">{filtered.length} shows</span>
         </div>

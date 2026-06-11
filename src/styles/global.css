@@ -96,6 +96,22 @@
 
   /* ── Rest-state visibility (nothing sits at opacity 0) ── */
   --rest-opacity: 0.35;  /* fav stars, remove buttons, secondary reveals at rest */
+
+  /* ── Netflix rehaul ── */
+  --topnav-h: 68px;                /* fixed top nav height */
+  --topnav-pad-x: 32px;           /* = --page-pad-x; nav horizontal padding */
+  --inline-player-w: clamp(380px, 40vw, 640px);          /* live inline player + side slot width */
+  --inline-player-h: calc((var(--inline-player-w) - 32px) * 9 / 16);  /* 16:9 — no letterbox */
+  --hero-h: 62vh;                 /* billboard height; min/max clamped in CSS */
+  --hero-h-min: 420px;
+  --hero-h-max: 720px;
+  --rail-pad: 32px;               /* shelf horizontal inset = page gutter */
+  --shelf-gap: 8px;               /* gap between cards in a shelf */
+  --card-w: 188px;                /* base shelf card width (landscape-ish poster tile) */
+  --card-w-hover: 320px;          /* expanded preview-card width on hover */
+  --card-ar: 2 / 3;               /* poster aspect ratio (reuse poster anatomy) */
+  --preview-pop: 1.18;            /* hover scale factor for PreviewCard — kept small so the scaled card stays within the shelf's vertical breathing band (no scrollbar) */
+  --edge-fade: 48px;              /* shelf left/right fade-mask width */
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -144,58 +160,91 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 .titlebar-btn:hover { background: rgba(255,255,255,0.08); }
 .titlebar-close:hover { background: var(--danger); color: #fff; }
 
-/* ── Sidebar ── */
-.sidebar {
-  position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w);
-  background: var(--glass); backdrop-filter: var(--glass-blur);
-  border-right: 1px solid var(--glass-border);
-  display: flex; flex-direction: column; align-items: center;
-  padding: 44px 0 12px;   /* ≥40px top clears macOS traffic lights — keep on ALL platforms */
-  z-index: 100; gap: 4px;
+/* ── Top Nav (Netflix-style fixed top bar) ── */
+.topnav {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--topnav-h);
+  z-index: 100;                       /* same slot the sidebar held */
+  display: flex; align-items: center; gap: var(--sp-6);
+  padding: 0 var(--topnav-pad-x);
+  background: transparent;            /* transparent over hero */
+  border-bottom: 1px solid transparent;
+  transition: background var(--t-base) var(--ease),
+              border-color var(--t-base) var(--ease),
+              backdrop-filter var(--t-base) var(--ease);
+  -webkit-app-region: drag;          /* draggable; interactive children opt out */
 }
-.sidebar-logo {
-  width: 36px; height: 36px; border-radius: var(--r-sm);
+.topnav.is-scrolled {
+  background: var(--glass-heavy);
+  backdrop-filter: var(--glass-blur);
+  border-bottom-color: var(--glass-border);
+}
+/* When a page has no billboard (Live, Settings, Favorites, welcome), the nav is
+   solid from the start so links stay legible over flat surfaces. */
+.topnav.is-solid {
+  background: var(--glass-heavy);
+  backdrop-filter: var(--glass-blur);
+  border-bottom-color: var(--glass-border);
+}
+/* macOS: clear the three traffic lights (titleBarStyle hiddenInset, no custom titlebar) */
+.topnav.is-mac { padding-left: 88px; }
+/* win32/linux: the custom <WindowTitlebar> owns top:0; the nav drops below it */
+.topnav.has-titlebar { top: var(--titlebar-h); }
+
+.topnav-brand {
+  display: flex; align-items: center; gap: 10px;
+  border: none; background: none; cursor: pointer; padding: 0;
+  -webkit-app-region: no-drag;
+}
+.topnav-logo {
+  width: 28px; height: 28px; border-radius: var(--r-sm);
   background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #7a1fd0));
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display); font-size: 16px; letter-spacing: 1px;
-  color: #fff; cursor: pointer; margin-bottom: 8px;
+  font-family: var(--font-display); font-size: 14px; letter-spacing: 1px;
+  color: #fff;
   transition: transform var(--t-base) var(--ease), box-shadow var(--t-base) var(--ease);
 }
-.sidebar-logo:hover { transform: scale(1.08); box-shadow: var(--el-accent); }
-.sidebar-sep { width: 28px; height: 1px; background: var(--glass-border); margin: 10px auto; }
-.sidebar-nav { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
-.sidebar-btn {
-  position: relative; width: 48px; height: 48px; border-radius: var(--r-md);
-  border: none; background: transparent; color: var(--text3);
+.topnav-brand:hover .topnav-logo { transform: scale(1.08); box-shadow: var(--el-accent); }
+.topnav-wordmark {
+  font-family: var(--font-display); font-size: 20px; letter-spacing: 2px;
+  color: var(--text); line-height: 1;
+}
+
+.topnav-links { display: flex; align-items: center; gap: var(--sp-5); margin-left: 24px; }
+.topnav-link {
+  background: none; border: none; cursor: pointer;
+  font: 500 14px/1 var(--font-body); color: var(--text2);
+  padding: 6px 2px; position: relative;
+  transition: color var(--t-fast) var(--ease);
+  -webkit-app-region: no-drag;
+}
+.topnav-link:hover { color: var(--text); }
+.topnav-link.active { color: var(--text); font-weight: 600; }
+.topnav-link.active::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px;
+  border-radius: 2px; background: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.topnav-actions { margin-left: auto; display: flex; align-items: center; gap: var(--sp-3); }
+.topnav-icon-btn {
+  width: 40px; height: 40px; border-radius: var(--r-pill);
+  border: none; background: transparent; color: var(--text2);
   cursor: pointer; display: flex; align-items: center; justify-content: center;
   transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+  -webkit-app-region: no-drag;
 }
-.sidebar-btn svg { width: 22px; height: 22px; }
-.sidebar-btn:hover { background: rgba(255,255,255,0.07); color: var(--text); }
-.sidebar-btn.active { background: var(--accent-soft); color: var(--accent-text); }
-.sidebar-btn.active::before {
-  content: ""; position: absolute; left: -12px; top: 25%; height: 50%; width: 3px;
-  border-radius: 0 3px 3px 0; background: var(--accent);
-  box-shadow: 0 0 12px var(--accent-glow);
-}
-.sidebar-tooltip {
-  position: absolute; left: 64px; top: 50%; transform: translateY(-50%);
-  background: var(--glass-heavy); backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border); border-radius: var(--r-sm);
-  color: var(--text); padding: 6px 12px;
-  font-size: var(--fs-caption); font-weight: 500; box-shadow: var(--el-2);
-  white-space: nowrap; pointer-events: none; opacity: 0;
-  transition: opacity var(--t-fast) var(--ease); z-index: 200;
-}
-.sidebar-btn:hover .sidebar-tooltip,
-.sidebar-btn:focus-visible .sidebar-tooltip { opacity: 1; }
+.topnav-icon-btn svg { width: 20px; height: 20px; }
+.topnav-icon-btn:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+.topnav-icon-btn.active { color: var(--accent-text); }
 
 /* ── Main ── */
 .main {
   --inline-player-w: clamp(380px, 40vw, 640px);
   position: relative; isolation: isolate;
-  margin-left: var(--sidebar-w); min-height: 100vh;
-  padding: var(--page-pad-y) var(--page-pad-x); overflow-y: auto;
+  margin-left: 0; min-height: 100vh;
+  padding: var(--page-pad-y) var(--page-pad-x);
+  padding-top: calc(var(--topnav-h) + var(--page-pad-y));  /* clear fixed nav */
+  overflow-y: auto;
   scrollbar-gutter: stable;
 }
 /* Ambient accent canvas — paints behind page content (z-index -1 + isolation) */
@@ -205,7 +254,11 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
     radial-gradient(1200px 600px at 18% -10%, var(--accent-ambient), transparent 60%),
     radial-gradient(900px 500px at 110% 110%, rgba(60,60,120,0.07), transparent 60%);
 }
-.main.has-titlebar { margin-top: var(--titlebar-h); min-height: calc(100vh - var(--titlebar-h)); }
+.main.has-titlebar {
+  /* nav sits below titlebar, so content must clear BOTH */
+  padding-top: calc(var(--titlebar-h) + var(--topnav-h) + var(--page-pad-y));
+  min-height: calc(100vh - var(--titlebar-h));
+}
 /* Reserve space on the right for the live side panel so the channels list narrows
    instead of being overlapped. Applied whenever the live side panel is rendered
    (i.e. on the Live page) — even when no channel is playing, the slot is held. */
@@ -213,8 +266,15 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 
 /* ── Browse Layout (groups left, channels right) ── */
 .browse-layout {
-  display: flex; height: calc(100vh - 2 * var(--page-pad-y)); gap: 0;
+  display: flex;
+  /* Fill the .main content box exactly: viewport minus the fixed top nav and
+     the page's own top+bottom padding. (Stale calc here was --topnav-h too tall,
+     overflowing .main and sliding the channel list under the fixed inline player.) */
+  height: calc(100vh - var(--topnav-h) - 2 * var(--page-pad-y)); gap: 0;
   animation: fadeIn 320ms var(--ease-out);
+}
+.main.has-titlebar .browse-layout {
+  height: calc(100vh - var(--titlebar-h) - var(--topnav-h) - 2 * var(--page-pad-y));
 }
 .groups-panel {
   width: 260px; flex-shrink: 0;
@@ -417,11 +477,13 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 
 /* ── Player Fullscreen ── */
 .player-fullscreen {
-  position: fixed; top: 0; right: 0; bottom: 0; left: var(--sidebar-w);
+  position: fixed; top: 0; right: 0; bottom: 0; left: 0;
   display: flex; flex-direction: column;
-  background: #000; z-index: 50;
+  background: #000; z-index: 10001;   /* covers the nav (100) and titlebar (10000) */
 }
-.main.has-titlebar .player-fullscreen { top: var(--titlebar-h); }
+/* win/linux: keep the custom titlebar's window controls reachable during
+   fullscreen by offsetting the player below the 32px titlebar only. */
+.player-fullscreen.has-titlebar { top: var(--titlebar-h); }
 
 /* Inline mode: pinned to the top-right, takes only the top half of the side
    slot. Width matches the --inline-player-w padding the parent .main reserves.
@@ -429,11 +491,11 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 .player-fullscreen.player-inline {
   left: auto;
   bottom: auto;
-  top: 16px;
+  top: calc(var(--topnav-h) + 16px);
   right: 16px;
-  width: calc(var(--inline-player-w, clamp(380px, 40vw, 640px)) - 32px);
-  height: calc(50vh - 24px);
-  z-index: 49;
+  z-index: 49;   /* below the nav (100) — browse with nav visible */
+  width: calc(var(--inline-player-w) - 32px);
+  height: var(--inline-player-h);   /* clean 16:9 — no letterbox bars */
   border-radius: var(--r-lg);
   overflow: hidden;
   border: 1px solid var(--glass-border);
@@ -442,9 +504,8 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
   container-type: inline-size;
   container-name: player;
 }
-.main.has-titlebar .player-fullscreen.player-inline {
-  top: calc(16px + var(--titlebar-h));
-  height: calc(50vh - 40px);
+.player-fullscreen.player-inline.has-titlebar {
+  top: calc(var(--titlebar-h) + var(--topnav-h) + 16px);
 }
 
 /* ── Live Side Panel ──
@@ -453,16 +514,19 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
    Bottom half holds related-content navigation. */
 .live-side-panel {
   position: fixed;
-  top: 0; right: 0; bottom: 0;
+  top: var(--topnav-h); right: 0; bottom: 0;
   width: var(--inline-player-w, clamp(380px, 40vw, 640px));
   display: flex;
   flex-direction: column;
   z-index: 5;
   pointer-events: none;
 }
-.main.has-titlebar .live-side-panel { top: var(--titlebar-h); }
+.main.has-titlebar .live-side-panel { top: calc(var(--titlebar-h) + var(--topnav-h)); }
 .live-side-top {
-  height: 50vh;
+  /* Matches the inline player exactly (16:9 + the player's 16/8 vertical margins)
+     so, when playing, the player covers this slot and the now-playing card below
+     never peeks out underneath it. */
+  height: calc(var(--inline-player-h) + 24px);
   flex: none;
   pointer-events: auto;
   padding: 16px 16px 8px;
@@ -470,7 +534,6 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
   align-items: stretch;
   justify-content: stretch;
 }
-.main.has-titlebar .live-side-top { height: calc(50vh - 16px); }
 .live-side-empty-player {
   flex: 1;
   background: radial-gradient(120% 120% at 50% 0%, var(--surface2), var(--surface));
@@ -897,7 +960,7 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 .skeleton-bar { height: 12px; border-radius: var(--r-pill); flex: 1; max-width: 65%; }
 .skeleton-bar-sm { height: 10px; border-radius: var(--r-pill); flex: 1; max-width: 40%; }
 .skeleton-poster { aspect-ratio: 2 / 3; border-radius: var(--r-md); }
-.skeleton-thumb { width: 120px; height: 68px; border-radius: var(--r-sm); flex-shrink: 0; }
+.skeleton-thumb { width: 140px; height: 79px; border-radius: var(--r-sm); flex-shrink: 0; }
 .skeleton-ep-row {
   display: flex; align-items: center; gap: 16px;
   padding: 12px; margin-bottom: 8px; border-radius: var(--r-md);
@@ -1197,94 +1260,229 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 
 /* ── Home Dashboard ── */
 .home-dashboard { animation: fadeIn 320ms var(--ease-out); }
-/* Header row: wordmark + sub left, search hint right */
-.home-header {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 16px; margin-bottom: 28px;
-}
-.home-header-left { display: flex; align-items: baseline; gap: 12px; }
-.home-greeting {
-  font-family: var(--font-display); font-size: 28px;
-  letter-spacing: 1px; color: var(--text); margin-bottom: 4px;
-}
-.home-sub { font-size: var(--fs-caption); color: var(--text3); margin-bottom: 28px; }
-.home-header .home-greeting,
-.home-header .home-sub { margin-bottom: 0; }
-.home-search-hint {
-  display: inline-flex; align-items: center; gap: 10px;
-  padding: 8px 14px; border-radius: var(--r-pill);
-  background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
-  color: var(--text3); cursor: pointer;
-  font: 400 13px/1 var(--font-body); white-space: nowrap;
-  transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease),
-              border-color var(--t-fast) var(--ease);
-}
-.home-search-hint:hover {
-  background: rgba(255,255,255,0.08); color: var(--text2);
-  border-color: var(--border-strong);
-}
-.home-cards {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--sp-4); margin-bottom: 40px;
-}
-.home-card {
-  position: relative; display: flex; flex-direction: column;
-  justify-content: flex-end;
-  padding: 28px 24px; min-height: 132px;
-  background: linear-gradient(135deg, var(--surface2), var(--surface));
-  border: 1px solid var(--glass-border); border-radius: var(--r-lg);
-  cursor: pointer; overflow: hidden;
-  transition: transform var(--t-base) var(--ease), border-color var(--t-base) var(--ease),
-              box-shadow var(--t-base) var(--ease);
-}
-.home-card::before {
-  content: ""; position: absolute; top: -30px; right: -30px;
-  width: 100px; height: 100px; border-radius: 50%;
-  background: var(--accent-ambient); opacity: 0.7;
-  transition: all var(--t-slow) var(--ease);
-}
-.home-card:hover {
-  border-color: var(--accent-soft); transform: translateY(-3px);
-  box-shadow: var(--el-2);
-}
-.home-card:hover::before {
-  width: 140px; height: 140px; opacity: 1;
-}
-.home-card-icon {
-  width: 44px; height: 44px; border-radius: 12px;
-  background: var(--accent-soft); color: var(--accent-text);
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 16px; z-index: 1;
-}
-.home-card-info { z-index: 1; }
-.home-card-title {
-  font-family: var(--font-display); font-size: 26px;
-  letter-spacing: 1px; color: var(--text); display: block;
-}
-.home-card-count { font-size: var(--fs-caption); color: var(--text3); display: block; margin-top: 2px; }
+/* Netflix-style browse page roots (billboard + shelves flow containers) */
+.movies-browse,
+.series-browse { animation: fadeIn 320ms var(--ease-out); }
 
-.home-section { position: relative; margin-bottom: 32px; }
-.home-section-header {
+/* ── Billboard hero ──
+   Full-bleed backdrop that bleeds UP under the transparent topnav and edge-to-edge
+   past the page gutter. Negative margins cancel .main's top padding + side gutter. */
+.billboard {
+  position: relative;
+  height: clamp(var(--hero-h-min), var(--hero-h), var(--hero-h-max));
+  margin-top: calc(-1 * (var(--topnav-h) + var(--page-pad-y)));
+  margin-left: calc(-1 * var(--page-pad-x));
+  margin-right: calc(-1 * var(--page-pad-x));
+  margin-bottom: var(--sp-6);
+  display: flex; align-items: flex-end;
+  overflow: hidden; isolation: isolate;
+}
+.main.has-titlebar .billboard {
+  margin-top: calc(-1 * (var(--titlebar-h) + var(--topnav-h) + var(--page-pad-y)));
+}
+.billboard-bg { position: absolute; inset: 0; z-index: -2; }
+.billboard-bg-img {
+  width: 100%; height: 100%; object-fit: cover;
+  filter: brightness(0.7);
+}
+.billboard-bg-fallback {
+  width: 100%; height: 100%;
+  background:
+    radial-gradient(120% 120% at 75% 25%, var(--accent-ambient), transparent 60%),
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 16%, var(--surface2)), var(--bg-deep));
+}
+.billboard-scrim {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    linear-gradient(to top, var(--bg) 0%, transparent 40%),
+    linear-gradient(90deg, var(--bg-deep) 0%,
+      color-mix(in srgb, var(--bg-deep) 40%, transparent) 45%, transparent 75%);
+}
+.billboard-content {
+  position: relative; z-index: 1;
+  padding: 0 var(--page-pad-x) var(--sp-8);
+  max-width: 720px;
+}
+.billboard-title {
+  font: 400 clamp(40px, 5vw, 72px)/1 var(--font-display);
+  letter-spacing: 1px; color: var(--text);
+  margin-bottom: var(--sp-4);
+  text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+}
+.billboard-meta {
+  display: flex; align-items: center; flex-wrap: wrap;
+  gap: var(--sp-3); margin-bottom: var(--sp-3);
+}
+.billboard-meta-item {
+  font: 600 var(--fs-caption)/1.2 var(--font-body);
+  color: var(--text2);
+}
+.billboard-meta-item:not(:last-child)::after {
+  content: "\2022"; margin-left: var(--sp-3); color: var(--text-faint);
+}
+.billboard-desc {
+  font: 400 var(--fs-body)/1.6 var(--font-body);
+  color: var(--text2); max-width: 540px;
+  margin-bottom: var(--sp-5);
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+}
+.billboard-actions { display: flex; align-items: center; gap: var(--sp-3); }
+.billboard-actions .btn svg { width: 20px; height: 20px; }
+
+/* ── Shelf (horizontal scroller) ── */
+.shelf { margin-bottom: var(--sp-7); }
+.shelf-header {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: var(--sp-3);
 }
-.home-section-title {
-  font: 600 var(--fs-title)/1.2 var(--font-body);
-  color: var(--text);
-}
-.home-see-all {
-  background: none; border: none; color: var(--text3);
-  cursor: pointer; font-size: var(--fs-caption); font-weight: 500;
-  font-family: var(--font-body);
+.shelf-title { font: 600 var(--fs-title)/1.2 var(--font-body); color: var(--text); }
+.shelf-see-all {
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); font: 500 var(--fs-caption)/1 var(--font-body);
   transition: color var(--t-fast) var(--ease);
 }
-.home-see-all::after {
+.shelf-see-all::after {
   content: "\2192"; display: inline-block; margin-left: 4px;
   opacity: 0; transform: translateX(-3px);
   transition: opacity var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
 }
-.home-see-all:hover { color: var(--accent-text); text-decoration: none; }
-.home-see-all:hover::after { opacity: 1; transform: translateX(0); }
+.shelf-see-all:hover { color: var(--accent-text); }
+.shelf-see-all:hover::after { opacity: 1; transform: translateX(0); }
+
+.shelf-viewport {
+  position: relative;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--edge-fade),
+    #000 calc(100% - var(--edge-fade)), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 var(--edge-fade),
+    #000 calc(100% - var(--edge-fade)), transparent);
+}
+/* The fade-mask would clip a popped preview card — disable it while hovering/focused */
+.shelf-viewport:has(.preview-card:hover),
+.shelf-viewport:has(.preview-card:focus-within) {
+  -webkit-mask-image: none; mask-image: none;
+}
+.shelf-track {
+  display: flex; gap: var(--shelf-gap);
+  overflow-x: auto; overflow-y: visible;
+  /* No mandatory snap — it grabs vertical/diagonal trackpad gestures and makes
+     page scroll feel blocked. Free scroll; chevrons still page through. */
+  scroll-padding-left: var(--rail-pad);
+  /* Small vertical band — just enough for the contained hover pop. (Was 60px,
+     which overlapped the whole page and made every wheel land on a shelf.) */
+  padding-block: 28px; margin-block: -28px;
+  scrollbar-width: none;
+  /* keep horizontal overscroll from chaining to the page (smoother row ends) */
+  overscroll-behavior-x: contain;
+}
+.shelf-track::-webkit-scrollbar { display: none; }
+.shelf-track:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+.shelf-item { scroll-snap-align: start; flex-shrink: 0; }
+
+.shelf-chevron {
+  position: absolute; top: 0; bottom: 0; z-index: 22;
+  width: 48px; display: flex; align-items: center; justify-content: center;
+  border: none; cursor: pointer;
+  color: var(--text);
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--t-fast) var(--ease);
+}
+.shelf-chevron-left {
+  left: 0;
+  background: linear-gradient(to right, var(--bg-deep), transparent);
+  justify-content: flex-start; padding-left: 4px;
+}
+.shelf-chevron-right {
+  right: 0;
+  background: linear-gradient(to left, var(--bg-deep), transparent);
+  justify-content: flex-end; padding-right: 4px;
+}
+.shelf-chevron span,
+.shelf-chevron svg { width: 28px; height: 28px; }
+.shelf-viewport:hover .shelf-chevron { opacity: 0.85; pointer-events: auto; }
+.shelf-chevron:hover { opacity: 1; }
+/* Don't show chevrons over a popped card (mask is off then, card is on top) */
+.shelf-viewport:has(.preview-card:hover) .shelf-chevron { opacity: 0; pointer-events: none; }
+
+/* ── PreviewCard (hover-expand) — layers on top of shared .poster-card anatomy ── */
+.preview-card {
+  width: var(--card-w); position: relative;
+  border-radius: var(--r-md);
+}
+.preview-card .poster-img-wrap {
+  transform-origin: center;
+  transition: transform var(--t-base) var(--ease-spring),
+              box-shadow var(--t-base) var(--ease);
+}
+.preview-card:hover, .preview-card:focus-within { z-index: 20; }
+/* .preview-card is ALSO a .poster-card; use the compound selector so this pop
+   beats the base `.poster-card:hover .poster-img-wrap` rule defined later in the
+   file (equal specificity would otherwise let the base 1.045 scale win). */
+.preview-card.poster-card:hover .poster-img-wrap,
+.preview-card.poster-card:focus-within .poster-img-wrap {
+  transform: scale(var(--preview-pop));
+  box-shadow: var(--el-3), 0 0 0 2px var(--accent-soft);
+}
+/* keep the base hover scrim off so the preview panel's own gradient reads cleanly */
+.preview-card.poster-card:hover .poster-img-wrap::after,
+.preview-card.poster-card:focus-within .poster-img-wrap::after { opacity: 0; }
+
+/* Overlays the bottom of the artwork (inside .poster-img-wrap, which is
+   overflow:hidden) so the whole hover effect stays within the card and never
+   overflows the horizontal shelf into a scrollbar. */
+.preview-panel {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 26px 12px 12px;
+  background: linear-gradient(to top, rgba(7,7,10,0.94) 35%, rgba(7,7,10,0.6) 70%, transparent);
+  opacity: 0; transform: translateY(10px);
+  transition: opacity var(--t-fast) var(--ease), transform var(--t-base) var(--ease-out);
+  pointer-events: none;
+  z-index: 3;
+}
+.preview-card:hover .preview-panel,
+.preview-card:focus-within .preview-panel { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+/* Edge anti-clip: first/last items grow inward so the scaled card doesn't
+   spill past the shelf edge. */
+.shelf-item:first-child .preview-card:hover .poster-img-wrap,
+.shelf-item:first-child .preview-card:focus-within .poster-img-wrap {
+  transform-origin: left center;
+}
+.shelf-item:last-child .preview-card:hover .poster-img-wrap,
+.shelf-item:last-child .preview-card:focus-within .poster-img-wrap {
+  transform-origin: right center;
+}
+
+.preview-panel-actions {
+  display: flex; align-items: center; gap: var(--sp-2);
+  margin-bottom: 2px;
+}
+.preview-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.12); border: 1px solid var(--glass-border);
+  color: var(--text); cursor: pointer;
+  transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease),
+              transform var(--t-fast) var(--ease);
+}
+.preview-btn svg { width: 18px; height: 18px; }
+.preview-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.08); }
+.preview-btn-play {
+  background: #fff; color: #111; border-color: transparent;
+}
+.preview-btn-play:hover { background: #fff; color: #111; }
+.preview-btn.is-fav { color: var(--fav); }
+.preview-btn-more { margin-left: auto; }
+.preview-panel-title {
+  font: 600 var(--fs-subtitle)/1.3 var(--font-body); color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.preview-panel-meta {
+  font: 400 var(--fs-caption)/1.3 var(--font-body); color: var(--text3);
+  margin-top: 2px;
+}
 
 /* ── Poster Cards (Home shelves, Movies, Series, Favorites — ONE anatomy) ── */
 .poster-row {
@@ -1293,8 +1491,10 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
   padding: 8px 4px 12px; margin: -8px -4px -12px;
 }
 .poster-row::-webkit-scrollbar { height: 4px; }
-/* Right edge-fade scroll affordance (sticky flex item — scroll-container safe) */
-.poster-row::after, .season-tabs::after {
+/* Right edge-fade scroll affordance (sticky flex item — scroll-container safe).
+   Only on .poster-row: the season tabs rarely overflow, so this would just paint
+   a dark gradient block over the last (often active) tab. */
+.poster-row::after {
   content: ""; position: sticky; right: 0;
   flex: 0 0 56px; margin-left: -56px; align-self: stretch;
   background: linear-gradient(to right, transparent, var(--bg));
@@ -1315,7 +1515,7 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 .poster-row .poster-card { width: 140px; flex-shrink: 0; }
 .poster-img-wrap {
   position: relative; border-radius: var(--r-md); overflow: hidden;
-  aspect-ratio: 2 / 3; background: var(--surface2);
+  aspect-ratio: var(--card-ar); background: var(--surface2);
   box-shadow: var(--el-1); border: 1px solid rgba(255,255,255,0.05);
   transition: transform var(--t-base) var(--ease-spring), box-shadow var(--t-base) var(--ease);
 }
@@ -1333,13 +1533,13 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 }
 .poster-card:hover .poster-img-wrap::after { opacity: 1; }
 .poster-img {
-  width: 100%; aspect-ratio: 2/3; object-fit: cover;
+  width: 100%; aspect-ratio: var(--card-ar); object-fit: cover;
   border-radius: var(--r-md); background: var(--surface2);
   display: block;
 }
 /* Fallback tile — accent-tinted, Bebas letter; nth-child variety for logo-less walls */
 .poster-fallback {
-  width: 100%; aspect-ratio: 2/3; border-radius: var(--r-md);
+  width: 100%; aspect-ratio: var(--card-ar); border-radius: var(--r-md);
   background: linear-gradient(150deg,
     color-mix(in srgb, var(--accent) 18%, var(--surface2)), var(--surface));
   display: flex; align-items: center; justify-content: center;
@@ -1370,31 +1570,41 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 
 /* ── Series Detail (billboard) ── */
 .series-detail { position: relative; animation: fadeIn 320ms var(--ease-out); }
-/* Blurred poster backdrop — first child div, render only when show.poster exists */
+/* Blurred poster backdrop — bleeds edge-to-edge AND up under the top nav (no
+   dark gap / hard top edge), then fades to the page on every side so it never
+   reads as a cut-off rectangle. Sits at z-index -1 behind the nav (z100). */
 .series-detail-backdrop {
-  position: absolute; inset: 0 0 auto; height: 380px;
-  z-index: -1; overflow: hidden; pointer-events: none;
+  position: absolute; z-index: -1; overflow: hidden; pointer-events: none;
+  top: calc(-1 * (var(--topnav-h) + var(--page-pad-y)));
+  left: calc(-1 * var(--page-pad-x)); right: calc(-1 * var(--page-pad-x));
+  height: clamp(560px, 76vh, 840px);
+}
+.main.has-titlebar .series-detail-backdrop {
+  top: calc(-1 * (var(--titlebar-h) + var(--topnav-h) + var(--page-pad-y)));
 }
 .series-detail-backdrop img {
   width: 100%; height: 100%; object-fit: cover;
-  filter: blur(48px) brightness(0.45) saturate(1.3); transform: scale(1.2);
+  filter: blur(70px) brightness(0.5) saturate(1.15); transform: scale(1.35);
 }
 .series-detail-backdrop::after {
   content: ""; position: absolute; inset: 0;
-  background: linear-gradient(to bottom, transparent, var(--bg) 92%);
+  background:
+    linear-gradient(to right, var(--bg) 2%, rgba(11,11,15,0.55) 40%, rgba(11,11,15,0.12) 72%, transparent 92%),
+    linear-gradient(to bottom, transparent 38%, var(--bg) 90%);
 }
 .series-detail-top {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 .series-detail-header {
-  display: flex; gap: 24px; margin-bottom: 24px;
+  display: flex; gap: 28px; margin-bottom: 32px; padding-top: 4px;
 }
 .series-detail-poster {
-  width: 200px; border-radius: var(--r-md); box-shadow: var(--el-3);
+  width: 232px; aspect-ratio: 2 / 3; border-radius: var(--r-md);
+  box-shadow: var(--el-3); border: 1px solid var(--glass-border);
   object-fit: cover; flex-shrink: 0;
 }
-.series-detail-info { flex: 1; min-width: 0; }
+.series-detail-info { flex: 1; min-width: 0; max-width: 760px; padding-top: 6px; }
 .series-detail-title {
   font-family: var(--font-display); font-size: var(--fs-display);
   line-height: 1.05; letter-spacing: 0.5px; color: var(--text); margin-bottom: 12px;
@@ -1434,31 +1644,37 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
   background: var(--accent); border-color: transparent; color: #fff;
   box-shadow: var(--el-accent);
 }
+/* Episodes fill the width as a responsive 2–3 column grid of cards instead of
+   sparse full-width rows. */
 .episode-list {
-  display: flex; flex-direction: column; gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 12px;
 }
+@media (max-width: 980px) { .episode-list { grid-template-columns: 1fr; } }
 .episode-row {
-  display: flex; align-items: center; gap: 16px;
-  padding: 12px; border-radius: var(--r-md);
-  cursor: pointer; transition: background var(--t-fast) var(--ease);
-  background: rgba(255,255,255,0.03); border: 1px solid transparent;
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px; border-radius: var(--r-md);
+  cursor: pointer;
+  transition: background var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+  background: var(--surface); border: 1px solid var(--border);
 }
-.episode-row:hover { background: rgba(255,255,255,0.06); }
+.episode-row:hover { background: var(--surface2); border-color: var(--border-strong); transform: translateY(-1px); }
 .episode-num {
-  width: 120px; height: 68px; flex-shrink: 0;
+  width: 140px; height: 79px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display); font-size: 20px;
+  font-family: var(--font-display); font-size: 22px;
   color: var(--text-faint);
   background: var(--surface2); border-radius: var(--r-sm);
 }
 .episode-info { flex: 1; min-width: 0; }
 .episode-title {
-  font-size: 13px; color: var(--text);
+  font-size: var(--fs-subtitle); font-weight: 500; color: var(--text);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   display: block;
 }
 .episode-duration {
-  font-size: 11px; color: var(--text3); margin-top: 2px;
+  font-size: var(--fs-caption); color: var(--text3); margin-top: 3px;
   display: block;
 }
 
@@ -1601,7 +1817,7 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 
 /* ── Episode Thumbnails ── */
 .episode-thumb {
-  width: 120px; height: 68px; border-radius: var(--r-sm);
+  width: 140px; height: 79px; border-radius: var(--r-sm);
   object-fit: cover; flex-shrink: 0;
   background: var(--surface2);
 }

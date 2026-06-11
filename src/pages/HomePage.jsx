@@ -1,13 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { TvIcon, FolderIcon, LinkIcon, FilmIcon, MonitorIcon } from "../components/Icons";
-
-// Keyboard-activation helper for clickable divs (a11y, spec §2.9)
-const onActivate = (fn) => (e) => {
-  if (e.key === "Enter" || e.key === " ") {
-    e.preventDefault();
-    fn();
-  }
-};
+import Billboard from "../components/Billboard";
+import Shelf from "../components/Shelf";
+import PreviewCard from "../components/PreviewCard";
 
 function WelcomeLogo() {
   return (
@@ -57,7 +52,47 @@ function HomePage({
   onOpenSearch,
   hasContent,
   watchProgress,
+  favorites,
+  onToggleFav,
 }) {
+  // Continue Watching — match watchProgress to movies (verbatim from prior logic)
+  const continueItems = useMemo(() => {
+    if (!watchProgress) return [];
+    const items = [];
+    for (const m of movies) {
+      const p = watchProgress[m.url];
+      if (p && p.position > 30 && p.position < p.duration * 0.95) {
+        items.push({ ...m, progress: p, type: "movie" });
+      }
+    }
+    items.sort((a, b) => (b.progress.updatedAt || 0) - (a.progress.updatedAt || 0));
+    return items.slice(0, 10);
+  }, [watchProgress, movies]);
+
+  // Top movie genre rows — first 6 distinct groups by appearance
+  const movieGenres = useMemo(() => {
+    const seen = [];
+    for (const m of movies) {
+      if (m.group && !seen.includes(m.group)) {
+        seen.push(m.group);
+        if (seen.length >= 6) break;
+      }
+    }
+    return seen;
+  }, [movies]);
+
+  // Top series genre rows — first 4 distinct groups by appearance
+  const seriesGenres = useMemo(() => {
+    const seen = [];
+    for (const s of series) {
+      if (s.group && !seen.includes(s.group)) {
+        seen.push(s.group);
+        if (seen.length >= 4) break;
+      }
+    }
+    return seen;
+  }, [series]);
+
   if (!hasContent) {
     return (
       <div className="welcome-page fade-in">
@@ -100,173 +135,85 @@ function HomePage({
     );
   }
 
+  const featured = series[0] || movies[0] || null;
+  const featuredKind = series[0] ? "series" : "movie";
+  const featuredAction = featuredKind === "series" ? onOpenSeries : onPlay;
+
+  const favs = favorites || {};
+  const movieIsFav = (m) => !!favs[m.url || m.streamId];
+  const seriesIsFav = (s) => !!favs[s.seriesId];
+
+  const renderMovieCard = (m) => (
+    <PreviewCard
+      item={m}
+      kind="movie"
+      isFav={movieIsFav(m)}
+      progress={m.progress}
+      onPlay={onPlay}
+      onDetail={onPlay}
+      onToggleFav={onToggleFav}
+    />
+  );
+
+  const renderSeriesCard = (s) => (
+    <PreviewCard
+      item={s}
+      kind="series"
+      isFav={seriesIsFav(s)}
+      onPlay={onOpenSeries}
+      onDetail={onOpenSeries}
+      onToggleFav={onToggleFav}
+    />
+  );
+
   return (
     <div className="home-dashboard fade-in">
-      <div className="home-header">
-        <div className="home-header-left">
-          <h1 className="home-greeting">LiveBox</h1>
-          <p className="home-sub">What would you like to watch?</p>
-        </div>
-        <button type="button" className="home-search-hint" onClick={onOpenSearch}>
-          <span>Search</span>
-          <span className="kbd">⌘K</span>
-        </button>
-      </div>
+      <Billboard
+        item={featured}
+        kind={featuredKind}
+        onPlay={featuredAction}
+        onMoreInfo={featuredAction}
+      />
 
-      <div className="home-cards">
-        {channels.length > 0 && (
-          <div
-            className="home-card"
-            role="button"
-            tabIndex={0}
-            onClick={() => onNavigate("live")}
-            onKeyDown={onActivate(() => onNavigate("live"))}
-          >
-            <div className="home-card-icon"><MonitorIcon /></div>
-            <div className="home-card-info">
-              <span className="home-card-title">Live TV</span>
-              <span className="home-card-count">{channels.length} channels</span>
-            </div>
-          </div>
-        )}
-        {movies.length > 0 && (
-          <div
-            className="home-card"
-            role="button"
-            tabIndex={0}
-            onClick={() => onNavigate("movies")}
-            onKeyDown={onActivate(() => onNavigate("movies"))}
-          >
-            <div className="home-card-icon"><FilmIcon /></div>
-            <div className="home-card-info">
-              <span className="home-card-title">Movies</span>
-              <span className="home-card-count">{movies.length} titles</span>
-            </div>
-          </div>
-        )}
-        {series.length > 0 && (
-          <div
-            className="home-card"
-            role="button"
-            tabIndex={0}
-            onClick={() => onNavigate("series")}
-            onKeyDown={onActivate(() => onNavigate("series"))}
-          >
-            <div className="home-card-icon"><TvIcon size={22} /></div>
-            <div className="home-card-info">
-              <span className="home-card-title">Series</span>
-              <span className="home-card-count">{series.length} shows</span>
-            </div>
-          </div>
-        )}
-      </div>
+      <Shelf
+        title="Continue Watching"
+        items={continueItems}
+        renderItem={renderMovieCard}
+      />
 
-      {watchProgress && (() => {
-        const items = [];
-        // Match progress URLs to movies
-        for (const m of movies) {
-          const p = watchProgress[m.url];
-          if (p && p.position > 30 && p.position < p.duration * 0.95) {
-            items.push({ ...m, progress: p, type: "movie" });
-          }
-        }
-        items.sort((a, b) => (b.progress.updatedAt || 0) - (a.progress.updatedAt || 0));
-        if (!items.length) return null;
-        return (
-          <div className="home-section">
-            <div className="home-section-header">
-              <h2 className="home-section-title">Continue Watching</h2>
-            </div>
-            <div className="poster-row">
-              {items.slice(0, 10).map((item) => (
-                <div
-                  key={item.url}
-                  className="poster-card"
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => onPlay(item)}
-                  onKeyDown={onActivate(() => onPlay(item))}
-                >
-                  <div className="poster-img-wrap">
-                    {item.poster ? (
-                      <img src={item.poster} alt="" loading="lazy" className="poster-img" />
-                    ) : (
-                      <div className="poster-fallback">{item.name.charAt(0)}</div>
-                    )}
-                    <div className="poster-continue">
-                      <div className="poster-continue-text">{Math.floor(item.progress.position / 60)}m watched</div>
-                      <div className="poster-continue-bar">
-                        <div className="poster-continue-fill" style={{ width: `${Math.min((item.progress.position / item.progress.duration) * 100, 100)}%` }} />
-                      </div>
-                    </div>
-                  </div>
-                  <span className="poster-name">{item.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      })()}
+      <Shelf
+        title="Recently Added Movies"
+        items={movies.slice(0, 20)}
+        renderItem={renderMovieCard}
+        onSeeAll={() => onNavigate("movies")}
+      />
 
-      {movies.length > 0 && (
-        <div className="home-section">
-          <div className="home-section-header">
-            <h2 className="home-section-title">Recently Added Movies</h2>
-            <button className="home-see-all" onClick={() => onNavigate("movies")}>See all</button>
-          </div>
-          <div className="poster-row">
-            {movies.slice(0, 10).map((m) => (
-              <div
-                key={m.id}
-                className="poster-card"
-                role="button"
-                tabIndex={0}
-                onClick={() => onPlay(m)}
-                onKeyDown={onActivate(() => onPlay(m))}
-              >
-                <div className="poster-img-wrap">
-                  {m.poster ? (
-                    <img src={m.poster} alt="" loading="lazy" className="poster-img" />
-                  ) : (
-                    <div className="poster-fallback">{m.name.charAt(0)}</div>
-                  )}
-                </div>
-                <span className="poster-name">{m.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <Shelf
+        title="Recently Added Series"
+        items={series.slice(0, 20)}
+        renderItem={renderSeriesCard}
+        onSeeAll={() => onNavigate("series")}
+      />
 
-      {series.length > 0 && (
-        <div className="home-section">
-          <div className="home-section-header">
-            <h2 className="home-section-title">Recently Added Series</h2>
-            <button className="home-see-all" onClick={() => onNavigate("series")}>See all</button>
-          </div>
-          <div className="poster-row">
-            {series.slice(0, 10).map((s) => (
-              <div
-                key={s.id}
-                className="poster-card"
-                role="button"
-                tabIndex={0}
-                onClick={() => onOpenSeries(s)}
-                onKeyDown={onActivate(() => onOpenSeries(s))}
-              >
-                <div className="poster-img-wrap">
-                  {s.poster ? (
-                    <img src={s.poster} alt="" loading="lazy" className="poster-img" />
-                  ) : (
-                    <div className="poster-fallback">{s.name.charAt(0)}</div>
-                  )}
-                </div>
-                <span className="poster-name">{s.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {movieGenres.map((g) => (
+        <Shelf
+          key={`mg-${g}`}
+          title={g}
+          items={movies.filter((m) => m.group === g).slice(0, 20)}
+          renderItem={renderMovieCard}
+          onSeeAll={() => onNavigate("movies")}
+        />
+      ))}
+
+      {seriesGenres.map((g) => (
+        <Shelf
+          key={`sg-${g}`}
+          title={g}
+          items={series.filter((s) => s.group === g).slice(0, 20)}
+          renderItem={renderSeriesCard}
+          onSeeAll={() => onNavigate("series")}
+        />
+      ))}
     </div>
   );
 }
