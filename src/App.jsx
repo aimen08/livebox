@@ -98,8 +98,12 @@ export default function App() {
         setSeries(clean.series);
         setSeriesGroups(clean.seriesGroups);
         setLoading(false);
-        // Silent background refresh now that the user can see something
-        if (_savedCreds && window.electron?.fetchURL) {
+        // Silent background refresh — but only when the cache is actually stale.
+        // The full catalog is several MB of JSON; re-downloading and re-parsing
+        // it on EVERY launch makes the whole app feel sluggish for nothing.
+        const CACHE_TTL = 12 * 60 * 60 * 1000; // 12h
+        const stale = !cache.cachedAt || Date.now() - cache.cachedAt > CACHE_TTL;
+        if (stale && _savedCreds && window.electron?.fetchURL) {
           loadXtreamRef.current(_savedCreds.baseUrl, _savedCreds.username, _savedCreds.password, true).catch(() => {});
         }
       } else if (_savedCreds && window.electron?.fetchURL) {

@@ -20,7 +20,7 @@
   --glass: rgba(18, 18, 26, 0.66);
   --glass-heavy: rgba(12, 12, 18, 0.82);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-blur: blur(24px) saturate(1.4);   /* usage: backdrop-filter: var(--glass-blur) */
+  --glass-blur: blur(14px) saturate(1.3);   /* usage: backdrop-filter: var(--glass-blur); kept moderate — large blurs jank scrolling over poster walls */
 
   /* ── Accent (JS applyAccent() overwrites these three at runtime — KEEP names) ── */
   --accent: #e50914;
@@ -1332,7 +1332,13 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 .billboard-actions .btn svg { width: 20px; height: 20px; }
 
 /* ── Shelf (horizontal scroller) ── */
-.shelf { margin-bottom: var(--sp-7); }
+.shelf {
+  margin-bottom: var(--sp-7);
+  /* Skip layout/paint for offscreen shelves — with 10+ shelves of 20 poster
+     cards per page this is the single biggest scroll-perf win. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 360px;
+}
 .shelf-header {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: var(--sp-3);
@@ -1358,11 +1364,9 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
   mask-image: linear-gradient(to right, transparent, #000 var(--edge-fade),
     #000 calc(100% - var(--edge-fade)), transparent);
 }
-/* The fade-mask would clip a popped preview card — disable it while hovering/focused */
-.shelf-viewport:has(.preview-card:hover),
-.shelf-viewport:has(.preview-card:focus-within) {
-  -webkit-mask-image: none; mask-image: none;
-}
+/* NOTE: no `:has(.preview-card:hover)` rules here — ancestor-matching :has()
+   re-evaluates on every mousemove across hundreds of cards and was a measurable
+   hover/scroll jank source. The contained hover pop stays inside the mask. */
 .shelf-track {
   display: flex; gap: var(--shelf-gap);
   overflow-x: auto; overflow-y: visible;
@@ -1402,8 +1406,6 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 .shelf-chevron svg { width: 28px; height: 28px; }
 .shelf-viewport:hover .shelf-chevron { opacity: 0.85; pointer-events: auto; }
 .shelf-chevron:hover { opacity: 1; }
-/* Don't show chevrons over a popped card (mask is off then, card is on top) */
-.shelf-viewport:has(.preview-card:hover) .shelf-chevron { opacity: 0; pointer-events: none; }
 
 /* ── PreviewCard (hover-expand) — layers on top of shared .poster-card anatomy ── */
 .preview-card {
@@ -1584,7 +1586,8 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 }
 .series-detail-backdrop img {
   width: 100%; height: 100%; object-fit: cover;
-  filter: blur(70px) brightness(0.5) saturate(1.15); transform: scale(1.35);
+  /* 48px reads identically at this size; 70px was a scroll-repaint hog */
+  filter: blur(48px) brightness(0.5) saturate(1.15); transform: scale(1.35);
 }
 .series-detail-backdrop::after {
   content: ""; position: absolute; inset: 0;

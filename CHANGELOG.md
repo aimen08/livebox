@@ -16,6 +16,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Accessibility pass: visible focus rings, keyboard activation on all cards/rows, aria-labels on window and sidebar controls, `prefers-reduced-motion` support.
 
 ### Changed
+- Performance: the multi-megabyte catalog is no longer re-downloaded and re-parsed on every launch — the silent background refresh now runs only when the cache is older than 12 hours. Offscreen shelves skip layout/paint entirely (`content-visibility`), the `:has()` hover rules that re-evaluated on every mouse move are gone, and the glass blur radius was reduced. The app feels noticeably snappier on large catalogs.
 - Movies and Series open on a billboard hero plus genre shelves; the group filter switches to the grid view for deep browsing. Live keeps its groups/channels browse layout.
 - Live inline player is now a clean 16:9 panel sized to its slot — no letterbox bars and nothing peeking out underneath it.
 - Series detail backdrop bleeds edge-to-edge and up under the nav, fading on all sides instead of cutting off; episodes are a responsive card grid; provider prefixes (e.g. "EN - ") are stripped from series and episode titles.
