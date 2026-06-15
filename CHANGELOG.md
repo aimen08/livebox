@@ -20,6 +20,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - HomePage re-filtered the entire catalog per genre row on every render; now a single memoized pass.
 - mpv quits cleanly on every exit path (including dev Ctrl+C), preventing orphaned processes that previously held the connection slot (HTTP 458) and left a stray window.
 - Auto-hiding the controls no longer resizes/stretches the video (the dock fades in a fixed reserved strip); removed a stray scrollbar in the player; saved track picks now wait for the track list to populate before applying.
+- Audio/subtitle pickers open as a side panel that shrinks the video beside it (video stays visible) instead of blacking it out; the list scrolls within the panel, not over the video.
 - Release CI: artifact upload is non-fatal (won't block the release on Actions storage quota); cleaned up old workflow artifacts and releases.
 
 ### Chore

@@ -169,13 +169,9 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     return window.electron.onFullscreen(setWinFullscreen);
   }, []);
 
-  // The native video paints above HTML, so a dropdown over it would be hidden.
-  // While an audio/subtitle picker is open we hide the native surface so the
-  // menu shows against a dim backdrop; restore it when the picker closes.
-  useEffect(() => {
-    if (!MPV) return;
-    window.electron.mpv.setVisible(!(showAudioMenu || showSubMenu));
-  }, [showAudioMenu, showSubMenu]);
+  // NOTE: track pickers open as a side panel (see render) that shrinks the video
+  // surface beside it, so the native video stays VISIBLE — we no longer hide it
+  // (which made it go black). The ResizeObserver re-reports the smaller surface.
 
   // ── mpv path (Windows) ──
   const mpvPosRef = useRef(0);
@@ -778,64 +774,70 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
         ref={containerRef}
         onMouseMove={resetControlsTimer}
       >
-        <div className="mpv-stage">
-          {error ? (
-            <div className="player-wrap">
-              <div className="player-error">
-                <div className="player-error-icon" aria-hidden="true">⚠</div>
-                <div className="player-error-name">{channel?.name || "Unknown"}</div>
-                <p>{error}</p>
-                <div className="player-error-actions">
-                  <button className="btn btn-primary" onClick={() => { setError(null); setBuffering(true); setRetryNonce((n) => n + 1); }}>Retry</button>
-                  <button className="btn btn-secondary" onClick={onClose}>Go Back</button>
+        {/* Body row: the video surface, plus a side panel for the track pickers.
+            The panel shrinks the surface beside it (ResizeObserver re-reports the
+            smaller rect), so the native video stays VISIBLE — never goes black,
+            and the menu is over its own non-video area. */}
+        <div className="mpv-body">
+          <div className="mpv-stage">
+            {error ? (
+              <div className="player-wrap">
+                <div className="player-error">
+                  <div className="player-error-icon" aria-hidden="true">⚠</div>
+                  <div className="player-error-name">{channel?.name || "Unknown"}</div>
+                  <p>{error}</p>
+                  <div className="player-error-actions">
+                    <button className="btn btn-primary" onClick={() => { setError(null); setBuffering(true); setRetryNonce((n) => n + 1); }}>Retry</button>
+                    <button className="btn btn-secondary" onClick={onClose}>Go Back</button>
+                  </div>
                 </div>
               </div>
+            ) : (
+              <div className="mpv-surface" ref={mpvSurfaceRef} />
+            )}
+          </div>
+
+          {!error && showAudioMenu && (
+            <div className="mpv-panel" role="menu">
+              <div className="mpv-panel-head">
+                <span className="mpv-panel-title">Audio</span>
+                <button className="player-ctrl-btn" onClick={() => setShowAudioMenu(false)} title="Close" aria-label="Close"><XIcon /></button>
+              </div>
+              <div className="mpv-panel-list">
+                {audioTracks.length === 0 && <div className="mpv-panel-empty">Default audio only</div>}
+                {audioTracks.map((t) => (
+                  <button key={t.id} role="menuitemradio" aria-checked={activeAudioTrack === t.id}
+                    className={`mpv-panel-item${activeAudioTrack === t.id ? " active" : ""}`} onClick={() => pickAudio(t.id)}>
+                    <span className="mpv-panel-item-name">{t.name}</span>
+                    {activeAudioTrack === t.id && <span className="mpv-panel-check">✓</span>}
+                  </button>
+                ))}
+              </div>
             </div>
-          ) : (
-            <div className="mpv-surface" ref={mpvSurfaceRef} />
+          )}
+          {!error && showSubMenu && (
+            <div className="mpv-panel" role="menu">
+              <div className="mpv-panel-head">
+                <span className="mpv-panel-title">Subtitles</span>
+                <button className="player-ctrl-btn" onClick={() => setShowSubMenu(false)} title="Close" aria-label="Close"><XIcon /></button>
+              </div>
+              <div className="mpv-panel-list">
+                <button role="menuitemradio" aria-checked={activeSubTrack === -1}
+                  className={`mpv-panel-item${activeSubTrack === -1 ? " active" : ""}`} onClick={() => pickSub(-1)}>
+                  <span className="mpv-panel-item-name">Off</span>
+                  {activeSubTrack === -1 && <span className="mpv-panel-check">✓</span>}
+                </button>
+                {subtitleTracks.map((t) => (
+                  <button key={t.id} role="menuitemradio" aria-checked={activeSubTrack === t.id}
+                    className={`mpv-panel-item${activeSubTrack === t.id ? " active" : ""}`} onClick={() => pickSub(t.id)}>
+                    <span className="mpv-panel-item-name">{t.name}</span>
+                    {activeSubTrack === t.id && <span className="mpv-panel-check">✓</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
         </div>
-
-        {/* Track pickers open as dropdowns over the video. Because the native
-            video paints above HTML, we hide it (mpv-menu-open effect) while a
-            menu is open so the dropdown is visible against a dim backdrop. */}
-        {!error && menuOpen && (
-          <div className="mpv-menu-backdrop" onClick={() => { setShowAudioMenu(false); setShowSubMenu(false); }} />
-        )}
-        {!error && showAudioMenu && (
-          <div className="mpv-menu" role="menu">
-            <div className="mpv-menu-title">Audio</div>
-            <div className="mpv-menu-list">
-              {audioTracks.length === 0 && <div className="mpv-menu-empty">Default audio only</div>}
-              {audioTracks.map((t) => (
-                <button key={t.id} role="menuitemradio" aria-checked={activeAudioTrack === t.id}
-                  className={`mpv-menu-item${activeAudioTrack === t.id ? " active" : ""}`} onClick={() => pickAudio(t.id)}>
-                  <span className="mpv-menu-item-name">{t.name}</span>
-                  {activeAudioTrack === t.id && <span className="mpv-menu-check">✓</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-        {!error && showSubMenu && (
-          <div className="mpv-menu" role="menu">
-            <div className="mpv-menu-title">Subtitles</div>
-            <div className="mpv-menu-list">
-              <button role="menuitemradio" aria-checked={activeSubTrack === -1}
-                className={`mpv-menu-item${activeSubTrack === -1 ? " active" : ""}`} onClick={() => pickSub(-1)}>
-                <span className="mpv-menu-item-name">Off</span>
-                {activeSubTrack === -1 && <span className="mpv-menu-check">✓</span>}
-              </button>
-              {subtitleTracks.map((t) => (
-                <button key={t.id} role="menuitemradio" aria-checked={activeSubTrack === t.id}
-                  className={`mpv-menu-item${activeSubTrack === t.id ? " active" : ""}`} onClick={() => pickSub(t.id)}>
-                  <span className="mpv-menu-item-name">{t.name}</span>
-                  {activeSubTrack === t.id && <span className="mpv-menu-check">✓</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Always-mounted, fixed-height transport dock so the video never resizes;
             it just fades out when idle. */}
