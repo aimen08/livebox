@@ -1,11 +1,31 @@
 import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { XIcon } from "./Icons";
+import { storageGet, storageSet } from "../utils/storage";
 
-// On Windows the bundled mpv engine renders ALL playback (Chromium's <video>
-// can't demux the provider's MKV catalog there and mishandles its live HLS).
-// When true, the component skips <video>/hls.js entirely and drives mpv over
-// IPC; mpv draws into a native child window positioned over .mpv-surface.
+// Per-content audio/subtitle track memory, keyed by stream URL.
+function getTrackPref(key) {
+  if (!key) return null;
+  return storageGet("trackPrefs", {})[key] || null;
+}
+function saveTrackPref(key, patch) {
+  if (!key) return;
+  const all = storageGet("trackPrefs", {});
+  all[key] = { ...(all[key] || {}), ...patch };
+  storageSet("trackPrefs", all);
+}
+
+// The mpv engine renders ALL playback when available (Chromium's <video> can't
+// demux the provider's MKV/EAC3 catalog and mishandles its redirecting live
+// HLS). When true, the component skips <video>/hls.js entirely and drives mpv
+// over IPC; mpv draws into a native window steered over .mpv-surface. Available
+// on Windows (bundled mpv.exe) and macOS (bundled or Homebrew/MacPorts mpv).
 const MPV = typeof window !== "undefined" && window.electron?.mpvAvailable === true;
+
+// Where mpv writes its logs, for the "send us the log" error hints — differs by
+// OS (Electron userData dir). Best-effort string; purely informational.
+const LOG_DIR_HINT = typeof navigator !== "undefined" && /Mac/i.test(navigator.platform)
+  ? "~/Library/Application Support/LiveBox"
+  : "%APPDATA%\\LiveBox";
 
 // Lazy-load hls.js the first time the player needs it. The chunk is ~200KB
 // and the welcome/browse screens never touch it, so paying that cost up front
@@ -77,6 +97,13 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
   const [subSize, setSubSize] = useState(2.2);
   const [showAudioMenu, setShowAudioMenu] = useState(false);
   const [showSubMenu, setShowSubMenu] = useState(false);
+  const [winFullscreen, setWinFullscreen] = useState(false);
+  // Refs so the (memoized) controls timer can read current state without resub.
+  const pausedRef = useRef(true);
+  const menuOpenRef = useRef(false);
+  const prefsAppliedRef = useRef(false); // saved track prefs applied for this load?
+  useEffect(() => { pausedRef.current = paused; }, [paused]);
+  useEffect(() => { menuOpenRef.current = showAudioMenu || showSubMenu; }, [showAudioMenu, showSubMenu]);
   const isLiveContent = contentType === "live";
   const isSeriesContent = contentType === "series";
   const episodes = channel?.episodes || [];
@@ -122,8 +149,18 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     setShowControls(true);
     clearTimeout(controlsTimer.current);
     controlsTimer.current = setTimeout(() => {
-      if (!videoRef.current?.paused) setShowControls(false);
+      // Never hide while a track picker is open; keep visible while paused.
+      if (menuOpenRef.current) return;
+      const isPaused = MPV ? pausedRef.current : !!videoRef.current?.paused;
+      if (!isPaused) setShowControls(false);
     }, 3000);
+  }, []);
+
+  // Reflect OS window fullscreen state (for the dock's fullscreen toggle icon).
+  useEffect(() => {
+    if (!window.electron?.onFullscreen) return;
+    window.electron.isFullscreen?.().then((v) => setWinFullscreen(!!v)).catch(() => {});
+    return window.electron.onFullscreen(setWinFullscreen);
   }, []);
 
   // ── mpv path (Windows) ──
@@ -142,6 +179,8 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     setIsLive(contentType === "live");
     mpvPosRef.current = 0;
     mpvDurRef.current = 0;
+    prefsAppliedRef.current = false; // re-apply saved tracks for this new stream
+    resetControlsTimer();
     window.electron.mpv.load(url, startAt).then((ok) => {
       if (ok === false) setError("Playback engine failed to start (mpv missing or blocked by antivirus)");
     }).catch(() => setError("Playback engine failed to start"));
@@ -158,7 +197,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     const off = window.electron.mpv.onEvent((ev) => {
       if (ev.type === "engine") {
         setEngineState(ev.state);
-        if (ev.state === "ipc-failed") setError("Playback engine is running but not responding (IPC failed) — please send mpv.log and mpv-stderr.log from %APPDATA%\\LiveBox");
+        if (ev.state === "ipc-failed") setError(`Playback engine is running but not responding (IPC failed) — please send mpv.log and mpv-stderr.log from ${LOG_DIR_HINT}`);
         return;
       }
       if (ev.type === "time" && typeof ev.value === "number") {
@@ -171,6 +210,31 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
         setDuration(ev.value);
       } else if (ev.type === "pause") {
         setPaused(!!ev.value);
+      } else if (ev.type === "tracks") {
+        // Native engine audio/subtitle tracks (libmpv). Map to the shared shape.
+        const aTracks = (ev.audio || []).map((t) => ({ id: t.id, name: t.title || t.language || `Track ${t.id}`, lang: t.language }));
+        const sTracks = (ev.sub || []).map((t) => ({ id: t.id, name: t.title || t.language || `Sub ${t.id}`, lang: t.language }));
+        setAudioTracks(aTracks);
+        setSubtitleTracks(sTracks);
+        setActiveAudioTrack(typeof ev.selectedAudio === "number" ? ev.selectedAudio : -1);
+        setActiveSubTrack(typeof ev.selectedSub === "number" ? ev.selectedSub : -1);
+        // Apply this content's remembered audio/subtitle — but ONLY once the
+        // track lists have actually populated (the first tracks event can arrive
+        // empty; applying+latching then would silently lose the saved choice).
+        if (!prefsAppliedRef.current && (aTracks.length > 0 || sTracks.length > 0)) {
+          prefsAppliedRef.current = true;
+          const pref = getTrackPref(url);
+          if (pref) {
+            if (typeof pref.aid === "number" && aTracks.some((t) => t.id === pref.aid)) {
+              window.electron.mpv.command("audio-track", pref.aid);
+              setActiveAudioTrack(pref.aid);
+            }
+            if (pref.sid === -1 || (typeof pref.sid === "number" && sTracks.some((t) => t.id === pref.sid))) {
+              window.electron.mpv.command("sub-track", pref.sid);
+              setActiveSubTrack(pref.sid);
+            }
+          }
+        }
       } else if (ev.type === "playing") {
         setBuffering(false);
       } else if (ev.type === "ended") {
@@ -199,7 +263,7 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     // surface it instead of leaving the user staring at nothing.
     const watchdog = setTimeout(() => {
       if (mpvPosRef.current === 0) {
-        setError("Playback engine did not start playing (no signal after 15s) — please send mpv.log and mpv-stderr.log from %APPDATA%\\LiveBox");
+        setError(`Playback engine did not start playing (no signal after 15s) — please send mpv.log and mpv-stderr.log from ${LOG_DIR_HINT}`);
       }
     }, 15000);
     return () => {
@@ -207,9 +271,20 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
       clearInterval(saveIv);
       clearTimeout(watchdog);
       doSave();
-      window.electron.mpv.stop();
+      // NOTE: deliberately NOT calling mpv.stop() here. On a channel switch this
+      // cleanup runs right before the next channel's load — stopping (which
+      // minimizes the native window) then immediately reloading is what made the
+      // float drop to audio-only on alternating switches and forced a full
+      // re-buffer. The new load does a `loadfile … replace`, swapping the stream
+      // in place. The engine is only torn down on real unmount (effect below).
     };
   }, [channel, retryNonce]);
+
+  // Stop playback and hide the native window only when the player truly closes.
+  useEffect(() => {
+    if (!MPV) return;
+    return () => { window.electron.mpv.stop(); };
+  }, []);
 
   // Keep the native mpv window glued to the surface element's on-screen rect.
   useEffect(() => {
@@ -663,57 +738,135 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     onModeChange?.(isInline ? "fullscreen" : "inline");
   }, [isInline, onModeChange]);
 
-  // ── mpv render path (Windows): a control strip above a native video surface.
-  // Transport controls (seek/volume/tracks) come from mpv's on-screen controller
-  // inside the video itself; HTML can't overlay the native window.
+  // ── mpv render path: native video surface + a control DOCK below it.
+  // The engine renders into a native view on TOP of the page (HTML can't overlay
+  // it), so all controls live in a dock under the video. Track pickers swap the
+  // dock's content in place (never pop up over the video, which would be hidden).
   if (MPV) {
+    const dockMode = showAudioMenu ? "audio" : showSubMenu ? "subs" : "main";
+    const stateLabel = engineState === "starting" ? "starting…"
+      : engineState === "spawned" ? "starting engine…"
+      : engineState === "connected" ? "loading…" : "";
+    // Dock auto-hides while playing; stays for the track pickers and when paused.
+    const dockVisible = dockMode !== "main" || showControls || paused;
+    const curl = channel?.url;
     return (
-      <div className={`player-fullscreen player-${mode}${hasTitlebar ? " has-titlebar" : ""} player-mpv`} ref={containerRef}>
-        <div className="mpv-strip">
-          <button className="player-ctrl-btn" onClick={onClose} title="Back" aria-label="Back">
-            <XIcon />
-          </button>
-          <span className="mpv-strip-name" title={channel?.name}>{channel?.name || "Unknown"}</span>
-          {isLiveContent ? (
-            <span className="player-live-badge">LIVE</span>
-          ) : (
-            <span className="player-time">{formatTime(currentTime)} / {formatTime(duration)}</span>
-          )}
-          {engineState !== "playing" && !error && (
-            <span className="mpv-strip-state">{engineState === "starting" ? "starting engine…" : engineState === "spawned" ? "engine started…" : engineState === "connected" ? "loading stream…" : engineState}</span>
-          )}
-          <div className="mpv-strip-actions">
-            <button className="player-ctrl-btn" onClick={() => window.electron.mpv.command("pause", !paused)} title={paused ? "Play" : "Pause"}>
-              {paused ? <PlayIcon /> : <PauseIcon />}
-            </button>
-            <button
-              className={`player-ctrl-btn player-fav-btn${isFav ? " is-fav" : ""}`}
-              onClick={handleFav}
-              title={isFav ? "Remove from favorites" : "Add to favorites"}
-            >
-              <svg viewBox="0 0 24 24" width="20" height="20" fill={isFav ? "#f1c40f" : "none"} stroke={isFav ? "#f1c40f" : "currentColor"} strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            </button>
-            {isLiveContent && (
-              <button className="player-ctrl-btn" onClick={toggleMode} title={isInline ? "Expand" : "Pin to side"}>
-                {isInline ? <FullscreenIcon /> : <ExitFullscreenIcon />}
-              </button>
-            )}
-          </div>
-        </div>
-        {error ? (
-          <div className="player-wrap">
-            <div className="player-error">
-              <div className="player-error-icon" aria-hidden="true">⚠</div>
-              <div className="player-error-name">{channel?.name || "Unknown"}</div>
-              <p>{error}</p>
-              <div className="player-error-actions">
-                <button className="btn btn-primary" onClick={() => { setError(null); setBuffering(true); setRetryNonce((n) => n + 1); }}>Retry</button>
-                <button className="btn btn-secondary" onClick={onClose}>Go Back</button>
+      <div
+        className={`player-fullscreen player-${mode}${hasTitlebar ? " has-titlebar" : ""} player-mpv${!dockVisible ? " controls-hidden" : ""}`}
+        ref={containerRef}
+        onMouseMove={resetControlsTimer}
+      >
+        <div className="mpv-stage">
+          {error ? (
+            <div className="player-wrap">
+              <div className="player-error">
+                <div className="player-error-icon" aria-hidden="true">⚠</div>
+                <div className="player-error-name">{channel?.name || "Unknown"}</div>
+                <p>{error}</p>
+                <div className="player-error-actions">
+                  <button className="btn btn-primary" onClick={() => { setError(null); setBuffering(true); setRetryNonce((n) => n + 1); }}>Retry</button>
+                  <button className="btn btn-secondary" onClick={onClose}>Go Back</button>
+                </div>
               </div>
             </div>
+          ) : (
+            <div className="mpv-surface" ref={mpvSurfaceRef} />
+          )}
+        </div>
+
+        {/* One always-mounted dock (fixed height) so the video NEVER resizes —
+            it floats over a reserved strip and just fades/slides out when idle.
+            Inner content swaps between transport / audio / subtitle pickers. */}
+        {!error && (
+          <div className={`mpv-dock${dockMode === "main" && !dockVisible ? " mpv-dock--hidden" : ""}`}>
+            {dockMode === "main" && (<>
+              <button className="player-ctrl-btn" onClick={onClose} title="Back" aria-label="Back"><XIcon /></button>
+              <button className="player-ctrl-btn" onClick={() => window.electron.mpv.command("pause", !paused)} title={paused ? "Play" : "Pause"}>
+                {paused ? <PlayIcon /> : <PauseIcon />}
+              </button>
+
+              {isLiveContent ? (
+                <>
+                  <span className="player-live-badge">LIVE</span>
+                  <span className="mpv-dock-title" title={channel?.name}>{channel?.name || "Unknown"}</span>
+                </>
+              ) : (
+                <>
+                  <span className="player-time">{formatTime(currentTime)}</span>
+                  <input
+                    type="range" className="mpv-dock-seek" min={0} max={Math.max(1, Math.floor(duration))}
+                    value={Math.min(Math.floor(currentTime), Math.floor(duration))}
+                    onChange={(e) => { const t = Number(e.target.value); setCurrentTime(t); window.electron.mpv.command("seek", t); }}
+                    aria-label="Seek"
+                  />
+                  <span className="player-time">{formatTime(duration)}</span>
+                </>
+              )}
+
+              {stateLabel && <span className="mpv-dock-state">{stateLabel}</span>}
+
+              <div className="mpv-dock-vol">
+                <button className="player-ctrl-btn" onClick={() => { const m = !muted; setMuted(m); window.electron.mpv.command("mute", m); }} title={muted ? "Unmute" : "Mute"}>
+                  <VolumeIcon muted={muted} level={volume} />
+                </button>
+                <input
+                  type="range" className="mpv-dock-volbar" min={0} max={1} step={0.01}
+                  value={muted ? 0 : volume}
+                  onChange={(e) => { const val = Number(e.target.value); setVolume(val); setMuted(val === 0); window.electron.mpv.command("volume", Math.round(val * 100)); }}
+                  aria-label="Volume"
+                />
+              </div>
+
+              <button className="player-ctrl-btn" onClick={() => { setShowSubMenu(true); setShowAudioMenu(false); }} title="Subtitles"><SubtitleIcon /></button>
+              <button className="player-ctrl-btn" onClick={() => { setShowAudioMenu(true); setShowSubMenu(false); }} title="Audio"><AudioIcon /></button>
+              <button className={`player-ctrl-btn player-fav-btn${isFav ? " is-fav" : ""}`} onClick={handleFav} title={isFav ? "Remove from favorites" : "Add to favorites"}>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill={isFav ? "#f1c40f" : "none"} stroke={isFav ? "#f1c40f" : "currentColor"} strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </button>
+              {isLiveContent && (
+                <button className="player-ctrl-btn" onClick={toggleMode} title={isInline ? "Expand" : "Pin to side"}>
+                  {isInline ? <FullscreenIcon /> : <ExitFullscreenIcon />}
+                </button>
+              )}
+              <button
+                className="player-ctrl-btn"
+                onClick={() => window.electron.toggleFullscreen?.().then((v) => setWinFullscreen(!!v))}
+                title={winFullscreen ? "Exit full screen" : "Full screen"}
+              >
+                {winFullscreen ? <ExitFullscreenIcon /> : <FullscreenIcon />}
+              </button>
+            </>)}
+
+            {dockMode === "audio" && (<>
+              <button className="player-ctrl-btn" onClick={() => setShowAudioMenu(false)} title="Back"><ChevronLeftIcon /></button>
+              <span className="mpv-dock-label">Audio</span>
+              <div className="mpv-dock-chips">
+                {audioTracks.length === 0 && <span className="mpv-dock-empty">Default audio only</span>}
+                {audioTracks.map((t) => (
+                  <button key={t.id} className={`mpv-chip${activeAudioTrack === t.id ? " active" : ""}`}
+                    onClick={() => { window.electron.mpv.command("audio-track", t.id); setActiveAudioTrack(t.id); saveTrackPref(curl, { aid: t.id }); setShowAudioMenu(false); }}>
+                    {t.name}
+                  </button>
+                ))}
+              </div>
+            </>)}
+
+            {dockMode === "subs" && (<>
+              <button className="player-ctrl-btn" onClick={() => setShowSubMenu(false)} title="Back"><ChevronLeftIcon /></button>
+              <span className="mpv-dock-label">Subtitles</span>
+              <div className="mpv-dock-chips">
+                <button className={`mpv-chip${activeSubTrack === -1 ? " active" : ""}`}
+                  onClick={() => { window.electron.mpv.command("sub-track", -1); setActiveSubTrack(-1); saveTrackPref(curl, { sid: -1 }); setShowSubMenu(false); }}>
+                  Off
+                </button>
+                {subtitleTracks.map((t) => (
+                  <button key={t.id} className={`mpv-chip${activeSubTrack === t.id ? " active" : ""}`}
+                    onClick={() => { window.electron.mpv.command("sub-track", t.id); setActiveSubTrack(t.id); saveTrackPref(curl, { sid: t.id }); setShowSubMenu(false); }}>
+                    {t.name}
+                  </button>
+                ))}
+              </div>
+            </>)}
           </div>
-        ) : (
-          <div className="mpv-surface" ref={mpvSurfaceRef} />
         )}
       </div>
     );

@@ -12,3 +12,7 @@ graphify-out/cache/
 graphify-out/cost.json
 graphify-out/manifest.json
 build-res/
+
+# native addon build output (rebuild with: npm run build:native)
+native/build/
+native/runtime/

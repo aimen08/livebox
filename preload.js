@@ -22,6 +22,13 @@ contextBridge.exposeInMainWorld("electron", {
   maximizeWindow: () => ipcRenderer.invoke("maximize-window"),
   closeWindow: () => ipcRenderer.invoke("close-window"),
   isMaximized: () => ipcRenderer.invoke("is-maximized"),
+  toggleFullscreen: () => ipcRenderer.invoke("toggle-fullscreen"),
+  isFullscreen: () => ipcRenderer.invoke("is-fullscreen"),
+  onFullscreen: (cb) => {
+    const handler = (_e, val) => cb(val);
+    ipcRenderer.on("window-fullscreen", handler);
+    return () => ipcRenderer.removeListener("window-fullscreen", handler);
+  },
   openM3UFile: () => ipcRenderer.invoke("open-m3u-file"),
   fetchURL: (url) => ipcRenderer.invoke("fetch-url", url),
   searchSubs: (query, season, episode) => ipcRenderer.invoke("search-subs", query, season, episode),

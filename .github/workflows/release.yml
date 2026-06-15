@@ -73,6 +73,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install libmpv + dylibbundler
+        run: brew install mpv dylibbundler
+
+      - name: Build native embedded-mpv addon
+        run: npm run build:native
+
+      - name: Stage libmpv runtime (self-contained)
+        run: npm run stage:mpv:mac
+
       - name: Build renderer
         run: npx vite build
         env:

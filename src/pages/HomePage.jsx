@@ -69,28 +69,43 @@ function HomePage({
     return items.slice(0, 10);
   }, [watchProgress, movies]);
 
-  // Top movie genre rows — first 6 distinct groups by appearance
-  const movieGenres = useMemo(() => {
-    const seen = [];
+  // Top movie genre rows — first 6 distinct groups, with their (capped) items.
+  // Built in a SINGLE pass over `movies` and memoized: the old code re-ran a
+  // full `movies.filter()` per genre on every render (6× full-array scans of a
+  // multi-thousand-item list), a real source of render/navigation jank.
+  const movieGenreShelves = useMemo(() => {
+    const order = [];
+    const byGroup = new Map();
     for (const m of movies) {
-      if (m.group && !seen.includes(m.group)) {
-        seen.push(m.group);
-        if (seen.length >= 6) break;
+      if (!m.group) continue;
+      let bucket = byGroup.get(m.group);
+      if (!bucket) {
+        if (order.length >= 6) continue;
+        bucket = [];
+        byGroup.set(m.group, bucket);
+        order.push(m.group);
       }
+      if (bucket.length < 20) bucket.push(m);
     }
-    return seen;
+    return order.map((g) => ({ group: g, items: byGroup.get(g) }));
   }, [movies]);
 
-  // Top series genre rows — first 4 distinct groups by appearance
-  const seriesGenres = useMemo(() => {
-    const seen = [];
+  // Top series genre rows — first 4 distinct groups, same single-pass build.
+  const seriesGenreShelves = useMemo(() => {
+    const order = [];
+    const byGroup = new Map();
     for (const s of series) {
-      if (s.group && !seen.includes(s.group)) {
-        seen.push(s.group);
-        if (seen.length >= 4) break;
+      if (!s.group) continue;
+      let bucket = byGroup.get(s.group);
+      if (!bucket) {
+        if (order.length >= 4) continue;
+        bucket = [];
+        byGroup.set(s.group, bucket);
+        order.push(s.group);
       }
+      if (bucket.length < 20) bucket.push(s);
     }
-    return seen;
+    return order.map((g) => ({ group: g, items: byGroup.get(g) }));
   }, [series]);
 
   if (!hasContent) {
@@ -195,21 +210,21 @@ function HomePage({
         onSeeAll={() => onNavigate("series")}
       />
 
-      {movieGenres.map((g) => (
+      {movieGenreShelves.map(({ group, items }) => (
         <Shelf
-          key={`mg-${g}`}
-          title={g}
-          items={movies.filter((m) => m.group === g).slice(0, 20)}
+          key={`mg-${group}`}
+          title={group}
+          items={items}
           renderItem={renderMovieCard}
           onSeeAll={() => onNavigate("movies")}
         />
       ))}
 
-      {seriesGenres.map((g) => (
+      {seriesGenreShelves.map(({ group, items }) => (
         <Shelf
-          key={`sg-${g}`}
-          title={g}
-          items={series.filter((s) => s.group === g).slice(0, 20)}
+          key={`sg-${group}`}
+          title={group}
+          items={items}
           renderItem={renderSeriesCard}
           onSeeAll={() => onNavigate("series")}
         />

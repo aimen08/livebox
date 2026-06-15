@@ -1423,7 +1423,8 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
    file (equal specificity would otherwise let the base 1.045 scale win). */
 .preview-card.poster-card:hover .poster-img-wrap,
 .preview-card.poster-card:focus-within .poster-img-wrap {
-  transform: scale(var(--preview-pop));
+  /* No scale/pop on hover (per design) — just lift with a shadow + accent ring.
+     The preview panel still reveals; the artwork stays the same size. */
   box-shadow: var(--el-3), 0 0 0 2px var(--accent-soft);
 }
 /* keep the base hover scrim off so the preview panel's own gradient reads cleanly */
@@ -1523,7 +1524,7 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 }
 .poster-card:hover .poster-img-wrap,
 .poster-card:focus-visible .poster-img-wrap {
-  transform: scale(1.045) translateY(-4px);
+  /* No scale on hover (per design) — keep the shadow + accent ring lift only. */
   box-shadow: var(--el-3), 0 0 0 2px var(--accent-soft);
 }
 /* Hover scrim — no new markup */
@@ -1965,27 +1966,40 @@ html, body, #root { height: 100%; background: var(--bg); color: var(--text); fon
 }
 .fade-in { animation: fadeIn 320ms var(--ease-out); }
 
-/* ── mpv engine surface (Windows) ──
-   Video renders in a native child window glued over .mpv-surface; HTML cannot
-   overlay it, so the player chrome lives in a strip ABOVE the surface and
-   transport controls come from mpv's own OSC inside the video. */
-.player-mpv { display: flex; flex-direction: column; background: var(--bg-deep); }
-.mpv-strip {
-  height: 48px; flex: none;
-  display: flex; align-items: center; gap: 10px;
-  padding: 0 12px;
-  background: var(--glass-heavy);
-  border-bottom: 1px solid var(--glass-border);
+/* ── mpv engine surface + control dock ──
+   The engine renders into a native view ON TOP of the page over .mpv-surface;
+   HTML can't overlay it, so all controls live in a DOCK below the video. Track
+   pickers swap the dock content in place (a popup would be hidden by the video). */
+.player-mpv { display: flex; flex-direction: column; background: #000; }
+.player-mpv.controls-hidden { cursor: none; }
+.mpv-stage { flex: 1; min-height: 0; position: relative; background: #000; }
+.mpv-surface { position: absolute; inset: 0; background: #000; }
+.player-mpv .player-wrap { display: flex; align-items: center; justify-content: center; height: 100%; }
+
+.mpv-dock {
+  flex: none; height: 56px; display: flex; align-items: center; gap: 10px;
+  padding: 0 14px; background: var(--glass-heavy);
+  border-top: 1px solid var(--glass-border);
+  transition: opacity 200ms ease;
 }
-.mpv-strip-name {
-  font: 500 var(--fs-subtitle)/1.2 var(--font-body); color: var(--text);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  min-width: 0;
+/* Auto-hide: fade in place WITHOUT collapsing height, so the video above never
+   resizes/stretches — the strip just becomes (invisible) letterbox. */
+.mpv-dock--hidden { opacity: 0; pointer-events: none; }
+.mpv-dock-title {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--text); font: 500 var(--fs-subtitle)/1.2 var(--font-body);
 }
-.mpv-strip-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; flex: none; }
-.mpv-surface { flex: 1; min-height: 0; background: #000; }
-.player-mpv .player-wrap { display: flex; align-items: center; justify-content: center; }
-.mpv-strip-state {
-  font: 400 var(--fs-caption)/1.2 var(--font-body); color: var(--text3);
-  white-space: nowrap; flex: none;
+.mpv-dock-seek { flex: 1; min-width: 80px; height: 4px; accent-color: var(--accent); cursor: pointer; }
+.mpv-dock-state { color: var(--text3); font: 400 var(--fs-caption)/1 var(--font-body); white-space: nowrap; flex: none; }
+.mpv-dock-vol { display: flex; align-items: center; gap: 4px; flex: none; }
+.mpv-dock-volbar { width: 84px; height: 4px; accent-color: var(--accent); cursor: pointer; }
+.mpv-dock-label { color: var(--text); font: 600 var(--fs-body)/1 var(--font-body); flex: none; }
+.mpv-dock-chips { flex: 1; min-width: 0; display: flex; gap: 8px; overflow-x: auto; align-items: center; }
+.mpv-dock-empty { color: var(--text3); font-size: var(--fs-caption); }
+.mpv-chip {
+  flex: none; padding: 6px 12px; border-radius: 999px; cursor: pointer;
+  background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border);
+  color: var(--text2); font-size: var(--fs-caption); white-space: nowrap;
 }
+.mpv-chip:hover { background: rgba(255,255,255,0.16); color: var(--text); }
+.mpv-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
