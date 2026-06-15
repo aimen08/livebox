@@ -133,11 +133,11 @@
 
 /* Reset */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-/* overflow:hidden — the app is a fixed shell; all scrolling happens inside
-   .main and other containers, never the document. This kills a stray
-   document-level scrollbar that a fixed fullscreen player can't cover (visible
-   at the window edge "over" the video, esp. with macOS always-show scrollbars). */
-html, body, #root { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+html, body, #root { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+/* The catalog scrolls on the document. While a FULLSCREEN player is open we lock
+   that scroll (class set by Player.jsx) so its scrollbar can't show at the window
+   edge "over" the video — a fixed player can't cover a document scrollbar. */
+html.player-locked, html.player-locked body { overflow: hidden; }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }

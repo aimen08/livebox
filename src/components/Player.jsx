@@ -629,6 +629,15 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
     return () => document.removeEventListener("fullscreenchange", onFsChange);
   }, []);
 
+  // Lock the document scroll while a FULLSCREEN player is open so the catalog's
+  // scrollbar can't peek at the window edge over the video. Inline (live) leaves
+  // it scrollable. Always cleared on unmount.
+  useEffect(() => {
+    const lock = mode === "fullscreen";
+    document.documentElement.classList.toggle("player-locked", lock);
+    return () => document.documentElement.classList.remove("player-locked");
+  }, [mode]);
+
   // Keyboard shortcuts — guarded so Cmd/Ctrl combos (e.g. Cmd/Ctrl+K spotlight)
   // and typing in panel search inputs are never intercepted.
   useEffect(() => {
