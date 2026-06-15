@@ -22,6 +22,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Auto-hiding the controls no longer resizes/stretches the video (the dock fades in a fixed reserved strip); removed a stray scrollbar in the player; saved track picks now wait for the track list to populate before applying.
 - Audio/subtitle pickers open as a side panel that shrinks the video beside it (video stays visible) instead of blacking it out; the list scrolls within the panel, not over the video.
 - Release CI: artifact upload is non-fatal (won't block the release on Actions storage quota); cleaned up old workflow artifacts and releases.
+- macOS DMG built on macos-14 (Sonoma) instead of macos-15 (Sequoia): the bundled libmpv built on 15 referenced macOS-15 Swift symbols and failed to load on Sonoma, so the packaged app fell back to a separate mpv window. Now the embedded engine loads on macOS 14 and newer.
 
 ### Chore
 - Native addon build pipeline: `native/` + `binding.gyp`, `npm run build:native`, and self-contained libmpv bundling (`tools/stage-mpv-mac.mjs` → `dist:mac`, ~48 dylibs relinked to `@loader_path`); release CI now builds and stages the macOS addon. Declared `node-addon-api`. Version bumped to 1.7.0 (macOS arm64 DMG; Windows unchanged via bundled mpv.exe).

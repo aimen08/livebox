@@ -62,7 +62,12 @@ jobs:
           generate_release_notes: true
 
   build-mac:
-    runs-on: macos-latest
+    # macos-14 (Sonoma, arm64), NOT macos-latest (Sequoia 15): Homebrew bottles
+    # target the runner's OS, and a libmpv built on 15 references macOS-15 Swift
+    # runtime symbols that don't exist on 14 — the bundled addon then fails to
+    # load on Sonoma users and the app falls back to a separate mpv window.
+    # Building on 14 keeps libmpv compatible with macOS 14 and newer.
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
 
