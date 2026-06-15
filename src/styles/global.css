@@ -133,7 +133,11 @@
 
 /* Reset */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body, #root { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+/* overflow:hidden — the app is a fixed shell; all scrolling happens inside
+   .main and other containers, never the document. This kills a stray
+   document-level scrollbar that a fixed fullscreen player can't cover (visible
+   at the window edge "over" the video, esp. with macOS always-show scrollbars). */
+html, body, #root { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
