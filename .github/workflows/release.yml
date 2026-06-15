@@ -43,6 +43,7 @@ jobs:
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
+        continue-on-error: true   # don't fail the release if Actions storage quota is hit
         with:
           name: windows-installer
           path: |
@@ -94,6 +95,7 @@ jobs:
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
+        continue-on-error: true   # don't fail the release if Actions storage quota is hit
         with:
           name: mac-dmg
           path: |

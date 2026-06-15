@@ -8,7 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 - macOS embedded video: playback now renders through an in-process libmpv render-API native addon (`native/embedded_mpv.mm`, adapted from IPTVnator, MIT) drawing into a view inside the app window — true in-window embedding, no separate/floating window. Handles the provider's MKV/EAC3 catalog and redirecting live HLS natively.
 - Player control dock below the video: auto-hides while playing, with back, play/pause, VOD seek bar, volume/mute, audio-track and subtitle pickers (they swap in place — a popup would be hidden behind the native video), favorite, and a full-screen toggle. The dock keeps a fixed reserved height so auto-hiding never resizes/stretches the video.
-- Per-content track memory: the chosen audio track and subtitle are saved per movie/episode and re-applied automatically on replay (once the track list has populated).
+- Per-content track memory: the chosen audio track and subtitle are saved per movie/episode and re-applied automatically on replay (once the track list has populated). Audio/subtitle pickers are dropdown menus, and a pick made on one episode becomes the default for the rest of that series.
 
 ### Changed
 - Seeking now uses keyframe seeks plus a seekable demuxer cache, force-seekable, and network reconnect options — fixes seek lag and the MKV "no join point found" warnings over HTTP.
@@ -19,6 +19,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 - HomePage re-filtered the entire catalog per genre row on every render; now a single memoized pass.
 - mpv quits cleanly on every exit path (including dev Ctrl+C), preventing orphaned processes that previously held the connection slot (HTTP 458) and left a stray window.
+- Auto-hiding the controls no longer resizes/stretches the video (the dock fades in a fixed reserved strip); removed a stray scrollbar in the player; saved track picks now wait for the track list to populate before applying.
+- Release CI: artifact upload is non-fatal (won't block the release on Actions storage quota); cleaned up old workflow artifacts and releases.
 
 ### Chore
 - Native addon build pipeline: `native/` + `binding.gyp`, `npm run build:native`, and self-contained libmpv bundling (`tools/stage-mpv-mac.mjs` → `dist:mac`, ~48 dylibs relinked to `@loader_path`); release CI now builds and stages the macOS addon. Declared `node-addon-api`. Version bumped to 1.7.0 (macOS arm64 DMG; Windows unchanged via bundled mpv.exe).
