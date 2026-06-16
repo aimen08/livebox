@@ -129,13 +129,23 @@ export default function App() {
   }, []);
 
   const loadPlaylist = useCallback((content, name) => {
-    const { channels: ch, groups: gr } = parseM3U(content);
-    const blocked = new Set(gr.filter(isAdultGroup));
-    const cleanCh = blocked.size ? ch.filter((c) => !blocked.has(c.group)) : ch;
-    const cleanGr = blocked.size ? gr.filter((g) => !blocked.has(g)) : gr;
-    setChannels(cleanCh);
-    setGroups(cleanGr);
-    setPage("live");
+    const { channels: ch, groups: gr, movies: mv, movieGroups: mg, series: se, seriesGroups: sg } = parseM3U(content);
+    // Drop adult-tagged groups across every section (same as the Xtream loader).
+    const filterByGroup = (items, groups) => {
+      const blocked = new Set((groups || []).filter(isAdultGroup));
+      return {
+        items: blocked.size ? items.filter((x) => !blocked.has(x.group)) : items,
+        groups: blocked.size ? groups.filter((g) => !blocked.has(g)) : groups,
+      };
+    };
+    const live = filterByGroup(ch, gr);
+    const movie = filterByGroup(mv, mg);
+    const ser = filterByGroup(se, sg);
+    setChannels(live.items); setGroups(live.groups);
+    setMovies(movie.items); setMovieGroups(movie.groups);
+    setSeries(ser.items); setSeriesGroups(ser.groups);
+    // Land on whichever section actually has content (live-only M3Us → Live).
+    setPage(live.items.length ? "live" : movie.items.length ? "movies" : ser.items.length ? "series" : "live");
     setPlaying(null);
   }, []);
 

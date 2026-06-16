@@ -63,8 +63,25 @@ function SeriesDetail({ show, xtreamCreds, onPlay, onBack, isFav, onToggleFav, w
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!xtreamCreds || !show) return;
+    if (!show) return;
     setLoading(true);
+    // M3U series carry their episodes inline — build seasons locally, no API call.
+    if (Array.isArray(show.episodes) && show.episodes.length) {
+      const eps = {};
+      show.episodes.forEach((e, idx) => {
+        const sk = String(e.season || 1);
+        (eps[sk] = eps[sk] || []).push({
+          id: idx, title: e.name, season: e.season || 1, episode_num: e.episodeNum || idx + 1,
+          direct_source: e.url, info: { movie_image: e.poster || show.poster || "" },
+        });
+      });
+      setSeasons(eps);
+      const keys = Object.keys(eps).sort((a, b) => Number(a) - Number(b));
+      if (keys.length) setActiveSeason(keys[0]);
+      setLoading(false);
+      return;
+    }
+    if (!xtreamCreds) { setLoading(false); return; }
     const { baseUrl, username, password } = xtreamCreds;
     const url = `${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_series_info&series_id=${show.seriesId}`;
     window.electron.fetchURL(url).then((json) => {
@@ -88,6 +105,7 @@ function SeriesDetail({ show, xtreamCreds, onPlay, onBack, isFav, onToggleFav, w
     if (ep.direct_source && typeof ep.direct_source === "string" && ep.direct_source.startsWith("http")) {
       return ep.direct_source;
     }
+    if (!xtreamCreds) return "";   // M3U series always carry a direct_source
     const { baseUrl, username, password } = xtreamCreds;
     return `${baseUrl}/series/${username}/${password}/${ep.id}.${ep.container_extension || "mkv"}`;
   }, [xtreamCreds]);

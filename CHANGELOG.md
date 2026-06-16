@@ -5,6 +5,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## 2026-06-15 — v1.7.1
 
+### Added
+- Full M3U / M3U-plus playlist support (file or URL), not just Xtream. The parser now classifies entries into Live, Movies, and Series (by `/live/`, `/movie/`, `/series/` URL paths) and groups series episodes into seasons (`SxxExx` / `NxMM`). Series detail plays episodes inline from the playlist (no API needed); a plain live-only M3U still loads entirely as channels.
+
 ### Fixed
 - Windows: the sidebar audio/subtitle pickers were empty — the spawned-mpv path emitted mpv's raw `track-list`, but the renderer expects the normalized `{audio, sub, selectedAudio, selectedSub}` shape used by the macOS engine. Windows now emits the same shape (and maps "off" to `sid=no`).
 
