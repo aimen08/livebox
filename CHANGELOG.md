@@ -3,6 +3,11 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 2026-06-16 — v1.7.2
+
+### Fixed
+- Auto-hiding controls no longer leave a black strip at the bottom when hidden — the video surface now fills the whole player while the dock is hidden, and shrinks slightly only while the controls are visible. Added GPL-3.0 LICENSE file.
+
 ## 2026-06-15 — v1.7.1
 
 ### Added

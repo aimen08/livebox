@@ -2010,11 +2010,7 @@ html.player-locked, html.player-locked body { overflow: hidden; }
   flex: none; height: 56px; display: flex; align-items: center; gap: 10px;
   padding: 0 14px; background: var(--glass-heavy);
   border-top: 1px solid var(--glass-border);
-  transition: opacity 200ms ease;
 }
-/* Auto-hide: fade in place WITHOUT collapsing height, so the video above never
-   resizes/stretches — the strip just becomes (invisible) letterbox. */
-.mpv-dock--hidden { opacity: 0; pointer-events: none; }
 .mpv-dock-title {
   flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   color: var(--text); font: 500 var(--fs-subtitle)/1.2 var(--font-body);

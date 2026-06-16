@@ -848,10 +848,11 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
           )}
         </div>
 
-        {/* Always-mounted, fixed-height transport dock so the video never resizes;
-            it just fades out when idle. */}
-        {!error && (
-          <div className={`mpv-dock${!dockVisible ? " mpv-dock--hidden" : ""}`}>
+        {/* Transport dock. Collapsed out of layout when idle so the video
+            surface expands to fill the whole player (no reserved black strip);
+            it reappears — shrinking the video slightly — on mouse move. */}
+        {!error && dockVisible && (
+          <div className="mpv-dock">
             <button className="player-ctrl-btn" onClick={onClose} title="Back" aria-label="Back"><XIcon /></button>
             <button className="player-ctrl-btn" onClick={() => window.electron.mpv.command("pause", !paused)} title={paused ? "Play" : "Pause"}>
               {paused ? <PlayIcon /> : <PauseIcon />}
