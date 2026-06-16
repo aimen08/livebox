@@ -7,6 +7,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 - Auto-hiding controls no longer leave a black strip at the bottom when hidden — the video surface now fills the whole player while the dock is hidden, and shrinks slightly only while the controls are visible. Added GPL-3.0 LICENSE file.
+- Live player had two near-identical expand/fullscreen buttons; consolidated to one per mode (live = inline↔fullscreen toggle, VOD = OS fullscreen).
 
 ## 2026-06-15 — v1.7.1
 

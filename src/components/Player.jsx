@@ -895,18 +895,21 @@ export default function Player({ channel, onClose, channels, groups, favorites, 
             <button className={`player-ctrl-btn player-fav-btn${isFav ? " is-fav" : ""}`} onClick={handleFav} title={isFav ? "Remove from favorites" : "Add to favorites"}>
               <svg viewBox="0 0 24 24" width="20" height="20" fill={isFav ? "#f1c40f" : "none"} stroke={isFav ? "#f1c40f" : "currentColor"} strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             </button>
-            {isLiveContent && (
+            {/* One zoom control per mode: live toggles inline↔fullscreen (needed
+                to grow it out of the pinned corner); VOD toggles OS fullscreen. */}
+            {isLiveContent ? (
               <button className="player-ctrl-btn" onClick={toggleMode} title={isInline ? "Expand" : "Pin to side"}>
                 {isInline ? <FullscreenIcon /> : <ExitFullscreenIcon />}
               </button>
+            ) : (
+              <button
+                className="player-ctrl-btn"
+                onClick={() => window.electron.toggleFullscreen?.().then((v) => setWinFullscreen(!!v))}
+                title={winFullscreen ? "Exit full screen" : "Full screen"}
+              >
+                {winFullscreen ? <ExitFullscreenIcon /> : <FullscreenIcon />}
+              </button>
             )}
-            <button
-              className="player-ctrl-btn"
-              onClick={() => window.electron.toggleFullscreen?.().then((v) => setWinFullscreen(!!v))}
-              title={winFullscreen ? "Exit full screen" : "Full screen"}
-            >
-              {winFullscreen ? <ExitFullscreenIcon /> : <FullscreenIcon />}
-            </button>
           </div>
         )}
       </div>
