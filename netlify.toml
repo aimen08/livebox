@@ -1,0 +1,10 @@
+# Netlify config — the marketing site is the static `website/` subfolder.
+# No build step (plain HTML/CSS); just publish the folder.
+[build]
+  publish = "website"
+
+[[redirects]]
+  from = "/download"
+  to = "https://github.com/aimen08/livebox/releases/latest"
+  status = 302
+  force = true
