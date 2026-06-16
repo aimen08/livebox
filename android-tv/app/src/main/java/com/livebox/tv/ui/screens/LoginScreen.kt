@@ -43,9 +43,8 @@ import com.livebox.tv.ui.SignInState
 import com.livebox.tv.ui.theme.LbColors
 import com.livebox.tv.ui.util.isCompactWidth
 
-/** Pre-filled URL on the modal so testing is one-tap. */
-private const val DEFAULT_URL =
-    "http://example.com/get.php?username=REDACTED_USER&password=REDACTED_PASS&type=m3u_plus&output=ts"
+/** Optional pre-filled URL on the modal (leave blank — supply your own playlist). */
+private const val DEFAULT_URL = ""
 
 @Composable
 fun LoginScreen(

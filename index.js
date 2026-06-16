@@ -366,7 +366,18 @@ function connectMpvIpc(attempt = 0) {
       if (msg.event === "property-change") {
         if (msg.name === "pause") mpvNotify({ type: "pause", value: !!msg.data });
         else if (msg.name === "duration" && typeof msg.data === "number") mpvNotify({ type: "duration", value: msg.data });
-        else if (msg.name === "track-list") mpvNotify({ type: "tracks", value: msg.data });
+        else if (msg.name === "track-list") {
+          // Normalize mpv's raw track-list into the SAME shape the renderer's
+          // track pickers consume on the native (macOS) path, so the Windows
+          // sidebar audio/subtitle pickers populate too.
+          const list = Array.isArray(msg.data) ? msg.data : [];
+          const map = (t) => ({ id: t.id, title: t.title, language: t.lang, selected: !!t.selected, forced: !!t.forced });
+          const audio = list.filter((t) => t.type === "audio").map(map);
+          const sub = list.filter((t) => t.type === "sub").map(map);
+          const selA = audio.find((t) => t.selected);
+          const selS = sub.find((t) => t.selected);
+          mpvNotify({ type: "tracks", audio, sub, selectedAudio: selA ? selA.id : null, selectedSub: selS ? selS.id : -1 });
+        }
       } else if (msg.event === "playback-restart" || msg.event === "file-loaded") {
         mpvNotify({ type: "playing" });
       } else if (msg.event === "end-file") {
@@ -590,8 +601,8 @@ ipcMain.handle("mpv-command", (_e, cmd) => {
       seek: (v) => mpvSend(["seek", Number(v) || 0, "absolute"]),
       volume: (v) => mpvSend(["set_property", "volume", Math.max(0, Math.min(130, Number(v) || 0))]),
       mute: (v) => mpvSend(["set_property", "mute", !!v]),
-      "audio-track": (v) => mpvSend(["set_property", "aid", v]),
-      "sub-track": (v) => mpvSend(["set_property", "sid", v]),
+      "audio-track": (v) => mpvSend(["set_property", "aid", v === -1 || v === "-1" ? "no" : v]),
+      "sub-track": (v) => mpvSend(["set_property", "sid", v === -1 || v === "-1" ? "no" : v]),
     };
     const fn = allowed[cmd?.name];
     if (fn) fn(cmd.value);
@@ -778,8 +789,10 @@ ipcMain.handle("fetch-url", async (_, url) => {
   return follow(url);
 });
 
-// OpenSubtitles.com API
-const OPENSUB_KEY = "REDACTED_OPENSUBTITLES_KEY";
+// OpenSubtitles.com API — supply your own key via the LIVEBOX_OPENSUBTITLES_KEY
+// env var (get one free at https://www.opensubtitles.com/en/consumers). When
+// unset, online subtitle search is simply disabled (returns no results).
+const OPENSUB_KEY = process.env.LIVEBOX_OPENSUBTITLES_KEY || "";
 const OPENSUB_HEADERS = { "User-Agent": "LiveBox v1.0", "Api-Key": OPENSUB_KEY, "Accept": "application/json" };
 
 function opensub(urlPath) {
@@ -802,6 +815,7 @@ function opensub(urlPath) {
 }
 
 ipcMain.handle("search-subs", async (_, query, season, episode) => {
+  if (!OPENSUB_KEY) return [];   // online subtitle search disabled without a key
   try {
     let url = `/api/v1/subtitles?query=${encodeURIComponent(query)}&languages=ar,en,fr`;
     if (season) url += `&season_number=${season}`;
@@ -832,6 +846,7 @@ ipcMain.handle("search-subs", async (_, query, season, episode) => {
 });
 
 ipcMain.handle("download-sub", async (_, fileId) => {
+  if (!OPENSUB_KEY) return null;   // disabled without a key
   try {
     const postData = JSON.stringify({ file_id: fileId });
     const dlInfo = await new Promise((resolve, reject) => {

@@ -3,7 +3,16 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## 2026-06-15
+## 2026-06-15 — v1.7.1
+
+### Fixed
+- Windows: the sidebar audio/subtitle pickers were empty — the spawned-mpv path emitted mpv's raw `track-list`, but the renderer expects the normalized `{audio, sub, selectedAudio, selectedSub}` shape used by the macOS engine. Windows now emits the same shape (and maps "off" to `sid=no`).
+
+### Changed
+- Removed the hardcoded OpenSubtitles API key — now read from the `LIVEBOX_OPENSUBTITLES_KEY` env var; online subtitle search is disabled (no-op) when unset.
+- Removed the hardcoded provider URL + credentials from the Android TV login screen's default field (now blank). (Open-sourcing prep.)
+
+## 2026-06-15 — v1.7.0
 
 ### Added
 - macOS embedded video: playback now renders through an in-process libmpv render-API native addon (`native/embedded_mpv.mm`, adapted from IPTVnator, MIT) drawing into a view inside the app window — true in-window embedding, no separate/floating window. Handles the provider's MKV/EAC3 catalog and redirecting live HLS natively.
