@@ -7,9 +7,13 @@ A modern, native IPTV player for Live TV, Movies, and Series — powered by **mp
 
 ## Screenshots
 
-| Home | Movies | Series |
-|------|--------|--------|
-| ![Home](docs/screenshots/home.png) | ![Movies](docs/screenshots/movies.png) | ![Series](docs/screenshots/series.png) |
+| Home | Live TV (pinned player) |
+|------|------|
+| ![Home](docs/screenshots/home.png) | ![Live](docs/screenshots/live.png) |
+| **Movies** | **Series & episodes** |
+| ![Movies](docs/screenshots/movies.png) | ![Series detail](docs/screenshots/series-detail.png) |
+| **Settings** | **First launch** |
+| ![Settings](docs/screenshots/settings.png) | ![Welcome](docs/screenshots/welcome.png) |
 
 ## Playback engine (mpv / libmpv)
 

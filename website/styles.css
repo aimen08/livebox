@@ -80,16 +80,15 @@ img { max-width: 100%; display: block; }
 /* Screens */
 .screens {
   max-width: var(--maxw); margin: 24px auto; padding: 0 24px;
-  display: grid; grid-template-columns: 1fr; gap: 18px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 22px;
 }
+.screens figure { margin: 0; }
 .screens img {
   width: 100%; border-radius: var(--radius);
   border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.5);
 }
-@media (min-width: 860px) {
-  .screens { grid-template-columns: 1.4fr 1fr; grid-auto-rows: 1fr; }
-  .screens img:first-child { grid-row: span 2; }
-}
+.screens figcaption { margin-top: 10px; color: var(--text2); font-size: 14px; text-align: center; }
+.screens figure:first-child { grid-column: 1 / -1; max-width: 760px; margin: 0 auto; }
 
 /* Features */
 .features { max-width: var(--maxw); margin: 80px auto; padding: 0 24px; }
